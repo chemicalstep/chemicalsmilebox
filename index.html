@@ -194,12 +194,13 @@
           <div>
             <h2 class="text-sm font-bold text-slate-900">化学科 質問管理ステーション</h2>
             <div class="text-[11px] text-slate-500 mt-0.5 space-x-2">
-              <span id="gasStatusText" class="text-amber-600 font-semibold">🟡 プレビューモード</span>
-              <span class="text-emerald-600 font-semibold">🟢 Gemini 3 Flash 連携対応</span>
+              <span id="gasStatusText" class="text-emerald-600 font-semibold">🟢 GAS連携中（本番同期）</span>
+              <span class="text-purple-600 font-semibold">✨ 日本時間(JST)対応</span>
             </div>
           </div>
         </div>
         <div class="flex gap-2">
+          <button onclick="fetchTeacherQuestions(sessionStorage.getItem('teacherPin') || 'chem2026')" class="px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-semibold rounded-lg transition border border-blue-200 flex items-center gap-1">🔄 最新に更新</button>
           <button onclick="openGasModal()" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg transition border border-slate-200">⚙️ GAS連携設定</button>
           <button onclick="openApiModal()" class="px-3 py-1.5 bg-purple-50 hover:bg-purple-100 text-purple-700 text-xs font-semibold rounded-lg transition border border-purple-200">🔑 APIキー個別設定</button>
           <button onclick="handleTeacherLogout()" class="px-3 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-semibold rounded-lg transition border border-rose-200">🚪 ログアウト</button>
@@ -218,6 +219,19 @@
     </div>
 
   </main>
+
+  <!-- 写真拡大モーダル（先生がクリックして大きく確認できるビューア） -->
+  <div id="imageLightboxModal" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4" onclick="closeImageLightbox()">
+    <div class="relative max-w-4xl max-h-[90vh] bg-white rounded-2xl p-2 shadow-2xl flex flex-col items-center" onclick="event.stopPropagation()">
+      <div class="w-full flex justify-between items-center px-3 py-2 border-b border-slate-200 text-xs font-bold text-slate-700">
+        <span>📸 生徒の添付写真（ノート・問題集）</span>
+        <button onclick="closeImageLightbox()" class="text-slate-400 hover:text-slate-700 text-lg leading-none p-1">✕</button>
+      </div>
+      <div class="p-2 overflow-auto max-h-[80vh] flex justify-center">
+        <img id="lightboxImage" src="" class="max-h-[75vh] object-contain rounded-lg shadow-sm">
+      </div>
+    </div>
+  </div>
 
   <!-- ==================== 各種モーダル群 ==================== -->
 
@@ -540,98 +554,152 @@
   <script>
     // =================================================================
     // 【最重要設定】スプレッドシート（GAS）のデプロイURL
-    // ここにあなたのGAS「ウェブアプリのURL」を貼り付けておけば、
-    // スマホ・PC・生徒端末のすべてのブラウザで自動的にスプレッドシートと連携されます！
     // =================================================================
     const CONFIG_GAS_URL = "https://script.google.com/macros/s/AKfycbxjIZIDd8O-N9UQ9XSvN3brIZDaybdd-k4JW459bwBAmTvL8ZXfAbC6nOfsfqEvRrS8Gw/exec";
 
-    // --- 初期デモデータ ---
-    const INITIAL_SAMPLE_QUESTIONS = [
-      {
-        id: "demo_001",
-        publicId: "Q-0001",
-        status: "answered",
-        studentId: "2401001",
-        studentName: "化学 太郎",
-        nickname: "アボガドロ",
-        category: "無機化学",
-        content: "【疑問点】\n銅に濃硝酸と希硝酸を入れたときの化学反応式が覚えられません。\n\n【自分の考え・つまずいた所】\n半反応式から作ると聞きましたが、生成する二酸化窒素と一酸化窒素の違いがいつも混乱してしまいます。",
-        imageData: null,
-        createdAt: "2026/09/10 14:00",
-        answer: "【結論】\n濃硝酸と希硝酸では、硝酸分子の濃度差によって還元される度合いが異なり、生成する酸化窒素の種類と酸化数の変化幅が異なります。\n\n【解説】\n1. 濃硝酸の場合（酸化数: $+5 \\rightarrow +4$）\n硝酸分子が過剰に存在するため、1分子あたりが受け取る電子は1個で済み、二酸化窒素 $\\ce{NO2}$ が生じます。\n$$\\ce{HNO3 + H+ + e- -> NO2 + H2O}$$\n\n2. 希硝酸の場合（酸化数: $+5 \\rightarrow +2$）\n硝酸分子の濃度が低いため、1分子がより深く還元され、電子を3個受け取って一酸化窒素 $\\ce{NO}$ が生じます。\n$$\\ce{HNO3 + 3H+ + 3e- -> NO + 2H2O}$$\n\n銅の酸化反応 $\\ce{Cu -> Cu^2+ + 2e-}$ と電子数を揃えて両辺を加算することで、全体の化学反応式が導かれます。",
-        answeredAt: "2026/09/10 16:30",
-        reactions: { clear: 18, good: 6, unclear: 1 }
-      },
-      {
-        id: "demo_002",
-        publicId: "Q-0002",
-        status: "in_progress",
-        studentId: "2401042",
-        studentName: "佐藤 花子",
-        nickname: "ルシャトリエ推し",
-        category: "理論化学",
-        content: "【疑問点】\n発熱反応の気体平衡で、温度を上げたとき平衡定数 K はどう変化しますか？\n\n【自分の考え・つまずいた所】\nルシャトリエの原理より温度を上げると吸熱方向に進むため、左に平衡が移動することは分かりました。平衡定数そのものの値も変わるのでしょうか？",
-        imageData: null,
-        createdAt: "2026/09/10 18:20",
-        answer: "【結論】\n発熱反応において温度を上昇させた場合、平衡定数 $K$ の値は減少（小さく）します。\n\n【解説】\n1. 平衡定数 $K$ の性質\n平衡定数 $K$ は「温度のみに依存する定数」です。濃度や全圧の変化では不変ですが、温度が変化すると定数そのものの値が変化します。\n\n2. ルシャトリエの原理による考察\n発熱反応系を加熱（昇温）すると、加えられた熱を打ち消す方向、すなわち吸熱方向（逆反応・左向き）に平衡が移動します。\n平衡定数の定義式\n$$K = \\frac{\\text{[生成物]}}{\\text{[反応物]}}$$\nにおいて、左向きへの移動は分子（生成物濃度）の減少と分母（反応物濃度）の増加を意味するため、$K$ の値は小さくなります。",
-        answeredAt: "",
-        reactions: { clear: 5, good: 2, unclear: 0 }
-      },
-      {
-        id: "demo_003",
-        publicId: "Q-0003",
-        status: "pending",
-        studentId: "2401088",
-        studentName: "鈴木 一郎",
-        nickname: "ベンゼン環",
-        category: "有機化学",
-        content: "【疑問点】\nサリチル酸からアスピリン（アセチルサリチル酸）を作るとき、無水酢酸を使うのはなぜですか？酢酸ではダメなのですか？\n\n【自分の考え・つまずいた所】\nフェノール性-OH基のエステル化が起きにくいからと参考書にありました。",
-        imageData: null,
-        createdAt: "2026/09/10 19:40",
-        answer: "",
-        answeredAt: "",
-        reactions: { clear: 0, good: 0, unclear: 0 }
-      }
-    ];
+    // 現在の日本時間を yyyy/MM/dd HH:mm 形式で取得するヘルパー
+    function getClientJstDateString() {
+      const now = new Date();
+      return new Intl.DateTimeFormat('ja-JP', {
+        timeZone: 'Asia/Tokyo',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit'
+      }).format(now);
+    }
+    // 一覧描画（教員用）: 写真サムネイル＆削除ボタン付き
+    function renderTeacherList() {
+      const container = document.getElementById('teacherQuestionsList');
+      if (!container) return;
 
-    // --- 状態管理 ---
-    let publicQuestions = [];
-    let teacherQuestions = [];
-    let myReactions = {};
-    let selectedImageBase64 = null;
-    let localMockCounter = 3;
-    let currentGeminiAction = 'draft';
-    let activeView = 'student';
-    let teacherFilter = 'pending';
-    let currentEditingId = null;
+      const list = teacherQuestions.filter(q => {
+        if (teacherFilter === 'pending') return q.status === 'pending' || q.status === 'in_progress';
+        return q.status === 'answered';
+      });
 
-    // 現在有効なGAS URLを取得（localStorageにあれば優先、なければコード内の固定URLを使用）
-    function getEffectiveGasUrl() {
-      const stored = localStorage.getItem('hs_chem_gas_url');
-      if (stored && stored.trim()) return stored.trim();
-      if (CONFIG_GAS_URL && !CONFIG_GAS_URL.includes("sample-replace-this") && CONFIG_GAS_URL.startsWith("https://script.google.com/")) {
-        return CONFIG_GAS_URL.trim();
+      const pendingCount = teacherQuestions.filter(q => q.status === 'pending' || q.status === 'in_progress').length;
+      const tabBadge = document.getElementById('teacherTabPendingBadge');
+      const headerBadge = document.getElementById('pendingBadge');
+      if (tabBadge) tabBadge.textContent = pendingCount;
+      if (headerBadge) {
+        headerBadge.textContent = pendingCount;
+        headerBadge.classList.toggle('hidden', pendingCount === 0);
       }
-      return "";
+
+      if (list.length === 0) {
+        container.innerHTML = `
+          <div class="text-center py-12 bg-white rounded-2xl border border-slate-200 text-slate-400 text-sm">
+            現在、${teacherFilter === 'pending' ? '未完了' : '回答済み'}の質問はありません。
+          </div>`;
+        return;
+      }
+
+      container.innerHTML = list.map(q => `
+        <div class="bg-white border rounded-2xl p-5 shadow-sm space-y-3 relative group">
+          <div class="flex flex-wrap justify-between items-center border-b pb-2.5 gap-2">
+            <div class="flex flex-wrap items-center gap-2 text-xs">
+              <span class="font-mono font-bold text-slate-900 bg-slate-100 px-2 py-0.5 rounded">${escapeHtml(q.publicId)}</span>
+              <span class="font-mono bg-blue-50 text-blue-800 px-2 py-0.5 rounded">学籍:${escapeHtml(q.studentId)}</span>
+              <span class="bg-amber-100 text-amber-900 px-2 py-0.5 rounded font-bold">${escapeHtml(q.studentName)}</span>
+              <span class="text-slate-400">（公開名: ${escapeHtml(q.nickname)}）</span>
+              ${q.status === 'in_progress' ? '<span class="bg-cyan-100 text-cyan-800 font-bold px-2 py-0.5 rounded text-[11px]">✍️ 作成中</span>' : ''}
+              ${q.imageData ? '<span class="bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded text-[11px] flex items-center gap-1"><span>📸</span> 写真あり</span>' : ''}
+            </div>
+            <span class="text-xs text-slate-400">🕒 ${escapeHtml(q.createdAt || '')}</span>
+          </div>
+
+          <!-- 質問文 -->
+          <div class="text-sm text-slate-800 whitespace-pre-wrap katex-target">${escapeHtml(q.content)}</div>
+
+          <!-- 写真サムネイル（添付がある場合のみ表示） -->
+          ${q.imageData ? `
+            <div class="p-2.5 bg-slate-50 border border-slate-200 rounded-xl flex items-center gap-3">
+              <img src="${q.imageData}" onclick="openImageLightbox('${q.imageData}')" class="w-16 h-16 object-cover rounded-lg border border-slate-300 cursor-pointer hover:opacity-80 transition shadow-xs" title="クリックで拡大表示">
+              <div class="text-xs text-slate-600">
+                <p class="font-bold text-slate-800 flex items-center gap-1">
+                  <span>📸 生徒が添付した写真</span>
+                </p>
+                <p class="text-[11px] text-slate-500 mt-0.5">左の画像をクリックすると拡大してノートや問題を確認できます</p>
+              </div>
+            </div>
+          ` : ''}
+
+          ${q.status === 'answered' ? `
+            <div class="mt-3 p-3 bg-slate-50 border rounded-xl text-xs space-y-2">
+              <div class="katex-target text-slate-700 leading-relaxed font-sans">
+                <span class="font-bold text-slate-500 block mb-1">公開中の回答:</span>${escapeHtml(q.answer)}
+              </div>
+              <div class="pt-2 border-t border-slate-200 flex items-center gap-3 text-[11px] text-slate-600">
+                <span class="font-bold text-slate-700">生徒の反応:</span>
+                <span class="inline-flex items-center gap-1 bg-emerald-50 border border-emerald-200 text-emerald-800 px-2 py-0.5 rounded-md font-medium">💡 スッキリ: ${q.reactions?.clear || 0}</span>
+                <span class="inline-flex items-center gap-1 bg-blue-50 border border-blue-200 text-blue-800 px-2 py-0.5 rounded-md font-medium">👍 なるほど: ${q.reactions?.good || 0}</span>
+                <span class="inline-flex items-center gap-1 bg-amber-50 border border-amber-200 text-amber-800 px-2 py-0.5 rounded-md font-medium">🤔 モヤモヤ: ${q.reactions?.unclear || 0}</span>
+              </div>
+            </div>` : ''}
+
+          <!-- 下部操作ボタン: 回答作成 ＆ 削除 -->
+          <div class="mt-4 flex justify-between items-center pt-2 border-t border-slate-100">
+            <button onclick="handleDeleteQuestion('${q.id}', '${q.publicId}')" class="px-3 py-1.5 text-xs text-rose-600 hover:text-rose-800 hover:bg-rose-50 rounded-lg transition font-medium flex items-center gap-1">
+              <span>🗑️ 質問を削除</span>
+            </button>
+            <button onclick="openReviewModal('${q.id}')" class="px-4 py-2 bg-blue-600 text-white text-xs font-bold rounded-lg hover:bg-blue-700 shadow-sm transition flex items-center gap-1.5">
+              <span>✍️</span>
+              <span>${q.status === 'answered' ? '回答を編集・再承認' : q.status === 'in_progress' ? '回答作成を再開する' : '回答を作成する'}</span>
+            </button>
+          </div>
+        </div>
+      `).join('');
+      triggerKaTeX();
     }
 
-    // --- 初期化 ---
-    window.addEventListener('DOMContentLoaded', () => {
-      initLocalMockData();
-      checkSettingsStatus();
-      fetchPublicQuestions();
-    });
+    // 写真拡大ライトボックス
+    function openImageLightbox(src) {
+      const modal = document.getElementById('imageLightboxModal');
+      const img = document.getElementById('lightboxImage');
+      if (modal && img) {
+        img.src = src;
+        modal.classList.remove('hidden');
+      }
+    }
 
-    function checkSettingsStatus() {
+    function closeImageLightbox() {
+      const modal = document.getElementById('imageLightboxModal');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    // 質問削除処理
+    async function handleDeleteQuestion(id, publicId) {
+      const pin = sessionStorage.getItem('teacherPin') || 'chem2026';
       const gasUrl = getEffectiveGasUrl();
-      const gasEl = document.getElementById('gasStatusText');
-      if (gasEl) {
-        if (gasUrl) {
-          gasEl.className = 'text-emerald-600 font-semibold';
-          gasEl.textContent = '🟢 GAS連携中（本番同期）';
-        } else {
-          gasEl.className = 'text-amber-600 font-semibold';
-          gasEl.textContent = '🟡 プレビューモード（未連携）';
+
+      // 教員一覧から即時除外してUIに即反映
+      teacherQuestions = teacherQuestions.filter(q => q.id !== id && q.publicId !== publicId);
+      publicQuestions = publicQuestions.filter(q => q.publicId !== publicId);
+
+      const raw = JSON.parse(sessionStorage.getItem('demo_mock_db') || '[]');
+      const filteredRaw = raw.filter(q => q.id !== id && q.publicId !== publicId);
+      sessionStorage.setItem('demo_mock_db', JSON.stringify(filteredRaw));
+
+      renderTeacherList();
+      renderPublicList();
+      showToast(`質問 ${publicId} を削除しました。`, 'info');
+
+      if (gasUrl) {
+        try {
+          await fetch(gasUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify({
+              action: 'deleteQuestion',
+              pin: pin,
+              id: id,
+              publicId: publicId
+            })
+          });
+        } catch (e) {
+          console.warn('Delete sync error:', e);
         }
       }
     }
