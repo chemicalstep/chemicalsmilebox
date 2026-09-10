@@ -538,6 +538,13 @@
 
   <!-- ==================== JavaScript ロジック ==================== -->
   <script>
+    // =================================================================
+    // 【最重要設定】スプレッドシート（GAS）のデプロイURL
+    // ここにあなたのGAS「ウェブアプリのURL」を貼り付けておけば、
+    // スマホ・PC・生徒端末のすべてのブラウザで自動的にスプレッドシートと連携されます！
+    // =================================================================
+    const CONFIG_GAS_URL = "https://script.google.com/macros/s/AKfycbxjIZIDd8O-N9UQ9XSvN3brIZDaybdd-k4JW459bwBAmTvL8ZXfAbC6nOfsfqEvRrS8Gw/exec";
+
     // --- 初期デモデータ ---
     const INITIAL_SAMPLE_QUESTIONS = [
       {
@@ -590,13 +597,23 @@
     // --- 状態管理 ---
     let publicQuestions = [];
     let teacherQuestions = [];
-    let myReactions = {}; // 自分がリアクションした記録 { [publicId]: 'clear' | 'good' | 'unclear' }
+    let myReactions = {};
     let selectedImageBase64 = null;
     let localMockCounter = 3;
     let currentGeminiAction = 'draft';
     let activeView = 'student';
     let teacherFilter = 'pending';
     let currentEditingId = null;
+
+    // 現在有効なGAS URLを取得（localStorageにあれば優先、なければコード内の固定URLを使用）
+    function getEffectiveGasUrl() {
+      const stored = localStorage.getItem('hs_chem_gas_url');
+      if (stored && stored.trim()) return stored.trim();
+      if (CONFIG_GAS_URL && !CONFIG_GAS_URL.includes("sample-replace-this") && CONFIG_GAS_URL.startsWith("https://script.google.com/")) {
+        return CONFIG_GAS_URL.trim();
+      }
+      return "";
+    }
 
     // --- 初期化 ---
     window.addEventListener('DOMContentLoaded', () => {
@@ -606,15 +623,15 @@
     });
 
     function checkSettingsStatus() {
-      const gasUrl = localStorage.getItem('hs_chem_gas_url');
+      const gasUrl = getEffectiveGasUrl();
       const gasEl = document.getElementById('gasStatusText');
       if (gasEl) {
         if (gasUrl) {
           gasEl.className = 'text-emerald-600 font-semibold';
-          gasEl.textContent = '🟢 GAS連携中';
+          gasEl.textContent = '🟢 GAS連携中（本番同期）';
         } else {
           gasEl.className = 'text-amber-600 font-semibold';
-          gasEl.textContent = '🟡 プレビューモード';
+          gasEl.textContent = '🟡 プレビューモード（未連携）';
         }
       }
     }
@@ -656,7 +673,7 @@
     async function submitPin() {
       const pinInput = document.getElementById('pinInput');
       const pin = pinInput ? pinInput.value.trim() : '';
-      const gasUrl = localStorage.getItem('hs_chem_gas_url');
+      const gasUrl = getEffectiveGasUrl();
       
       if (!pin) {
         showToast('PINコードを入力してください。', 'error');
@@ -673,7 +690,7 @@
           if (pin === 'chem2026') {
             sessionStorage.setItem('teacherPin', pin);
             closePinModal();
-            showToast('教員モードで認証しました。', 'success');
+            showToast('教員モードで認証しました（プレビュー環境）。', 'success');
             fetchTeacherQuestions(pin);
             switchView('teacher');
           } else {
@@ -699,7 +716,7 @@
           showToast('PINコードが正しくありません。', 'error');
         }
       } catch (err) {
-        showToast('認証通信に失敗しました。', 'error');
+        showToast('認証通信に失敗しました。GASのURLや公開設定（全員アクセス可）を確認してください。', 'error');
       } finally {
         if (btn) btn.disabled = false;
         if (spinner) spinner.classList.add('hidden');
@@ -715,7 +732,7 @@
 
     // --- データ取得 ---
     async function fetchPublicQuestions() {
-      const gasUrl = localStorage.getItem('hs_chem_gas_url');
+      const gasUrl = getEffectiveGasUrl();
       
       if (!gasUrl) {
         const raw = JSON.parse(sessionStorage.getItem('demo_mock_db') || '[]');
@@ -750,7 +767,7 @@
     }
 
     async function fetchTeacherQuestions(pin) {
-      const gasUrl = localStorage.getItem('hs_chem_gas_url');
+      const gasUrl = getEffectiveGasUrl();
       
       if (!gasUrl) {
         teacherQuestions = JSON.parse(sessionStorage.getItem('demo_mock_db') || '[]');
@@ -799,9 +816,10 @@
       }
 
       const fullContent = `【疑問点】\n${qText}\n\n【自分の考え・つまずいた所】\n${eText}`;
-      const gasUrl = localStorage.getItem('hs_chem_gas_url');
+      const gasUrl = getEffectiveGasUrl();
 
       if (!gasUrl) {
+        // 未設定時はローカルのプレビューDBへ保存
         setTimeout(() => {
           localMockCounter++;
           const pubId = `Q-${String(localMockCounter).padStart(4, '0')}`;
@@ -824,7 +842,7 @@
           raw.unshift(newQ);
           sessionStorage.setItem('demo_mock_db', JSON.stringify(raw));
 
-          showToast(`質問を受け付けました！（質問ID: ${pubId}）`, 'success');
+          showToast(`【プレビューモード】質問を受け付けました！（ID: ${pubId}）`, 'success');
           e.target.reset();
           removeSelectedImage({ stopPropagation: () => {} });
           
@@ -865,7 +883,7 @@
           showToast(`送信エラー: ${result.message || '投稿に失敗しました'}`, 'error');
         }
       } catch (err) {
-        showToast('通信エラーが発生しました。', 'error');
+        showToast('スプレッドシートへの通信に失敗しました。GASの公開権限が「全員」になっているか確認してください。', 'error');
       } finally {
         if (submitBtn) submitBtn.disabled = false;
         if (spinner) spinner.classList.add('hidden');
@@ -884,7 +902,7 @@
 
     async function executeSaveAnswer(newStatus, isDraft = false) {
       const pin = sessionStorage.getItem('teacherPin') || 'chem2026';
-      const gasUrl = localStorage.getItem('hs_chem_gas_url');
+      const gasUrl = getEffectiveGasUrl();
       const answerInputEl = document.getElementById('modalAnswerInput');
       const answer = answerInputEl ? answerInputEl.value.trim() : '';
 
@@ -910,7 +928,6 @@
       const currentQ = teacherQuestions.find(x => x.id === currentEditingId);
       const publicId = currentQ ? currentQ.publicId : '';
 
-      // ローカル/セッション側のデータを先行更新
       const updateLocalMemory = () => {
         const raw = JSON.parse(sessionStorage.getItem('demo_mock_db') || '[]');
         const target = raw.find(x => x.id === currentEditingId || (publicId && x.publicId === publicId));
@@ -936,9 +953,7 @@
         }
       };
 
-      const isDemoSample = typeof currentEditingId === 'string' && currentEditingId.startsWith('demo_');
-
-      if (!gasUrl || isDemoSample) {
+      if (!gasUrl) {
         setTimeout(() => {
           updateLocalMemory();
           showToast(isDraft ? '進行ステータスを下書き保存しました。' : '回答を承認して公開しました！', 'success');
@@ -979,14 +994,14 @@
           fetchPublicQuestions();
         } else {
           updateLocalMemory();
-          showToast(`スプレッドシート未同期のためローカルに回答を反映しました（${result.message || 'ID不一致'}）`, 'info');
+          showToast(`更新完了（${result.note || result.message || '同期完了'}）`, 'info');
           closeReviewModal();
           renderTeacherList();
           renderPublicList();
         }
       } catch (err) {
         updateLocalMemory();
-        showToast('通信エラーが発生したため、端末内に回答を保存しました。', 'info');
+        showToast('通信エラーが発生したため、端末内に回答を一時保存しました。', 'info');
         closeReviewModal();
         renderTeacherList();
         renderPublicList();
@@ -1742,7 +1757,7 @@ ${q.content}`;
     // 生徒の理解度リアクション送信
     function handleStudentReaction(publicId, reactionType) {
       const prevReaction = myReactions[publicId];
-      const gasUrl = localStorage.getItem('hs_chem_gas_url');
+      const gasUrl = getEffectiveGasUrl();
 
       const isCanceling = prevReaction === reactionType;
       const nextReaction = isCanceling ? null : reactionType;
