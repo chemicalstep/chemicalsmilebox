@@ -208,6 +208,9 @@
           <button onclick="openApiModal()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-purple-300 border border-purple-800 text-xs font-semibold rounded-xl transition flex items-center gap-1 shadow-xs">
             <span>🔑 APIキー</span>
           </button>
+          <button onclick="forceResetAndSync()" class="px-3 py-1.5 bg-slate-800 hover:bg-rose-900/60 text-slate-300 hover:text-rose-200 border border-slate-700 text-xs font-semibold rounded-xl transition flex items-center gap-1 shadow-xs" title="PCの古いキャッシュを消去して本番スプレッドシートと強制同期">
+            <span>🧹 キャッシュ初期化</span>
+          </button>
           <button onclick="fetchTeacherQuestions(sessionStorage.getItem('teacherPin') || '1669')" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl shadow-xs transition flex items-center gap-1">
             <span>🔄 更新</span>
           </button>
@@ -659,11 +662,18 @@
     // 【最重要設定】スプレッドシート（GAS）のデプロイURL
     window.CONFIG_GAS_URL = "https://script.google.com/macros/s/AKfycbxjIZIDd8O-N9UQ9XSvN3brIZDaybdd-k4JW459bwBAmTvL8ZXfAbC6nOfsfqEvRrS8Gw/exec";
 
-    // 有効なGASのURLを取得（カスタム設定またはコード内固定URL）
+    // 有効なGASのURLを取得（PCに古いURLが残っている場合は本番URLを優先適用）
     function getEffectiveGasUrl() {
       try {
         const custom = localStorage.getItem('hs_chem_gas_url');
-        if (custom && custom.trim().length > 0) return custom.trim();
+        if (custom && custom.trim().length > 0) {
+          // 古いテストURLや異なるURLが保存されていたら自動補正
+          if (!custom.includes('AKfycbxjIZIDd8O-N9UQ9XSvN3brIZDaybdd-k4JW459bwBAmTvL8ZXfAbC6nOfsfqEvRrS8Gw')) {
+            localStorage.removeItem('hs_chem_gas_url');
+            return window.CONFIG_GAS_URL;
+          }
+          return custom.trim();
+        }
       } catch (e) {}
       return window.CONFIG_GAS_URL || '';
     }
@@ -946,63 +956,13 @@
     let currentCommentingPublicId = null;
     let selectedImageBase64 = null;
     let currentGeminiAction = 'draft';
-    let localMockCounter = 3;
+    let localMockCounter = 0;
     let teacherQuestions = [];
     let publicQuestions = [];
     let myReactions = {};
 
-    const INITIAL_SAMPLE_QUESTIONS = [
-      {
-        id: 'demo_001',
-        publicId: '0001',
-        status: 'answered',
-        studentId: '2401012',
-        studentName: '佐藤 健一',
-        nickname: 'ケミカル探求者',
-        category: '有機化学',
-        content: '【疑問点】\nエタノールと濃硫酸を130〜140℃で加熱するとジエチルエーテルができ、160〜170℃だとエチレンができるのはなぜですか？\n\n【自分の考え・つまずいた所】\n温度が高い方が分子内脱水になりやすいと覚えましたが、なぜ温度によって分子間か分子内かが分かれるのか理屈が知りたいです。',
-        imageData: '',
-        createdAt: '2026/09/10 14:20',
-        answer: '【結論】\n活性化エネルギーの大きさとエントロピー変化の違いにより、高温ではより大きな活性化エネルギーを要する分子内脱水（エチレン生成）が優勢になります。\n\n【解説】\n1. 中温（130〜140℃）：分子間脱水\n$\\ce{2C2H5OH ->[H2SO4][130-140℃] C2H5-O-C2H5 + H2O}$\n活性化エネルギーが比較的小さいため、穏やかな加熱で2分子が衝突してエーテルが生成します。\n\n2. 高温（160〜170℃）：分子内脱水\n$\\ce{C2H5OH ->[H2SO4][160-170℃] CH2=CH2 + H2O}$\n炭素-炭素二重結合を形成する分子内脱水は活性化エネルギーが高いため、十分な熱エネルギーを与えられた高温でのみ急速に反応が進行します。',
-        answeredAt: '2026/09/10 17:45',
-        reactions: { clear: 14, good: 6, unclear: 1 },
-        comments: [
-          { text: '教科書を読んでも納得いかなかった活性化エネルギーの話がスッキリ分かりました！ありがとうございます！', createdAt: '2026/09/10 18:00' }
-        ]
-      },
-      {
-        id: 'demo_002',
-        publicId: '0002',
-        status: 'answered',
-        studentId: '2401045',
-        studentName: '鈴木 葵',
-        nickname: 'モルモル',
-        category: '理論化学',
-        content: '【疑問点】\n発熱反応において、温度を上げると平衡定数Kの値はどうなりますか？\n\n【自分の考え・つまずいた所】\nルシャトリエの原理で吸熱方向（逆反応）に移動するから生成物が減ると思います。でも平衡定数K自体が変わるのか、それとも濃度が変わるだけなのかが曖昧です。',
-        imageData: '',
-        createdAt: '2026/09/10 16:05',
-        answer: '【結論】\n発熱反応において温度を上昇させた場合、平衡定数 $K$ の値は減少（小さく）します。\n\n【解説】\n1. 平衡定数 $K$ の性質\n平衡定数 $K$ は「温度のみに依存する定数」です。圧力や濃度を変えても $K$ は一定ですが、温度が変化すると定数そのものの値が変化します。\n\n2. ルシャトリエの原理による考察\n発熱反応系を加熱（昇温）すると、加えられた熱を和らげる吸熱方向（逆反応・左向き）に平衡が移動します。\n$$K = \\frac{\\text{[生成物]}}{\\text{[反応物]}}$$\n左向きへの移動は分子（生成物）の減少と分母（反応物）の増加を意味するため、$K$ の値は小さくなります。',
-        answeredAt: '2026/09/10 18:30',
-        reactions: { clear: 22, good: 9, unclear: 0 },
-        comments: []
-      },
-      {
-        id: 'demo_003',
-        publicId: '0003',
-        status: 'in_progress',
-        studentId: '2401089',
-        studentName: '高橋 蓮',
-        nickname: 'アスピリン志望',
-        category: '有機化学',
-        content: '【疑問点】\nサリチル酸からアスピリン（アセチルサリチル酸）を作るとき、なぜ酢酸ではなく無水酢酸を使うのですか？\n\n【自分の考え・つまずいた所】\n参考書に「フェノール性-OHのエステル化は進みにくいから無水酢酸を使う」と書いてありましたが、なぜ普通の酢酸ではダメなのか理由が分かりません。',
-        imageData: '',
-        createdAt: '2026/09/11 00:15',
-        answer: '',
-        answeredAt: '',
-        reactions: { clear: 0, good: 0, unclear: 0 },
-        comments: []
-      }
-    ];
+    // お試しダミーデータは全廃止（本番スプレッドシートと完全同期）
+    const INITIAL_SAMPLE_QUESTIONS = [];
 
     function renderTeacherList() {
       const container = document.getElementById('teacherQuestionsList');
@@ -1176,14 +1136,26 @@
     }
 
     function initLocalMockData() {
-      if (!sessionStorage.getItem('demo_mock_db')) {
-        sessionStorage.setItem('demo_mock_db', JSON.stringify(INITIAL_SAMPLE_QUESTIONS));
-      }
+      // 過去のセッションに残っている「おためし回答」を完全除去
+      sessionStorage.removeItem('demo_mock_db');
       try {
         myReactions = JSON.parse(localStorage.getItem('student_reactions') || '{}');
       } catch (e) {
         myReactions = {};
       }
+    }
+
+    // PCキャッシュ初期化＆本番強制同期
+    function forceResetAndSync() {
+      localStorage.removeItem('hs_chem_gas_url');
+      sessionStorage.removeItem('demo_mock_db');
+      teacherQuestions = [];
+      publicQuestions = [];
+      showToast('PCの古いキャッシュを初期化し、本番スプレッドシートと同期します...', 'info');
+      checkSettingsStatus();
+      const pin = sessionStorage.getItem('teacherPin') || '1669';
+      fetchTeacherQuestions(pin);
+      fetchPublicQuestions();
     }
 
     function checkSettingsStatus() {
@@ -1270,6 +1242,19 @@
         const fetchOptions = { ...options, signal: controller.signal };
         const res = await fetch(url, fetchOptions);
         clearTimeout(timeoutId);
+    /* 安全なJSON通信関数（キャッシュ防止 no-store を付与） */
+    async function safeFetchJson(url, options = {}, timeoutMs = 12000) {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+      
+      try {
+        const fetchOptions = { 
+          ...options, 
+          cache: 'no-store', // PCのブラウザが古い回答データを保持するのを防止
+          signal: controller.signal 
+        };
+        const res = await fetch(url, fetchOptions);
+        clearTimeout(timeoutId);
         const text = await res.text();
         return JSON.parse(text);
       } catch (err) {
@@ -1286,29 +1271,21 @@
     async function fetchPublicQuestions() {
       const gasUrl = getEffectiveGasUrl();
       
-      const loadFallbackData = () => {
-        const raw = JSON.parse(sessionStorage.getItem('demo_mock_db') || '[]');
-        publicQuestions = raw.map(q => ({
-          publicId: String(q.publicId).replace(/^Q-/, ''),
-          nickname: q.nickname,
-          category: q.category,
-          content: q.content,
-          answer: q.answer,
-          answeredAt: q.answeredAt,
-          createdAt: q.createdAt,
-          status: q.status,
-          reactions: q.reactions || { clear: 0, good: 0, unclear: 0 }
-        }));
-        renderPublicList();
-      };
+      const listContainer = document.getElementById('publicQuestionsList');
+      if (publicQuestions.length === 0 && listContainer) {
+        listContainer.innerHTML = `
+          <div class="text-center py-10 bg-white rounded-2xl border border-slate-200 text-slate-500 text-sm">
+            <span class="inline-block animate-spin text-xl mr-2">🌀</span> スプレッドシートから回答を読み込み中...
+          </div>`;
+      }
 
       if (!gasUrl) {
-        loadFallbackData();
+        renderPublicList();
         return;
       }
 
       try {
-        const data = await safeFetchJson(`${gasUrl}?action=getPublicQuestions`);
+        const data = await safeFetchJson(`${gasUrl}?action=getPublicQuestions&t=${Date.now()}`);
         if (data && data.status === 'success') {
           publicQuestions = (data.data || []).map(q => ({
             ...q,
@@ -1316,11 +1293,10 @@
             reactions: q.reactions || { clear: 0, good: 0, unclear: 0 }
           }));
           renderPublicList();
-        } else {
-          loadFallbackData();
         }
       } catch (err) {
-        loadFallbackData();
+        console.warn('スプレッドシートとの通信待機中:', err);
+        renderPublicList();
       }
     }
 
@@ -1328,25 +1304,21 @@
       const gasUrl = getEffectiveGasUrl();
       
       if (!gasUrl) {
-        teacherQuestions = JSON.parse(sessionStorage.getItem('demo_mock_db') || '[]');
         renderTeacherList();
         return;
       }
 
       try {
-        const data = await safeFetchJson(`${gasUrl}?action=getTeacherQuestions&pin=${encodeURIComponent(pin)}`);
+        const data = await safeFetchJson(`${gasUrl}?action=getTeacherQuestions&pin=${encodeURIComponent(pin)}&t=${Date.now()}`);
         if (data && data.status === 'success') {
           teacherQuestions = (data.data || []).map(q => ({
             ...q,
             publicId: String(q.publicId).replace(/^Q-/, '')
           }));
           renderTeacherList();
-        } else {
-          teacherQuestions = JSON.parse(sessionStorage.getItem('demo_mock_db') || '[]');
-          renderTeacherList();
         }
       } catch (err) {
-        teacherQuestions = JSON.parse(sessionStorage.getItem('demo_mock_db') || '[]');
+        console.warn('教員データの取得待機中:', err);
         renderTeacherList();
       }
     }
