@@ -256,12 +256,27 @@
         <p class="leading-relaxed">
           「ここが分かりやすかった！」「解けるようになりました！」など、一言でも感想やメッセージがあると化学科の先生たちがとっても喜びます！✨
         </p>
-        <p class="text-[10px] text-amber-700 mt-1">※このメッセージは公開されず、先生たちだけが読みます。</p>
+        <p class="text-[10px] text-amber-700 mt-1">※生徒番号・お名前・メッセージは先生たちだけが確認します（完全非公開）。</p>
+      </div>
+
+      <!-- 生徒番号・氏名入力欄（教員確認用） -->
+      <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-2.5">
+        <p class="text-[11px] font-bold text-slate-600">先生に届く情報（非公開）</p>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+          <div>
+            <label class="block text-[11px] font-bold text-slate-700 mb-1">生徒番号 (7桁) <span class="text-rose-500">*</span></label>
+            <input type="text" id="commentStudentIdInput" required inputmode="numeric" placeholder="例: 2401234" oninput="normalizeStudentId(this)" onblur="normalizeStudentId(this)" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs font-mono focus:ring-2 focus:ring-blue-500">
+          </div>
+          <div>
+            <label class="block text-[11px] font-bold text-slate-700 mb-1">お名前（本名） <span class="text-rose-500">*</span></label>
+            <input type="text" id="commentStudentNameInput" required placeholder="例: 山田 太郎" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-blue-500">
+          </div>
+        </div>
       </div>
 
       <div>
         <label class="block text-xs font-bold text-slate-700 mb-1.5">
-          メッセージ内容（質問ID: <span id="commentModalPublicId" class="font-mono font-bold text-blue-700"></span> への感想）
+          メッセージ内容（質問ID: <span id="commentModalPublicId" class="font-mono font-bold text-blue-700"></span> への感想） <span class="text-rose-500">*</span>
         </label>
         <textarea id="studentCommentInput" rows="4" placeholder="例: わかりやすい解説ありがとうございました！酸化数の変化のところで納得できました。" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-blue-500 leading-relaxed"></textarea>
       </div>
@@ -1057,15 +1072,34 @@
                       <span>💌 生徒からの非公開メッセージ（教員限定表示）:</span>
                     </span>
                     <div class="space-y-1 max-h-36 overflow-y-auto custom-scrollbar">
-                      ${q.comments.map(c => `
+                      ${q.comments.map(c => {
+                        let senderInfo = '生徒からの感想・お礼';
+                        let messageBody = c.text || '';
+                        
+                        // 生徒情報が構造化されている、またはテキストから抽出できる場合の表示
+                        if (c.studentId || c.studentName) {
+                          senderInfo = `${c.studentId ? `生徒番号: ${escapeHtml(c.studentId)} ` : ''}${c.studentName ? `(${escapeHtml(c.studentName)})` : ''}`;
+                        } else {
+                          const match = messageBody.match(/^\[生徒:\s*([^\s\]]+)\s*([^\]]*)\]\s*\n?/);
+                          if (match) {
+                            senderInfo = `生徒番号: ${escapeHtml(match[1])} (${escapeHtml(match[2].trim())})`;
+                            messageBody = messageBody.replace(/^\[生徒:\s*([^\s\]]+)\s*([^\]]*)\]\s*\n?/, '');
+                          }
+                        }
+
+                        return `
                         <div class="bg-purple-50/70 border border-purple-200 rounded-lg p-2 text-xs text-purple-950 flex flex-col gap-0.5">
-                          <div class="flex justify-between items-center text-[10px] text-purple-600 font-semibold">
-                            <span>生徒からの感想・お礼</span>
-                            <span>${escapeHtml(c.createdAt || '')}</span>
+                          <div class="flex justify-between items-center text-[10px] text-purple-700 font-bold">
+                            <span class="flex items-center gap-1">
+                              <span>👤</span>
+                              <span>${senderInfo}</span>
+                            </span>
+                            <span class="font-normal text-slate-500">${escapeHtml(c.createdAt || '')}</span>
                           </div>
-                          <p class="whitespace-pre-wrap">${escapeHtml(c.text)}</p>
+                          <p class="whitespace-pre-wrap text-slate-800 text-[11px] pt-0.5">${escapeHtml(messageBody)}</p>
                         </div>
-                      `).join('')}
+                      `;
+                      }).join('')}
                     </div>
                   </div>
                 ` : ''}
@@ -1330,11 +1364,28 @@
       currentCommentingPublicId = String(publicId).replace(/^Q-/, '');
       const idEl = document.getElementById('commentModalPublicId');
       const input = document.getElementById('studentCommentInput');
+      const stIdInput = document.getElementById('commentStudentIdInput');
+      const stNameInput = document.getElementById('commentStudentNameInput');
+
       if (idEl) idEl.textContent = currentCommentingPublicId;
       if (input) input.value = '';
+
+      // 質問フォームに入力済みの生徒番号・名前があれば自動補完
+      const formStId = document.getElementById('studentIdInput')?.value.trim();
+      const formStName = document.getElementById('studentNameInput')?.value.trim();
+      const savedStId = localStorage.getItem('last_student_id') || '';
+      const savedStName = localStorage.getItem('last_student_name') || '';
+
+      if (stIdInput) stIdInput.value = formStId || savedStId;
+      if (stNameInput) stNameInput.value = formStName || savedStName;
+
       const modal = document.getElementById('studentCommentModal');
       if (modal) modal.classList.remove('hidden');
-      setTimeout(() => { if (input) input.focus(); }, 100);
+      setTimeout(() => {
+        if (!stIdInput?.value) stIdInput?.focus();
+        else if (!stNameInput?.value) stNameInput?.focus();
+        else input?.focus();
+      }, 100);
     }
 
     function closeStudentCommentModal() {
@@ -1345,12 +1396,34 @@
 
     async function submitStudentComment() {
       const publicId = currentCommentingPublicId;
+      const stIdInput = document.getElementById('commentStudentIdInput');
+      normalizeStudentId(stIdInput);
+      const stId = stIdInput ? stIdInput.value.trim() : '';
+      const stName = document.getElementById('commentStudentNameInput')?.value.trim() || '';
       const input = document.getElementById('studentCommentInput');
       const text = input ? input.value.trim() : '';
-      if (!publicId || !text) {
-        showToast('メッセージを入力してください。', 'warning');
+
+      if (!stId || stId.length !== 7) {
+        showToast('生徒番号は7桁の数字で入力してください。', 'warning');
+        stIdInput?.focus();
         return;
       }
+      if (!stName) {
+        showToast('お名前（本名）を入力してください。', 'warning');
+        document.getElementById('commentStudentNameInput')?.focus();
+        return;
+      }
+      if (!publicId || !text) {
+        showToast('メッセージを入力してください。', 'warning');
+        input?.focus();
+        return;
+      }
+
+      // 次回入力用にローカルストレージへ保存
+      try {
+        localStorage.setItem('last_student_id', stId);
+        localStorage.setItem('last_student_name', stName);
+      } catch (e) {}
 
       const btn = document.getElementById('submitCommentBtn');
       const spinner = document.getElementById('submitCommentSpinner');
@@ -1358,7 +1431,14 @@
       if (spinner) spinner.classList.remove('hidden');
 
       const gasUrl = getEffectiveGasUrl();
-      const newComment = { text: text, createdAt: getClientJstDateString() };
+      const payloadText = `[生徒: ${stId} ${stName}]\n${text}`;
+      const newComment = { 
+        text: payloadText, 
+        studentId: stId, 
+        studentName: stName, 
+        rawText: text,
+        createdAt: getClientJstDateString() 
+      };
 
       const raw = JSON.parse(sessionStorage.getItem('demo_mock_db') || '[]');
       const target = raw.find(q => String(q.publicId).replace(/^Q-/, '') === String(publicId).replace(/^Q-/, ''));
@@ -1382,7 +1462,9 @@
             body: JSON.stringify({
               action: 'submitComment',
               publicId: publicId,
-              comment: text
+              studentId: stId,
+              studentName: stName,
+              comment: payloadText
             })
           });
         } catch (e) {
