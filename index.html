@@ -1261,21 +1261,42 @@
       }
     }
 
-    async function callGeminiApi(prompt, systemInstruction, category, content, actionType) {
+    // マルチモーダル（写真＋質問文）対応 Gemini API 呼び出し
+    async function callGeminiApi(prompt, systemInstruction, category, content, actionType, imageData = null) {
       const apiKey = localStorage.getItem('hs_chem_api_key');
       if (!apiKey) {
-        await new Promise(r => setTimeout(r, 400));
+        await new Promise(r => setTimeout(r, 350));
         return getSmartChemFallback(category, content, actionType);
       }
 
       try {
         const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+        
+        const contentsParts = [];
+        // 生徒の添付写真がある場合は Base64 画像データをパーツとして追加
+        if (imageData && imageData.startsWith('data:image/')) {
+          const match = imageData.match(/^data:(image\/[a-zA-Z]+);base64,(.+)$/);
+          if (match) {
+            contentsParts.push({
+              inline_data: {
+                mime_type: match[1],
+                data: match[2]
+              }
+            });
+          }
+        }
+        contentsParts.push({ text: prompt });
+
         const res = await fetch(url, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             system_instruction: { parts: [{ text: systemInstruction }] },
-            contents: [{ parts: [{ text: prompt }] }]
+            contents: [{ parts: contentsParts }],
+            generationConfig: {
+              temperature: 0.25,
+              maxOutputTokens: 2048
+            }
           })
         });
         const data = await res.json();
@@ -1288,96 +1309,105 @@
       return getSmartChemFallback(category, content, actionType);
     }
 
-    // 質問内容に応じた教育的化学フォールバック生成
+    // 高校化学全分野に即応するコンテキスト対応ローカルフォールバックエンジン
     function getSmartChemFallback(category, content, actionType) {
-      const isAspirin = content.includes('サリチル酸') || content.includes('アスピリン') || content.includes('無水酢酸');
-      const isLeChatelier = content.includes('平衡') || content.includes('ルシャトリエ') || content.includes('発熱');
-      const isNitric = content.includes('硝酸') || content.includes('銅') || content.includes('半反応式');
+      // 質問文とつまずきの抽出
+      const qMatch = content.match(/【疑問点】\s*([\s\S]*?)(?=【自分の考え|$)/);
+      const eMatch = content.match(/【自分の考え・つまずいた所】\s*([\s\S]*?)$/);
+      const qText = (qMatch ? qMatch[1] : content).trim();
+      const eText = (eMatch ? eMatch[1] : '').trim();
+
+      const text = content.toLowerCase();
+
+      // 各化学単元の判定
+      const isRedox = text.includes('酸化') || text.includes('還元') || text.includes('半反応式') || text.includes('過マンガン酸') || text.includes('ヨウ素');
+      const isBattery = text.includes('電池') || text.includes('ダニエル') || text.includes('ボルタ') || text.includes('鉛蓄電池') || text.includes('電気分解');
+      const isGas = text.includes('気体') || text.includes('状態方程式') || text.includes('分圧') || text.includes('ドルトン') || text.includes('蒸気圧');
+      const isEquilibrium = text.includes('平衡') || text.includes('ルシャトリエ') || text.includes('平衡定数') || text.includes('電離定数') || text.includes('緩衝');
+      const isThermo = text.includes('熱化学') || text.includes('ヘス') || text.includes('結合エネルギー') || text.includes('エンタルピー') || text.includes('発熱');
+      const isAcidBase = text.includes('中和') || text.includes('滴定') || text.includes('ph') || text.includes('塩の加水分解');
+      const isAspirin = text.includes('サリチル酸') || text.includes('アスピリン') || text.includes('無水酢酸');
+      const isOrganicGeneral = text.includes('構造決定') || text.includes('異性体') || text.includes('エステル') || text.includes('銀鏡') || text.includes('フェーリング') || text.includes('ヨードホルム');
+      const isPolymer = text.includes('高分子') || text.includes('糖') || text.includes('グルコース') || text.includes('アミノ酸') || text.includes('ペプチド') || text.includes('ナイロン');
 
       if (actionType === 'draft') {
         if (isAspirin) {
           return `【結論】
-フェノール類のヒドロキシ基は通常のアルコールに比べて求核性が著しく低いため、通常の酢酸では反応が進みません。そのため、反応性の高い無水酢酸を用いてアセチル化を行います。
+フェノール類のヒドロキシ基は通常のアルコールに比べて求核性が低いため、通常の酢酸ではエステル化がほとんど進みません。そのため、反応性の高い無水酢酸を用いてアセチル化を行います。
 
 【解説】
 1. フェノール性ヒドロキシ基の反応性
-フェノール類の酸素原子の非共有電子対はベンゼン環のπ電子系と共鳴して非局在化しています。そのため酸素原子上の電子密度が低下し、カルボニル炭素への攻撃力（求核性）が通常のアルコールよりも大幅に弱くなります。
+ベンゼン環の非局在化した $\\pi$ 電子系と酸素原子の非共有電子対が共鳴するため、酸素原子上の電子密度が低下し、求核攻撃の能力が弱まります。
 
-2. 酢酸を用いた場合の問題点
-酢酸 $\\ce{CH3COOH}$ との反応は可逆な平衡反応であり、副生する水によって加水分解（逆反応）が容易に進みます。フェノール性ヒドロキシ基の求核性の低さも相まって、平衡はほとんど原系（左）に偏り、エステル化はほぼ進行しません。
-
-3. 無水酢酸 $\\ce{(CH3CO)2O}$ を用いる利点
-酸無水物はカルボニル炭素の求電子性が非常に高いため、求核性の弱いフェノール性ヒドロキシ基とも速やかに反応します。
+2. 酢酸と無水酢酸の違い
+通常の酢酸 $\\ce{CH3COOH}$ では副生する水により加水分解（逆反応）が容易に起き、平衡が著しく原系に偏ります。
+一方、無水酢酸 $\\ce{(CH3CO)2O}$ を用いると、カルボニル炭素の求電子性が非常に高いため速やかに反応します。
 $$\\ce{C6H4(OH)COOH + (CH3CO)2O -> C6H4(OCOCH3)COOH + CH3COOH}$$
-副生成物が水ではなく酢酸であるため加水分解が起こらず、不可逆的に右へ反応が完結してアセチルサリチル酸が高収率で得られます。`;
-        } else if (isLeChatelier) {
+副生成物が水ではなく酢酸であるため逆反応（加水分解）が起こらず、不可逆的にアセチルサリチル酸が得られます。`;
+        } else if (isEquilibrium) {
           return `【結論】
-発熱反応において温度を上昇させた場合、平衡定数 $K$ の値は減少（小さく）します。
+平衡移動（ルシャトリエの原理）による各物質の濃度変化と、「平衡定数 $K$ そのものの変化」を明確に区別することがポイントです。温度が変わらない限り $K$ は変化しません。
 
 【解説】
-1. 平衡定数 $K$ の性質
-平衡定数 $K$ は「温度のみに依存する定数」です。濃度や全圧の変化では不変ですが、温度が変化すると定数そのものの値が変化します。
+1. 平衡定数 $K$ の本質
+圧力を上げたり物質を加えたりして平衡が移動しても、移動後の各濃度を代入した平衡定数の値は一定のまま保たれます。$K$ の値そのものが変化するのは「温度を変えたとき」のみです。
 
-2. ルシャトリエの原理による考察
-発熱反応系を加熱（昇温）すると、加えられた熱を打ち消す方向、すなわち吸熱方向（逆反応・左向き）に平衡が移動します。
-平衡定数の定義式
+2. 温度変化と平衡定数
+発熱反応系を昇温すると、ルシャトリエの原理より吸熱方向（逆反応）に平衡が移動します。
 $$K = \\frac{\\text{[生成物]}}{\\text{[反応物]}}$$
-において、左向きへの移動は分子（生成物濃度）の減少と分母（反応物濃度）の増加を意味するため、$K$ の値は小さくなります。`;
-        } else if (isNitric) {
+分子が減少し分母が増加するため、この場合に限り $K$ の値自体が減少します。`;
+        } else if (isBattery) {
           return `【結論】
-濃硝酸と希硝酸では、硝酸分子の濃度差によって還元される度合いが異なり、生成する酸化窒素の種類と酸化数の変化幅が異なります。
+電池や電気分解では、「正極・負極（陽極・陰極）で誰が電子を出し、誰が電子を受け取るか」をイオン化傾向と酸化還元反応に基づいて1極ずつ書き出すことが解決の鍵です。
 
-【各半反応式】
-1. 濃硝酸の場合（酸化数: $+5 \\rightarrow +4$）
-硝酸分子が過剰に存在するため、1分子あたりが受容する電子は1個で済み、二酸化窒素 $\\ce{NO2}$ が生じます。
-$$\\ce{HNO3 + H+ + e- -> NO2 + H2O}$$
+【解説】
+1. 負極（電子を放出する極）
+よりイオン化傾向の大きい金属が溶解して電子を放出します。
+$$\\ce{M -> M^{n+} + n e^-}$$
 
-2. 希硝酸の場合（酸化数: $+5 \\rightarrow +2$）
-硝酸分子の濃度が低いため、1分子がより深く還元され、電子を3個受容して一酸化窒素 $\\ce{NO}$ が生じます。
-$$\\ce{HNO3 + 3H+ + 3e- -> NO + 2H2O}$$
+2. 正極（電子を受け取る極）
+溶液中のイオン（$\\ce{H+}$, $\\ce{Cu^2+}$, あるいは水分子）が電子を受け取って還元されます。
+全体の反応式を暗記するのではなく、電子 $\\ce{e^-}$ の個数を揃えて両極の半反応式を足し合わせる手順を徹底しましょう。`;
+        } else if (isOrganicGeneral) {
+          return `【結論】
+有機化合物の構造決定やつまずきを整理する際は、「分子式から不飽和度を計算する」ことと「試薬に対する特有の呈色・検出反応」を論理的につなぎ合わせます。
 
-銅の酸化反応 $\\ce{Cu -> Cu^2+ + 2e-}$ と電子数を揃えて両辺を加算することで、全体の化学反応式が導かれます。`;
+【解説】
+1. 不飽和度の算出
+分子式 $\\ce{C}_c\\ce{H}_h\\ce{O}_o$ から、不飽和度 $= c + 1 - \\frac{h}{2}$ を求め、二重結合・三重結合・環構造（ベンゼン環なら不飽和度4）の存在を絞り込みます。
+
+2. 官能基の特有反応
+・アルデヒド基：銀鏡反応、フェーリング反応で検出
+・アセチル基 $\\ce{CH3-C=O}$ または $\\ce{CH3-CH(OH)-}$：ヨードホルム反応で黄色沈殿 $\\ce{CHI3 v}$
+・エステル結合：水酸化ナトリウム水溶液によるけん化でカルボン酸塩とアルコールに分解
+各段階で生じた生成物の性質から逆算して構造を特定していきましょう。`;
         } else {
           return `【結論】
-本問の反応を整理する際は、反応前後の酸化数の増減、あるいは熱力学的な平衡移動の条件に着目します。
+質問された内容について、化学現象の本質（粒子の熱運動、電子の授受、または化学結合の強弱）に立ち返って整理することで明確に解決できます。
 
 【解説】
-化学反応式の組み立てにおいては、電子の授受（半反応式）あるいは分母・分子の物質量比を正確に追うことが重要です。
-$$\\ce{A + B <=> C + D}$$
-各化学種の状態（気体・沈殿・水溶液）を明確にし、基本法則に立ち返って整理しましょう。`;
+生徒が疑問に思われた点について：
+「${escapeHtml(qText.slice(0, 45))}...」
+この現象では、見かけの変化だけでなく、ミクロな視点での電子やイオンのやり取りに注目することが大切です。
+
+つまずいた箇所（${escapeHtml(eText.slice(0, 35))}...）について：
+直感的なイメージと基本法則の定義との間にわずかなズレが生じやすくなっています。化学反応式と状態（気体・水溶液など）を正確に書き出し、どの物理量や保存則が適用されるかを確認しましょう。`;
         }
       } else if (actionType === 'analyze') {
-        if (isAspirin) {
-          return `【指導分析メモ】
-・着眼点：参考書の記述から「フェノール性-OHのエステル化が起きにくい」という核心を捉えている。
-・つまずきの本質：「アルコールのエステル化」と「フェノールのエステル化」の求核性の差異、および平衡論（加水分解の有無）の区別が曖昧。
-・指導要点：共鳴による酸素原子の電子密度低下と、無水酢酸の副生成物が酢酸（非水系）である点の2軸で説明すると定着する。`;
-        } else {
-          return `【指導分析メモ】
-・着眼点：ルシャトリエの原理による平衡移動の方向判定は正しくできている。
-・つまずきの本質：「濃度の比率変化」と「平衡定数 K そのものの変化」の定義上の違いで迷いが生じている。
-・指導要点：「平衡定数は温度のみの関数である」という大原則を再確認させる。`;
-        }
+        return `【指導分析メモ】
+・着眼点：生徒は「${escapeHtml(qText.slice(0, 30))}」という問題の表面的な事実にとどまらず、「なぜそうなるのか」という因果関係に疑問を持てています。
+・つまずきの本質：${eText ? `「${escapeHtml(eText.slice(0, 40))}」という記述から、定義と適用条件の混同が見られます。` : '基本法則の暗記と現象の背景にあるメカニズムが結びついていません。'}
+・指導助言：まずは生徒の仮説のどこが合っていて、どこから論理が飛躍したかを褒めつつ指摘すると納得感が深まります。`;
       } else {
-        if (isAspirin) {
-          return `【類題】
-サリチル酸にメタノールと少量の濃硫酸を加えて加熱したところ、特有の芳香をもつ化合物Xが得られた。
-(1) 化合物Xの名称を答えよ。
-(2) アスピリン合成時と異なり、本反応で無水物を用いず通常のメタノールでエステル化が進行する理由を説明せよ。
+        return `【類題】
+本問の理解度を定着させるための関連問題です。
 
-【解答】
-(1) サリチル酸メチル
-(2) サリチル酸側のカルボキシ基（$\\ce{-COOH}$）とメタノールのアルコール性ヒドロキシ基の間で反応が起きるため。アルコール性-OHは十分な求核性を持ち、通常のエステル化が進行するから。`;
-        } else {
-          return `【類題】
-密閉容器内で $\\ce{2NO2 (赤褐色) <=> N2O4 (無色)} + 57\\text{ kJ}$ の平衡状態にあるとき、容器を加熱して昇温した。
-(1) 平衡は左右どちらに移動するか。
-(2) 平衡定数 $K = \\frac{[\\ce{N2O4}]}{[\\ce{NO2}]^2}$ の値はどう変化するか。
+【問題】
+本問と同じ原理が働く別の状況（温度や濃度の条件を変更、あるいは同族元素に置換した場合）において、反応の進行方向や生成物はどのように変化するかを説明せよ。
 
-【解答】
-(1) 左（吸熱方向）
-(2) 減少する（高温では逆反応が優勢となり、生成物が減少して反応物が増加するため）。`;
-        }
+【解答の着眼点】
+・変化する物理量と一定に保たれる定数を区別すること。
+・電子の移動またはエネルギー図を描いて比較すること。`;
       }
     }
 
@@ -1397,51 +1427,50 @@ $$\\ce{A + B <=> C + D}$$
 
       const customInstruction = document.getElementById('aiCustomInstructionInput')?.value.trim() || '';
 
-      const systemInstruction = `あなたは論理的で厳密な高校化学の教員です。
-【厳格な文章ルール】
-1. 前置き・挨拶（「質問ありがとうございます」「努力が素晴らしいですね」等）や結びの社交辞令は一切出力せず、直ちに【結論】から開始してください。
-2. マークダウンの太字アスタリスク（**）は使用せず、【結論】【解説】や 1. 2. などの番号付き見出しを使用してください。
-3. 化学式・反応式の表記について（重複・文字化け厳禁）：
-   - 化学式や反応式は必ず KaTeX の mhchem 記法（$ \\ce{...} $ または $$ \\ce{...} $$）のみを用いて1度だけ記述してください。
-   - 「CH3COOH \\ce{CH3COOH}」や「(CH3CO)2O \\ce{(CH3CO)2O}」のように、普通の文字と数式記号を二重に並べたり重複出力することは絶対に禁止します。
-   - 「CHX3」や「(CHX3CO)X2O」のような謎のX文字混入や文字化けは厳禁です。下付き数字は mhchem が自動で処理するため、そのまま \\ce{CH3COOH}, \\ce{(CH3CO)2O}, \\ce{C6H4(OH)COOH} と記述してください。
-4. 分数は必ず \\frac{分子}{分母} を用い、日本語を含む場合は \\frac{\\text{分子}}{\\text{分母}} としてください。`;
+      const systemInstruction = `あなたは厳密で論理的な高校化学科の専門教員です。
+【絶対厳守ルール】
+1. 「質問ありがとうございます」「良い質問ですね」等の挨拶・前置き・結びの言葉は一切出力せず、必ず【結論】から開始すること。
+2. マークダウンの太字アスタリスク（**）は使用禁止。【結論】【解説】や 1. 2. などの番号付き見出しを使用すること。
+3. 生徒の質問に真正面から答え、抽象的な一般論やお茶濁しは一切禁止。生徒の「疑問点」と「つまずいた点（誤解）」のギャップを論理的に解きほぐすこと。
+4. 化学式・反応式は必ず KaTeX mhchem 記法（$ \\ce{...} $ または $$ \\ce{...} $$）で1度だけ記述すること。生テキストとの二重併記や X などの文字化けは厳禁。
+5. 分数は \\frac{分子}{分母}、日本語を含む場合は \\frac{\\text{分子}}{\\text{分母}} とすること。`;
 
       let prompt = '';
       if (type === 'draft') {
-        loadingText.textContent = '解説ドラフトを作成中...';
+        loadingText.textContent = q.imageData ? '添付写真と質問内容を解析中...' : '質問の核心を分析しドラフトを作成中...';
         titleEl.innerHTML = '<span>💡 化学科教員 解説ドラフト</span>';
-        prompt = `以下の高校生の化学の質問に対して、前置きを一切排し、論理的かつ真面目な解説を作成してください。
+        prompt = `以下の高校生の化学の質問${q.imageData ? 'および添付画像（問題集・ノートの写真）' : ''}を精査し、生徒のつまずきを解消する的確な解説を作成してください。
 
 【化学分野】: ${q.category}
-【生徒の質問・つまずき】:
+【生徒の質問・つまずき全文】:
 ${q.content}
 
-${customInstruction ? `【先生からの指示】:\n${customInstruction}\n` : ''}
+${customInstruction ? `【担当教員からの指導方針・追加指示】:\n${customInstruction}\n` : ''}
 
 【必須構成】
 【結論】
-疑問に対する明確な結論を端的に述べる。
+生徒の疑問点に対するストレートな回答を1〜2行で述べる。
 
 【解説】
-理由や原理（電子状態、共鳴、求核性、熱力学など）を論理的に解説。
-化学式・反応式は必ず KaTeX mhchem（$ \\ce{...} $ または $$ \\ce{...} $$）のみで記述し、生テキストでの重複併記は行わないこと。`;
+生徒が「どこで誤解したのか」を指摘し、正しい原理（電子状態、共応、熱力学、イオン化傾向、不飽和度など）に基づいて論理的に解説する。化学式・半反応式は KaTeX mhchem で正確に示すこと。`;
       } else if (type === 'analyze') {
-        loadingText.textContent = '生徒の着眼点とつまずきを分析中...';
+        loadingText.textContent = '生徒の思考プロセスとつまずきを分析中...';
         titleEl.innerHTML = '<span>🧠 つまずき分析＆指導メモ</span>';
-        prompt = `以下の質問から、①生徒の着眼点、②つまずきの根本要因、③教員が指導する際の助言ポイントを端的に分析してください。前置きや社交辞令は不要です。
-${customInstruction ? `\n【指示】: ${customInstruction}\n` : ''}
-${q.content}`;
+        prompt = `以下の高校生の質問内容から、①生徒の良い着眼点、②つまずいている根本的な概念の誤解、③教員が対面でアドバイスする際のポイントを簡潔に箇条書きで分析してください。
+【生徒の質問】:
+${q.content}
+${customInstruction ? `\n【指示】: ${customInstruction}\n` : ''}`;
       } else if (type === 'exercise') {
-        loadingText.textContent = '理解を深める類題を作成中...';
+        loadingText.textContent = '理解を定着させる良質な類題を作成中...';
         titleEl.innerHTML = '<span>📝 発展問題・類題</span>';
-        prompt = `以下の質問に関連する良質な練習問題1問と、模範解答・解説を作成してください。前置きや社交辞令は不要です。化学式は mhchem で重複なく記述してください。
-${customInstruction ? `\n【指示】: ${customInstruction}\n` : ''}
-${q.content}`;
+        prompt = `以下の質問に関連する、大学入試や定期試験で頻出の良質な練習問題1問と、模範解答・解説を作成してください。化学式は mhchem で記述すること。
+【質問内容】:
+${q.content}
+${customInstruction ? `\n【指示】: ${customInstruction}\n` : ''}`;
       }
 
       try {
-        let resultText = await callGeminiApi(prompt, systemInstruction, q.category, q.content, type);
+        let resultText = await callGeminiApi(prompt, systemInstruction, q.category, q.content, type, q.imageData);
         resultText = cleanChemicalFormatting(resultText);
         
         outputText.textContent = resultText;
