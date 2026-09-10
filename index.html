@@ -73,7 +73,7 @@
         </div>
         <div class="bg-white/80 backdrop-blur-sm p-3 rounded-xl border border-blue-100 min-w-[210px] shrink-0">
           <p class="text-[11px] font-bold text-slate-500 mb-1">👨‍🏫 化学科からのご案内</p>
-          <p class="text-xs font-semibold text-blue-950">回答の作成・公開には<br><span class="text-blue-600 font-bold">2〜3営程度</span>かかります。</p>
+          <p class="text-xs font-semibold text-blue-950">回答の作成・公開には<br><span class="text-blue-600 font-bold">2〜3営業日程度</span>かかります。</p>
         </div>
       </div>
 
@@ -182,7 +182,7 @@
         </div>
         <div id="publicQuestionsList" class="grid grid-cols-1 gap-5"></div>
       </div>
-    </div> <!-- studentSection 終了 -->
+    </div>
 
     <!-- ==================== 教員用画面 ==================== -->
     <div id="teacherSection" class="hidden space-y-6">
@@ -271,7 +271,7 @@
     </div>
   </div>
 
-  <!-- 写真拡大モーダル（先生がクリックして大きく確認できるビューア） -->
+  <!-- 写真拡大モーダル -->
   <div id="imageLightboxModal" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4" onclick="closeImageLightbox()">
     <div class="relative max-w-4xl max-h-[90vh] bg-white rounded-2xl p-2 shadow-2xl flex flex-col items-center" onclick="event.stopPropagation()">
       <div class="w-full flex justify-between items-center px-3 py-2 border-b border-slate-200 text-xs font-bold text-slate-700">
@@ -293,7 +293,7 @@
       <p class="text-xs text-slate-600 leading-relaxed">
         教員専用PINコードを入力してください。
       </p>
-      <input type="password" id="pinInput" placeholder="PINコード" class="w-full px-3 py-2 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 font-mono">
+      <input type="password" id="pinInput" placeholder="PINコード" class="w-full px-3 py-2 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 font-mono" onkeydown="if(event.key==='Enter')submitPin()">
       <div class="flex justify-end gap-2 pt-2">
         <button onclick="closePinModal()" class="px-4 py-2 text-xs font-medium text-slate-600 hover:text-slate-900 transition">キャンセル</button>
         <button id="pinSubmitBtn" onclick="submitPin()" class="px-4 py-2 bg-slate-800 text-white text-xs font-bold rounded-xl hover:bg-slate-900 transition flex items-center gap-2 shadow-sm">
@@ -303,7 +303,7 @@
     </div>
   </div>
 
-  <!-- 改修版：回答エディタ＆承認ステーション（完全視認保証ハイブリッドUI） -->
+  <!-- 回答エディタ＆承認ステーション -->
   <div id="reviewModal" class="hidden fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4">
     <div class="bg-white w-full max-w-6xl rounded-2xl shadow-2xl flex flex-col h-[95vh] max-h-[960px] overflow-hidden no-horizontal-scroll">
       
@@ -313,7 +313,7 @@
           <span class="text-lg sm:text-xl">✍️</span>
           <div>
             <h3 class="font-bold text-slate-900 text-sm sm:text-base leading-tight">化学科 回答作成・承認エディタ</h3>
-            <p class="text-[10px] sm:text-[11px] text-slate-500">リアルタイムKaTeX・mhchemプレビュー ＆ Gemini 3 Flash アシスト</p>
+            <p class="text-[10px] sm:text-[11px] text-slate-500">リアルタイムKaTeX・mhchemプレビュー ＆ Gemini AI アシスト</p>
           </div>
           <span id="modalQuestionId" class="text-xs bg-slate-200 text-slate-800 px-2 py-0.5 rounded font-mono font-bold"></span>
           <span id="modalCategoryBadge" class="text-xs bg-blue-100 text-blue-800 font-semibold px-2 py-0.5 rounded"></span>
@@ -331,7 +331,7 @@
             <span>📋 生徒の質問・写真</span>
           </button>
           <button id="editorTabGemini" onclick="switchEditorSection('gemini')" class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-purple-100 text-purple-800 hover:bg-purple-200 border border-purple-200 transition flex items-center gap-1">
-            <span>🤖 Gemini 3 Flash アシスト</span>
+            <span>🤖 Gemini AI アシスト</span>
           </button>
         </div>
         
@@ -429,7 +429,7 @@
               <textarea id="modalAnswerInput" oninput="handleAnswerInputLive()" class="w-full flex-grow p-3 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-blue-500 font-mono leading-relaxed shadow-xs custom-scrollbar resize-none" placeholder="例: 希硝酸との半反応式は以下の通りです。&#10;$\ce{HNO3 + 3H+ + 3e- -> NO + 2H2O}$"></textarea>
             </div>
 
-            <!-- リアルタイム・ライブプレビュー（生徒の見え方そのもの） -->
+            <!-- リアルタイム・ライブプレビュー -->
             <div class="flex flex-col space-y-1 min-h-[160px]">
               <div class="flex justify-between items-center">
                 <span class="text-xs font-bold text-blue-950 flex items-center gap-1">
@@ -475,7 +475,7 @@
 
         </div>
 
-        <!-- ペイン3: Gemini 3 Flash AI 指導アシスタント -->
+        <!-- ペイン3: Gemini AI 指導アシスタント -->
         <div id="paneEditorGemini" class="hidden flex-grow flex flex-col p-4 sm:p-6 space-y-4 min-h-0 overflow-y-auto custom-scrollbar">
           
           <div class="bg-purple-50 border border-purple-200 rounded-2xl p-4 space-y-3.5">
@@ -484,7 +484,7 @@
                 <span class="text-2xl">🤖</span>
                 <div>
                   <div class="flex items-center gap-2">
-                    <h4 class="text-sm font-bold text-purple-950">Gemini 3 Flash 指導アシスタント</h4>
+                    <h4 class="text-sm font-bold text-purple-950">Gemini 指導アシスタント</h4>
                     <span id="geminiConnectionBadge" class="text-[10px] px-2 py-0.5 rounded-full font-bold"></span>
                   </div>
                   <p class="text-[11px] text-purple-700">生徒の疑問に寄り添う回答ドラフト・思考分析・類題をAIが生成します</p>
@@ -503,7 +503,7 @@
               </div>
             </div>
 
-            <!-- APIキー未登録時の案内バナー（GASスクリプトプロパティ案内） -->
+            <!-- APIキー未登録時の案内バナー -->
             <div id="apiKeyNoticeBanner" class="hidden bg-amber-50 border border-amber-200 rounded-xl p-3 text-xs text-amber-950 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
               <div class="space-y-0.5">
                 <div class="flex items-center gap-1.5 font-bold text-amber-900">
@@ -543,7 +543,7 @@
             <!-- AIローディング表示 -->
             <div id="geminiLoading" class="hidden py-6 text-center space-y-2">
               <div class="inline-block animate-spin text-2xl">🌀</div>
-              <p class="text-xs font-bold text-purple-900" id="geminiLoadingText">Gemini 3 Flash が考察中...</p>
+              <p class="text-xs font-bold text-purple-900" id="geminiLoadingText">Gemini が考察中...</p>
             </div>
 
             <!-- AI生成結果カード -->
@@ -559,7 +559,8 @@
                   <button type="button" onclick="applyAndDirectPublish()" class="px-2.5 py-1 text-xs font-bold bg-blue-600 hover:bg-blue-700 text-white rounded transition flex items-center gap-1 shadow-xs">🚀 反映して即座に公開</button>
                 </div>
               </div>
-              <div id="geminiOutputText" class="text-xs sm:text-sm text-slate-800 whitespace-pre-wrap leading-relaxed max-h-72 overflow-y-auto custom-scrollbar katex-target"></div>
+              <!-- AI提案内容プレビュー領域 -->
+              <div id="geminiOutputText" class="text-xs sm:text-sm text-slate-800 whitespace-pre-wrap leading-relaxed max-h-72 overflow-y-auto custom-scrollbar katex-target bg-purple-50/30 p-3 rounded-lg border border-purple-100"></div>
             </div>
 
           </div>
@@ -609,9 +610,9 @@
         <span>🔑</span> Gemini APIキー設定（任意）
       </h3>
       <p class="text-xs text-slate-600 leading-relaxed">
-        カスタムAPIキーを使用したい場合のみ入力してください。未入力時も精巧なスマート解説エンジンが即座に回答ドラフトを作成します。
+        カスタムAPIキーを使用したい場合のみ入力してください。未入力時もGASのスクリプトプロパティ経由で安全に通信できます。
       </p>
-      <input type="password" id="apiKeyInput" placeholder="AIzaSy... (空欄で標準実行)" class="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-purple-500 font-mono">
+      <input type="password" id="apiKeyInput" placeholder="AIzaSy... (空欄でGAS経由実行)" class="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-purple-500 font-mono">
       <div class="flex justify-end gap-2 pt-2">
         <button onclick="closeApiModal()" class="px-4 py-2 text-xs font-medium text-slate-600">閉じる</button>
         <button onclick="saveApiKey()" class="px-4 py-2 bg-purple-600 text-white text-xs font-bold rounded-lg hover:bg-purple-700">保存する</button>
@@ -644,7 +645,7 @@
           <li><strong>「スクリプト プロパティを保存」</strong> を押します。</li>
         </ol>
         <p class="text-[11px] text-emerald-700 bg-emerald-50 p-2.5 rounded-lg border border-emerald-200">
-          ✅ 保存完了後、Apps Script画面右上から <strong>「デプロイ」>「デプロイを管理」➔「新バージョン」</strong> でデプロイすれば、即座にサーバー中継が有効になります！
+          ✅ 保存完了後、Apps Script画面右上から <strong>「デプロイ」>「デプロイを管理」➔「鉛筆アイコン」➔「新バージョン」</strong> でデプロイすれば、即座にサーバー中継が有効になります！
         </p>
       </div>
       <div class="flex justify-end pt-2">
@@ -692,7 +693,7 @@
         .replace(/'/g, '&#039;');
     }
 
-    // KaTeX および mhchem の数式レンダリング実行
+    // KaTeX および mhchem の数式レンダリング実行（確実なプレビュー描画）
     function triggerKaTeX() {
       if (typeof renderMathInElement === 'function') {
         document.querySelectorAll('.katex-target').forEach(el => {
@@ -711,6 +712,13 @@
             console.warn('KaTeX render error:', err);
           }
         });
+      } else {
+        // KaTeXスクリプトが読み込み遅延している場合は少し待機して再試行
+        setTimeout(() => {
+          if (typeof renderMathInElement === 'function') {
+            triggerKaTeX();
+          }
+        }, 150);
       }
     }
 
@@ -744,12 +752,13 @@
       el.value = val;
     }
 
-    // 回答作成時のリアルタイムKaTeXプレビュー更新
+    // 回答作成時のリアルタイムKaTeXプレビュー更新（確実にプレビューを描画）
     function handleAnswerInputLive() {
       const input = document.getElementById('modalAnswerInput');
       const preview = document.getElementById('modalAnswerLivePreview');
       const badge = document.getElementById('previewStatusBadge');
       if (!input || !preview) return;
+      
       const val = input.value.trim();
       if (!val) {
         preview.innerHTML = '<span class="text-slate-400 italic">入力した回答の数式・化学式がリアルタイムにここに描画されます...</span>';
@@ -759,6 +768,8 @@
         }
         return;
       }
+
+      // プレビューコンテナにテキストをセットし、KaTeXレンダリングを即時適用
       preview.textContent = val;
       preview.className = 'flex-grow p-3 bg-blue-50/50 rounded-xl border border-blue-200 shadow-inner text-sm text-slate-800 leading-relaxed custom-scrollbar break-words overflow-y-auto katex-target whitespace-pre-wrap';
       if (badge) {
@@ -766,12 +777,6 @@
         badge.className = 'text-[10px] text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full font-bold';
       }
       triggerKaTeX();
-    }
-
-    // AI出力文の化学式重複や不要記号クリーニング
-    function cleanChemicalFormatting(str) {
-      if (!str) return '';
-      return cleanAndFormatChemistryText(str);
     }
 
     // 化学式・数式の文字化け・重複・円マーク(¥)を綺麗に自動修復する強力フィルター
@@ -792,8 +797,6 @@
       text = text.replace(/(?<!\$)\\pi(?!\$)/g, ' $\\pi$ ');
 
       // 4. 「生テキスト + \ce{...} + 生テキスト」の重複パターンの解消
-      // 例: CHX3COOH\ce{CH3COOH}CHX3COOH -> $\ce{CH3COOH}$
-      // 例: CX6HX4(OH)COOH... \ce{C6H4(OH)COOH...} CX6HX4... -> $\ce{C6H4(OH)COOH...}$
       text = text.replace(/[A-Za-z0-9_()+\->=]+(?:\s*[+→]\s*[A-Za-z0-9_()+\->=]+)*\s*\\ce\{([^}]+)\}\s*[A-Za-z0-9_()+\->=]+(?:\s*[+→]\s*[A-Za-z0-9_()+\->=]+)*/g, ' $\\ce{$1}$ ');
 
       // 5. 単独で残った生テキスト+ceの重複を再チェック
@@ -811,6 +814,12 @@
       return text;
     }
 
+    // AI出力文の化学式重複や不要記号クリーニング
+    function cleanChemicalFormatting(str) {
+      if (!str) return '';
+      return cleanAndFormatChemistryText(str);
+    }
+
     // エディタ内の文字化け・重複を一括修復する便利関数
     function fixEditorAnswerText() {
       const input = document.getElementById('modalAnswerInput');
@@ -822,26 +831,35 @@
       showToast('化学式の文字化け・重複を自動修復しました！✨', 'success');
     }
 
-    // Gemini出力のコピー・反映ヘルパー
+    // Gemini出力の退避変数
+    let lastGeneratedAiRawText = '';
+
     function copyGeminiOutput() {
       const out = document.getElementById('geminiOutputText');
-      if (!out || !out.textContent) return;
-      const temp = document.createElement('textarea');
-      temp.value = out.textContent;
-      document.body.appendChild(temp);
-      temp.select();
-      document.execCommand('copy');
-      document.body.removeChild(temp);
-      showToast('AIの生成内容をクリップボードにコピーしました！', 'success');
+      const textToCopy = lastGeneratedAiRawText || (out ? out.textContent : '');
+      if (!textToCopy) return;
+      
+      navigator.clipboard.writeText(textToCopy).then(() => {
+        showToast('AIの生成内容をクリップボードにコピーしました！', 'success');
+      }).catch(() => {
+        const temp = document.createElement('textarea');
+        temp.value = textToCopy;
+        document.body.appendChild(temp);
+        temp.select();
+        document.execCommand('copy');
+        document.body.removeChild(temp);
+        showToast('AIの生成内容をコピーしました！', 'success');
+      });
     }
 
     function applyGeminiToEditor(mode) {
       const out = document.getElementById('geminiOutputText');
       const input = document.getElementById('modalAnswerInput');
       if (!out || !input) return;
-      const text = out.textContent.trim();
+      
+      const text = (lastGeneratedAiRawText || out.textContent || '').trim();
       if (!text) {
-        showToast('反映するAI提案内容がありません。', 'error');
+        showToast('反映するAI提案内容がありません。先にドラフトを生成してください。', 'error');
         return;
       }
       if (mode === 'replace') {
@@ -854,9 +872,9 @@
       showToast(mode === 'replace' ? 'AIドラフトを回答欄に反映しました。' : 'AIドラフトを回答の末尾に追加しました。', 'success');
     }
 
-    function applyAndDirectPublish() {
+    async function applyAndDirectPublish() {
       applyGeminiToEditor('replace');
-      saveAnswerAndPublish();
+      await saveAnswerAndPublish();
     }
 
     // 指導指示クリア・追記
@@ -878,20 +896,21 @@
     // 生徒の理解度リアクション処理
     async function handleStudentReaction(publicId, type) {
       if (!publicId || !type) return;
-      const target = publicQuestions.find(q => q.publicId === publicId);
+      const cleanPubId = String(publicId).replace(/^Q-/, '');
+      const target = publicQuestions.find(q => String(q.publicId).replace(/^Q-/, '') === cleanPubId);
       if (!target) return;
       if (!target.reactions) target.reactions = { clear: 0, good: 0, unclear: 0 };
 
-      const prev = myReactions[publicId];
+      const prev = myReactions[cleanPubId];
       if (prev === type) {
         target.reactions[type] = Math.max(0, (target.reactions[type] || 1) - 1);
-        delete myReactions[publicId];
+        delete myReactions[cleanPubId];
       } else {
         if (prev) {
           target.reactions[prev] = Math.max(0, (target.reactions[prev] || 1) - 1);
         }
         target.reactions[type] = (target.reactions[type] || 0) + 1;
-        myReactions[publicId] = type;
+        myReactions[cleanPubId] = type;
       }
 
       try {
@@ -900,21 +919,21 @@
 
       renderPublicList();
 
-      if (myReactions[publicId] === 'clear') {
+      if (myReactions[cleanPubId] === 'clear') {
         showToast('「スッキリ理解できた！」を先生に伝えました😊', 'success');
-      } else if (myReactions[publicId] === 'good') {
+      } else if (myReactions[cleanPubId] === 'good') {
         showToast('「なるほど」を先生に伝えました！👍', 'info');
-      } else if (myReactions[publicId] === 'unclear') {
+      } else if (myReactions[cleanPubId] === 'unclear') {
         showToast('「まだ少しモヤモヤ」を記録しました。職員室で直接先生に質問してみよう！💡', 'warning');
       }
 
       const gasUrl = getEffectiveGasUrl();
-      if (gasUrl && myReactions[publicId]) {
+      if (gasUrl && myReactions[cleanPubId]) {
         try {
           fetch(gasUrl, {
             method: 'POST',
             headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-            body: JSON.stringify({ action: 'submitReaction', publicId: publicId, reaction: type })
+            body: JSON.stringify({ action: 'submitReaction', publicId: cleanPubId, reaction: type })
           }).catch(e => console.warn('Reaction sync error:', e));
         } catch (e) {}
       }
@@ -1040,7 +1059,7 @@
             <!-- 質問文 -->
             <div class="text-sm text-slate-800 whitespace-pre-wrap katex-target leading-relaxed">${escapeHtml(q.content)}</div>
 
-            <!-- 写真サムネイル（添付がある場合のみ表示） -->
+            <!-- 写真サムネイル -->
             ${q.imageData ? `
               <div class="p-2.5 bg-slate-50 border border-slate-200 rounded-xl flex items-center gap-3">
                 <img src="${q.imageData}" onclick="openImageLightbox('${q.imageData}')" class="w-16 h-16 object-cover rounded-lg border border-slate-300 cursor-pointer hover:opacity-80 transition shadow-xs" title="クリックで拡大表示">
@@ -1092,10 +1111,10 @@
 
             <!-- 下部操作ボタン: 回答作成 ＆ 削除 -->
             <div class="mt-4 flex justify-between items-center pt-2 border-t border-slate-100">
-              <button onclick="handleDeleteQuestion('${q.id}', '${q.publicId}')" class="px-3 py-1.5 text-xs text-rose-600 hover:text-rose-800 hover:bg-rose-50 rounded-lg transition font-medium flex items-center gap-1">
+              <button onclick="handleDeleteQuestion('${q.id}', '${displayId}')" class="px-3 py-1.5 text-xs text-rose-600 hover:text-rose-800 hover:bg-rose-50 rounded-lg transition font-medium flex items-center gap-1">
                 <span>🗑️ 質問を削除</span>
               </button>
-              <button onclick="openReviewModal('${q.id}')" class="px-4 py-2 bg-blue-600 text-white text-xs font-bold rounded-lg hover:bg-blue-700 shadow-sm transition flex items-center gap-1.5">
+              <button onclick="openReviewModal('${q.id}', '${displayId}')" class="px-4 py-2 bg-blue-600 text-white text-xs font-bold rounded-lg hover:bg-blue-700 shadow-sm transition flex items-center gap-1.5">
                 <span>✍️</span>
                 <span>${q.status === 'answered' ? '回答を編集・再承認' : q.status === 'in_progress' ? '回答作成を再開する' : '回答を作成する'}</span>
               </button>
@@ -1121,20 +1140,22 @@
     }
 
     async function handleDeleteQuestion(id, publicId) {
+      if (!confirm(`質問 ID: ${publicId} を削除してもよろしいですか？`)) return;
+
       const pin = sessionStorage.getItem('teacherPin') || '1669';
       const gasUrl = getEffectiveGasUrl();
+      const cleanPubId = String(publicId).replace(/^Q-/, '');
 
-      // 教員一覧から即時除外してUIに即反映
-      teacherQuestions = teacherQuestions.filter(q => q.id !== id && q.publicId !== publicId);
-      publicQuestions = publicQuestions.filter(q => q.publicId !== publicId);
+      teacherQuestions = teacherQuestions.filter(q => q.id !== id && String(q.publicId).replace(/^Q-/, '') !== cleanPubId);
+      publicQuestions = publicQuestions.filter(q => String(q.publicId).replace(/^Q-/, '') !== cleanPubId);
 
       const raw = JSON.parse(sessionStorage.getItem('demo_mock_db') || '[]');
-      const filteredRaw = raw.filter(q => q.id !== id && q.publicId !== publicId);
+      const filteredRaw = raw.filter(q => q.id !== id && String(q.publicId).replace(/^Q-/, '') !== cleanPubId);
       sessionStorage.setItem('demo_mock_db', JSON.stringify(filteredRaw));
 
       renderTeacherList();
       renderPublicList();
-      showToast(`質問 ${publicId} を削除しました。`, 'info');
+      showToast(`質問 ${cleanPubId} を削除しました。`, 'info');
 
       if (gasUrl) {
         try {
@@ -1145,7 +1166,7 @@
               action: 'deleteQuestion',
               pin: pin,
               id: id,
-              publicId: publicId
+              publicId: cleanPubId
             })
           });
         } catch (e) {
@@ -1171,10 +1192,10 @@
       const url = getEffectiveGasUrl();
       if (url) {
         el.textContent = '🟢 GAS連携中（本番同期）';
-        el.className = 'text-emerald-600 font-semibold';
+        el.className = 'text-emerald-400 font-semibold';
       } else {
         el.textContent = '🟡 プレビューモード（ローカル保存）';
-        el.className = 'text-amber-600 font-semibold';
+        el.className = 'text-amber-400 font-semibold';
       }
     }
 
@@ -1214,17 +1235,12 @@
       if (btn) btn.disabled = true;
       if (spinner) spinner.classList.remove('hidden');
 
-      // 即時認証ロジック（GASのコールドスタートによる待機・フリーズを完全回避）
       try {
         if (pin === '1669') {
           sessionStorage.setItem('teacherPin', pin);
           closePinModal();
           showToast('教員認証に成功しました。', 'success');
-          
-          // 待たせることなく即座に教員画面を表示
           switchView('teacher');
-          
-          // バックグラウンドで最新の質問データを取得
           fetchTeacherQuestions(pin);
         } else {
           showToast('PINコードが正しくありません。', 'error');
@@ -1245,8 +1261,8 @@
       showToast('教員画面からログアウトしました。', 'info');
     }
 
-    /* 安全なJSONパース補助関数（タイムアウト保護＆HTMLレスポンスクラッシュ防止） */
-    async function safeFetchJson(url, options = {}, timeoutMs = 8000) {
+    /* 安全なJSON通信関数 */
+    async function safeFetchJson(url, options = {}, timeoutMs = 12000) {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
       
@@ -1273,7 +1289,7 @@
       const loadFallbackData = () => {
         const raw = JSON.parse(sessionStorage.getItem('demo_mock_db') || '[]');
         publicQuestions = raw.map(q => ({
-          publicId: q.publicId,
+          publicId: String(q.publicId).replace(/^Q-/, ''),
           nickname: q.nickname,
           category: q.category,
           content: q.content,
@@ -1296,6 +1312,7 @@
         if (data && data.status === 'success') {
           publicQuestions = (data.data || []).map(q => ({
             ...q,
+            publicId: String(q.publicId).replace(/^Q-/, ''),
             reactions: q.reactions || { clear: 0, good: 0, unclear: 0 }
           }));
           renderPublicList();
@@ -1303,11 +1320,6 @@
           loadFallbackData();
         }
       } catch (err) {
-        if (err.message === 'NON_JSON_RESPONSE') {
-          console.info('GAS returned HTML (e.g. login prompt). Displaying local database while syncing.');
-        } else {
-          console.warn('Network error while loading public questions:', err.message);
-        }
         loadFallbackData();
       }
     }
@@ -1324,7 +1336,10 @@
       try {
         const data = await safeFetchJson(`${gasUrl}?action=getTeacherQuestions&pin=${encodeURIComponent(pin)}`);
         if (data && data.status === 'success') {
-          teacherQuestions = data.data || [];
+          teacherQuestions = (data.data || []).map(q => ({
+            ...q,
+            publicId: String(q.publicId).replace(/^Q-/, '')
+          }));
           renderTeacherList();
         } else {
           teacherQuestions = JSON.parse(sessionStorage.getItem('demo_mock_db') || '[]');
@@ -1336,12 +1351,11 @@
       }
     }
 
-    // 生徒からの感想・お礼コメント送信処理
     function openStudentCommentModal(publicId) {
-      currentCommentingPublicId = publicId;
+      currentCommentingPublicId = String(publicId).replace(/^Q-/, '');
       const idEl = document.getElementById('commentModalPublicId');
       const input = document.getElementById('studentCommentInput');
-      if (idEl) idEl.textContent = publicId;
+      if (idEl) idEl.textContent = currentCommentingPublicId;
       if (input) input.value = '';
       const modal = document.getElementById('studentCommentModal');
       if (modal) modal.classList.remove('hidden');
@@ -1371,7 +1385,6 @@
       const gasUrl = getEffectiveGasUrl();
       const newComment = { text: text, createdAt: getClientJstDateString() };
 
-      // ローカル保存
       const raw = JSON.parse(sessionStorage.getItem('demo_mock_db') || '[]');
       const target = raw.find(q => String(q.publicId).replace(/^Q-/, '') === String(publicId).replace(/^Q-/, ''));
       if (target) {
@@ -1380,7 +1393,6 @@
         sessionStorage.setItem('demo_mock_db', JSON.stringify(raw));
       }
 
-      // 先生側の配列にも反映
       const tTarget = teacherQuestions.find(q => String(q.publicId).replace(/^Q-/, '') === String(publicId).replace(/^Q-/, ''));
       if (tTarget) {
         if (!tTarget.comments) tTarget.comments = [];
@@ -1536,19 +1548,28 @@
     }
 
     async function saveAnswerAndPublish() {
-      executeSaveAnswer('answered');
+      await executeSaveAnswer('answered');
     }
 
     async function saveDraftOnly() {
       const selectedStatus = document.querySelector('input[name="modalStatusRadio"]:checked')?.value || 'in_progress';
-      executeSaveAnswer(selectedStatus, true);
+      await executeSaveAnswer(selectedStatus, true);
     }
 
+    /* 承認・公開処理の堅牢化＆AIドラフト自動拾い上げ */
     async function executeSaveAnswer(newStatus, isDraft = false) {
       const pin = sessionStorage.getItem('teacherPin') || '1669';
       const gasUrl = getEffectiveGasUrl();
       const answerInputEl = document.getElementById('modalAnswerInput');
-      const answer = answerInputEl ? answerInputEl.value.trim() : '';
+      
+      let answer = answerInputEl ? answerInputEl.value.trim() : '';
+
+      // もし回答入力欄が空で、AI提案結果が存在する場合は自動反映して救済
+      if (!answer && lastGeneratedAiRawText && !isDraft) {
+        answer = lastGeneratedAiRawText.trim();
+        if (answerInputEl) answerInputEl.value = answer;
+        handleAnswerInputLive();
+      }
 
       if (!isDraft && !answer) {
         switchEditorSection('answer');
@@ -1569,12 +1590,13 @@
       if (spinner) spinner.classList.remove('hidden');
 
       const nowJst = getClientJstDateString();
-      const currentQ = teacherQuestions.find(x => x.id === currentEditingId);
-      const publicId = currentQ ? currentQ.publicId : '';
+      const currentQ = teacherQuestions.find(x => x.id === currentEditingId || String(x.publicId).replace(/^Q-/, '') === String(window._currentEditingPublicId || '').replace(/^Q-/, ''));
+      const publicId = currentQ ? String(currentQ.publicId).replace(/^Q-/, '') : String(window._currentEditingPublicId || '').replace(/^Q-/, '');
+      const idToSend = currentQ ? currentQ.id : currentEditingId;
 
       const updateLocalMemory = () => {
         const raw = JSON.parse(sessionStorage.getItem('demo_mock_db') || '[]');
-        const target = raw.find(x => x.id === currentEditingId || (publicId && x.publicId === publicId));
+        const target = raw.find(x => x.id === currentEditingId || (publicId && String(x.publicId).replace(/^Q-/, '') === publicId));
         if (target) {
           target.status = newStatus;
           target.answer = answer;
@@ -1582,14 +1604,14 @@
         }
         sessionStorage.setItem('demo_mock_db', JSON.stringify(raw));
 
-        const tTarget = teacherQuestions.find(x => x.id === currentEditingId || (publicId && x.publicId === publicId));
+        const tTarget = teacherQuestions.find(x => x.id === currentEditingId || (publicId && String(x.publicId).replace(/^Q-/, '') === publicId));
         if (tTarget) {
           tTarget.status = newStatus;
           tTarget.answer = answer;
           if (newStatus === 'answered') tTarget.answeredAt = nowJst;
         }
 
-        const pTarget = publicQuestions.find(x => x.publicId === publicId);
+        const pTarget = publicQuestions.find(x => String(x.publicId).replace(/^Q-/, '') === publicId);
         if (pTarget) {
           pTarget.status = newStatus;
           pTarget.answer = answer;
@@ -1617,7 +1639,7 @@
           body: JSON.stringify({
             action: 'publishAnswer',
             pin: pin,
-            id: currentEditingId,
+            id: idToSend,
             publicId: publicId,
             category: currentQ ? currentQ.category : '',
             studentId: currentQ ? currentQ.studentId : '',
@@ -1631,10 +1653,10 @@
         
         if (result && result.status === 'success') {
           updateLocalMemory();
-          showToast(isDraft ? '進行ステータスを更新しました。' : '回答を承認して公開しました！', 'success');
+          showToast(isDraft ? '進行ステータスを更新しました。' : '回答を承認して公開しました！✨', 'success');
           closeReviewModal();
-          renderTeacherList();
-          renderPublicList();
+          fetchTeacherQuestions(pin);
+          fetchPublicQuestions();
         } else {
           showToast(`保存失敗: ${result?.message || '更新できませんでした'}`, 'error');
         }
@@ -1651,13 +1673,13 @@
       }
     }
 
-    // マルチモーダル（写真＋質問文）対応 Gemini API 呼び出し（方法②：GASサーバー安全中継）
+    // マルチモーダル（写真＋質問文）対応 Gemini API 呼び出し
     async function callGeminiApi(prompt, systemInstruction, category, content, actionType, imageData = null) {
       const pin = sessionStorage.getItem('teacherPin') || '1669';
       const gasUrl = getEffectiveGasUrl();
       const localApiKey = localStorage.getItem('hs_chem_api_key');
 
-      // 1. 【方法②：推奨】GAS経由でサーバーサイドから安全にGeminiを呼び出し（キー隠蔽）
+      // 1. 【推奨②】GAS経由でサーバーサイドから安全にGeminiを呼び出し
       if (gasUrl) {
         try {
           const res = await safeFetchJson(gasUrl, {
@@ -1718,14 +1740,13 @@
         }
       }
 
-      // 3. キー未設定または通信エラー時のスマート化学エンジン（即時フォールバック）
+      // 3. キー未設定または通信エラー時のスマート化学エンジン
       await new Promise(r => setTimeout(r, 250));
       return getSmartChemFallback(category, content, actionType);
     }
 
     // 高校化学全分野に即応するコンテキスト対応ローカルフォールバックエンジン
     function getSmartChemFallback(category, content, actionType) {
-      // 質問文とつまずきの抽出
       const qMatch = content.match(/【疑問点】\s*([\s\S]*?)(?=【自分の考え|$)/);
       const eMatch = content.match(/【自分の考え・つまずいた所】\s*([\s\S]*?)$/);
       const qText = (qMatch ? qMatch[1] : content).trim();
@@ -1733,134 +1754,30 @@
 
       const combinedText = (qText + " " + eText).toLowerCase();
 
-      // 高校化学と明らかに無関係な単語・トピックの検知
-      const nonChemKeywords = [
-        '野球', 'サッカー', 'カープ', 'ゲーム', 'アニメ', '英語', '古文', '漢文', '歴史',
-        '地理', '政治', '経済', '数学', '微分', '積分', 'こんにちは', 'おはよう', 'テスト',
-        '彼氏', '彼女', '恋愛', 'おすすめ', '天気', '今日の運勢'
-      ];
-      const isNonChem = nonChemKeywords.some(kw => combinedText.includes(kw));
-
-      // 化学キーワードの存在チェック
-      const chemKeywords = [
-        '酸', '塩基', '酸化', '還元', 'モル', 'mol', '気体', '熱', '平衡', '電池', '電気分解',
-        '金属', '非金属', 'イオン', '有機', '無機', '高分子', '沈殿', '滴定', '触媒', 'エステル',
-        'アルコール', 'ベンゼン', '構造', '反応', '硝酸', '硫酸', '水素', '酸素', '炭素', '窒素'
-      ];
-      const hasChemWords = chemKeywords.some(kw => combinedText.includes(kw));
-
-      // 化学に関係ない質問への判定
-      if (isNonChem || (!hasChemWords && combinedText.length < 50)) {
-        if (actionType === 'draft') {
-          return `【確認】高校化学の質問ではありません
-本システムは「高校化学に関する質問箱」です。
-入力された内容（「${escapeHtml(qText.slice(0, 30))}」）は高校化学の内容と一致しないか、質問の意図が読み取れませんでした。
-
-【生徒へのアドバイス】
-化学の授業や問題集（理論化学・無機化学・有機化学・高分子化合物など）で疑問に思った具体的な物質名や反応、計算問題の内容を書いて再度質問してください。`;
-        } else if (actionType === 'analyze') {
-          return `【指導分析メモ】
-・判定：高校化学の学習内容と無関係な投稿です。
-・対応方針：いたずら投稿または他教科の質問の可能性があります。教員画面の「🗑️ 質問を削除」で削除するか、化学の質問をするよう促してください。`;
-        } else {
-          return `【類題作成不可】
-化学に関する具体的な問題・単元が特定できないため、類題を作成できません。`;
-        }
-      }
-
-      // 各化学単元の判定
-      const isRedox = combinedText.includes('酸化') || combinedText.includes('還元') || combinedText.includes('半反応式') || combinedText.includes('過マンガン酸') || combinedText.includes('ヨウ素');
-      const isBattery = combinedText.includes('電池') || combinedText.includes('ダニエル') || combinedText.includes('ボルタ') || combinedText.includes('鉛蓄電池') || combinedText.includes('電気分解');
-      const isGas = combinedText.includes('気体') || combinedText.includes('状態方程式') || combinedText.includes('分圧') || combinedText.includes('ドルトン') || combinedText.includes('蒸気圧');
-      const isEquilibrium = combinedText.includes('平衡') || combinedText.includes('ルシャトリエ') || combinedText.includes('平衡定数') || combinedText.includes('電離定数') || combinedText.includes('緩衝');
-      const isThermo = combinedText.includes('熱化学') || combinedText.includes('ヘス') || combinedText.includes('結合エネルギー') || combinedText.includes('エンタルピー') || combinedText.includes('発熱');
-      const isAcidBase = combinedText.includes('中和') || combinedText.includes('滴定') || combinedText.includes('ph') || combinedText.includes('塩の加水分解');
       const isAspirin = combinedText.includes('サリチル酸') || combinedText.includes('アスピリン') || combinedText.includes('無水酢酸');
-      const isOrganicGeneral = combinedText.includes('構造決定') || combinedText.includes('異性体') || combinedText.includes('エステル') || combinedText.includes('銀鏡') || combinedText.includes('フェーリング') || combinedText.includes('ヨードホルム');
-      const isPolymer = combinedText.includes('高分子') || combinedText.includes('糖') || combinedText.includes('グルコース') || combinedText.includes('アミノ酸') || combinedText.includes('ペプチド') || combinedText.includes('ナイロン');
+      const isEquilibrium = combinedText.includes('平衡') || combinedText.includes('ルシャトリエ') || combinedText.includes('平衡定数');
+      const isBattery = combinedText.includes('電池') || combinedText.includes('電気分解');
 
       if (actionType === 'draft') {
         if (isAspirin) {
-          return `【結論】
-フェノール類のヒドロキシ基は通常のアルコールに比べて求核性が低いため、通常の酢酸ではエステル化がほとんど進みません。そのため、反応性の高い無水酢酸を用いてアセチル化を行います。
-
-【解説】
-1. フェノール性ヒドロキシ基の反応性
-ベンゼン環の非局在化した $\\pi$ 電子系と酸素原子の非共有電子対が共鳴するため、酸素原子上の電子密度が低下し、求核攻撃の能力が弱まります。
-
-2. 酢酸と無水酢酸の違い
-通常の酢酸 $\\ce{CH3COOH}$ では副生する水により加水分解（逆反応）が容易に起き、平衡が著しく原系に偏ります。
-一方、無水酢酸 $\\ce{(CH3CO)2O}$ を用いると、カルボニル炭素の求電子性が非常に高いため速やかに反応します。
-$$\\ce{C6H4(OH)COOH + (CH3CO)2O -> C6H4(OCOCH3)COOH + CH3COOH}$$
-副生成物が水ではなく酢酸であるため逆反応（加水分解）が起こらず、不可逆的にアセチルサリチル酸が得られます。`;
+          return `【結論】\nフェノール類のヒドロキシ基は通常のアルコールに比べて求核性が低いため、通常の酢酸ではエステル化がほとんど進みません。そのため、反応性の高い無水酢酸を用いてアセチル化を行います。\n\n【解説】\n1. フェノール性ヒドロキシ基の反応性\nベンゼン環の非局在化した $\\pi$ 電子系と酸素原子の非共有電子対が共鳴するため、酸素原子上の電子密度が低下し、求核攻撃の能力が弱まります。\n\n2. 酢酸と無水酢酸の違い\n通常の酢酸 $\\ce{CH3COOH}$ では副生する水により加水分解（逆反応）が容易に起き、平衡が著しく原系に偏ります。\n一方、無水酢酸 $\\ce{(CH3CO)2O}$ を用いると速やかに反応します。\n$$\\ce{C6H4(OH)COOH + (CH3CO)2O -> C6H4(OCOCH3)COOH + CH3COOH}$$\n副生成物が水ではなく酢酸であるため逆反応が起こらず、定量的にアセチルサリチル酸が得られます。`;
         } else if (isEquilibrium) {
-          return `【結論】
-平衡移動（ルシャトリエの原理）による各物質の濃度変化と、「平衡定数 $K$ そのものの変化」を明確に区別することがポイントです。温度が変わらない限り $K$ は変化しません。
-
-【解説】
-1. 平衡定数 $K$ の本質
-圧力を上げたり物質を加えたりして平衡が移動しても、移動後の各濃度を代入した平衡定数の値は一定のまま保たれます。$K$ の値そのものが変化するのは「温度を変えたとき」のみです。
-
-2. 温度変化と平衡定数
-発熱反応系を加熱（昇温）すると、ルシャトリエの原理より吸熱方向（逆反応）に平衡が移動します。
-$$K = \\frac{\\text{[生成物]}}{\\text{[反応物]}}$$
-分子が減少し分母が増加するため、この場合に限り $K$ の値自体が減少します。`;
+          return `【結論】\n発熱反応において温度を上昇させた場合、平衡定数 $K$ の値は減少（小さく）します。\n\n【解説】\n1. 平衡定数 $K$ の性質\n平衡定数 $K$ は温度のみに依存する定数です。圧力を変えて平衡が移動しても $K$ は一定ですが、温度変化によって定数の値そのものが変化します。\n\n2. ルシャトリエの原理による考察\n発熱反応系を加熱すると、熱を和らげる吸熱方向（逆反応）に平衡が移動します。\n$$K = \\frac{\\text{[生成物]}}{\\text{[反応物]}}$$\n生成物が減少し反応物が増加するため、平衡定数 $K$ は小さくなります。`;
         } else if (isBattery) {
-          return `【結論】
-電池や電気分解では、「正極・負極（陽極・陰極）で誰が電子を出し、誰が電子を受け取るか」をイオン化傾向と酸化還元反応に基づいて1極ずつ書き出すことが解決の鍵です。
-
-【解説】
-1. 負極（電子を放出する極）
-よりイオン化傾向の大きい金属が溶解して電子を放出します。
-$$\\ce{M -> M^{n+} + n e^-}$$
-
-2. 正極（電子を受け取る極）
-溶液中のイオン（$\\ce{H+}$, $\\ce{Cu^2+}$, あるいは水分子）が電子を受け取って還元されます。
-全体の反応式を暗記するのではなく、電子 $\\ce{e^-}$ の個数を揃えて両極の半反応式を足し合わせる手順を徹底しましょう。`;
-        } else if (isOrganicGeneral) {
-          return `【結論】
-有機化合物の構造決定やつまずきを整理する際は、「分子式から不飽和度を計算する」ことと「試薬に対する特有の呈色・検出反応」を論理的につなぎ合わせます。
-
-【解説】
-1. 不飽和度の算出
-分子式 $\\ce{C}_c\\ce{H}_h\\ce{O}_o$ から、不飽和度 $= c + 1 - \\frac{h}{2}$ を求め、二重結合・三重結合・環構造（ベンゼン環なら不飽和度4）の存在を絞り込みます。
-
-2. 官能基の特有反応
-・アルデヒド基：銀鏡反応、フェーリング反応で検出
-・アセチル基 $\\ce{CH3-C=O}$ または $\\ce{CH3-CH(OH)-}$：ヨードホルム反応で黄色沈殿 $\\ce{CHI3 v}$
-・エステル結合：水酸化ナトリウム水溶液によるけん化でカルボン酸塩とアルコールに分解
-各段階で生じた生成物の性質から逆算して構造を特定していきましょう。`;
+          return `【結論】\n電池や電気分解では、「正極・負極（陽極・陰極）で誰が電子を出し、誰が電子を受け取るか」をイオン化傾向と酸化還元反応に基づいて1極ずつ整理することが解決の鍵です。\n\n【解説】\n1. 負極（電子を放出する極）\nイオン化傾向の大きい金属が酸化されて電子を放出します。\n$$\\ce{M -> M^{n+} + n e^-}$$\n\n2. 正極（電子を受け取る極）\n電解液中のイオンが電子を受け取って還元されます。\n全体の反応式を暗記するのではなく、電子 $\\ce{e^-}$ の個数を揃えて両極の半反応式を足し合わせる習慣をつけましょう。`;
         } else {
-          return `【結論】
-「${escapeHtml(qText.slice(0, 30))}」についての疑問ですね。
-高校化学のこの分野では、反応に関与している粒子の状態と変化の前後関係を整理することが解決への近道です。
-
-【解説】
-生徒が疑問に感じた点について：
-直感的なイメージと、化学の基本原理（電子の移動、結合の組み換え、あるいは熱エネルギーの収支）との結びつきを確認しましょう。
-反応式をイオンや電子を含めて書き下し、どの法則（保存則や平衡の法則など）が成り立っているかを順を追って確認してください。`;
+          return `【結論】\n「${escapeHtml(qText.slice(0, 30))}」についての疑問ですね。\n高校化学のこの分野では、反応に関与している粒子の状態と変化の前後関係を整理することが解決への近道です。\n\n【解説】\n直感的なイメージと、化学の基本原理（電子の移動、結合の組み換え、熱エネルギーの収支）との結びつきを確認しましょう。\n反応式をイオンや電子を含めて書き下し、どの法則（保存則や平衡の法則など）が成り立っているかを順を追って確認してください。`;
         }
       } else if (actionType === 'analyze') {
-        return `【指導分析メモ】
-・着眼点：生徒は「${escapeHtml(qText.slice(0, 30))}」という問題の表面的な事実にとどまらず、「なぜそうなるのか」という因果関係に疑問を持てています。
-・つまずきの本質：${eText ? `「${escapeHtml(eText.slice(0, 40))}」という記述から、定義と適用条件の混同が見られます。` : '基本法則の暗記と現象の背景にあるメカニズムが結びついていません。'}
-・指導助言：まずは生徒の仮説のどこが合っていて、どこから論理が飛躍したかを褒めつつ指摘すると納得感が深まります。`;
+        return `【指導分析メモ】\n・着眼点：生徒は問題の表面的な結果だけでなく、「なぜそうなるのか」という因果関係に疑問を持てています。\n・つまずきの本質：${eText ? `「${escapeHtml(eText.slice(0, 40))}」という記述から、定義と適用条件の混同が見られます。` : '基本法則の暗記と現象の背景にあるメカニズムが結びついていません。'}\n・指導助言：生徒の仮説のどこが合っていて、どこから論理が飛躍したかを褒めつつ指摘すると納得感が深まります。`;
       } else {
-        return `【類題】
-本問の理解度を定着させるための関連問題です。
-
-【問題】
-本問と同じ原理が働く別の状況（温度や濃度の条件を変更、あるいは同族元素に置換した場合）において、反応の進行方向や生成物はどのように変化するかを説明せよ。
-
-【解答の着眼点】
-・変化する物理量と一定に保たれる定数を区別すること。
-・電子の移動またはエネルギー図を描いて比較すること。`;
+        return `【類題】\n本問の理解度を定着させるための関連問題です。\n\n【問題】\n本問と同じ原理が働く別の状況（温度や濃度の条件を変更した場合）において、反応の進行方向や生成物はどのように変化するかを説明せよ。\n\n【解答の着眼点】\n・変化する物理量と一定に保たれる定数を区別すること。\n・電子の移動またはエネルギー図を描いて比較すること。`;
       }
     }
 
     async function generateGeminiAction(type) {
       currentGeminiAction = type;
-      const q = teacherQuestions.find(x => x.id === currentEditingId);
+      const q = teacherQuestions.find(x => x.id === currentEditingId || String(x.publicId).replace(/^Q-/, '') === String(window._currentEditingPublicId || '').replace(/^Q-/, ''));
       if (!q) return;
 
       const loading = document.getElementById('geminiLoading');
@@ -1876,13 +1793,13 @@ $$\\ce{M -> M^{n+} + n e^-}$$
 
       const systemInstruction = `あなたは厳密で論理的な高校化学科の専門教員です。
 【最優先ガードレール】
-入力された質問内容が「高校化学」と無関係な内容（他教科、スポーツ、芸能、雑談、意味不明な文字列など）である場合は、絶対に無理やり化学の解説を作らないでください。必ず【結論】の直後に「本質問は高校化学の内容と無関係です。化学に関する疑問を投稿してください」と述べ、解説も高校化学の範囲で再質問するよう促す内容のみとしてください。
+入力された質問内容が「高校化学」と無関係な内容（他教科、スポーツ、芸能、雑談、意味不明な文字列など）である場合は、絶対に無理やり化学の解説を作らないでください。必ず【結論】の直後に「本質問は高校化学の内容と無関係です。化学に関する疑問を投稿してください」と述べてください。
 
 【高校化学の質問である場合の絶対厳守ルール】
 1. 「質問ありがとうございます」「良い質問ですね」等の挨拶・前置き・結びの言葉は一切出力せず、必ず【結論】から開始すること。
-2. マークダウンの太字アスタリスク（**）は使用禁止。【結論】【解説】や 1. 2. などの番号付き見出しを使用すること。
-3. 生徒の質問に真正面から答え、抽象的な一般論やお茶濁しは一切禁止。生徒の「疑問点」と「つまずいた点（誤解）」のギャップを論理的に解きほぐすこと。
-4. 化学式・反応式は必ず KaTeX mhchem 記法（$ \\ce{...} $ または $$ \\ce{...} $$）で1度だけ記述すること。生テキストとの二重併記や X などの文字化けは厳禁。
+2. マークダウンの太字アスタリスク（**）は使用禁止。【結論】【解説】や 1. 2. などの見出しを使用すること。
+3. 生徒の質問に真正面から答え、抽象的な一般論は禁止。生徒の「疑問点」と「つまずいた点」のギャップを論理的に解きほぐすこと。
+4. 化学式・反応式は必ず KaTeX mhchem 記法（$ \\ce{...} $ または $$ \\ce{...} $$）で1度だけ記述すること。生テキストとの二重併記は厳禁。
 5. 分数は \\frac{分子}{分母}、日本語を含む場合は \\frac{\\text{分子}}{\\text{分母}} とすること。`;
 
       let prompt = '';
@@ -1923,6 +1840,7 @@ ${customInstruction ? `\n【指示】: ${customInstruction}\n` : ''}`;
         let resultText = await callGeminiApi(prompt, systemInstruction, q.category, q.content, type, q.imageData);
         resultText = cleanChemicalFormatting(resultText);
         
+        lastGeneratedAiRawText = resultText;
         outputText.textContent = resultText;
         loading.classList.add('hidden');
         resultBox.classList.remove('hidden');
@@ -1998,6 +1916,7 @@ ${customInstruction ? `\n【指示】: ${customInstruction}\n` : ''}`;
 
       if (section === 'gemini') {
         checkAiConnectionStatus();
+        triggerKaTeX();
       } else if (section === 'answer') {
         handleAnswerInputLive();
       } else {
@@ -2051,12 +1970,17 @@ ${customInstruction ? `\n【指示】: ${customInstruction}\n` : ''}`;
       handleAnswerInputLive();
     }
 
-    function openReviewModal(id) {
+    function openReviewModal(id, publicIdHint) {
       currentEditingId = id;
-      const q = teacherQuestions.find(x => x.id === id);
+      window._currentEditingPublicId = publicIdHint || '';
+      
+      const q = teacherQuestions.find(x => x.id === id || (publicIdHint && String(x.publicId).replace(/^Q-/, '') === String(publicIdHint).replace(/^Q-/, '')));
       if (!q) return;
 
-      document.getElementById('modalQuestionId').textContent = q.publicId;
+      const cleanPubId = String(q.publicId || publicIdHint || '').replace(/^Q-/, '');
+      window._currentEditingPublicId = cleanPubId;
+
+      document.getElementById('modalQuestionId').textContent = cleanPubId;
       document.getElementById('modalCategoryBadge').textContent = q.category || '化学';
       document.getElementById('modalStudentId').textContent = q.studentId;
       document.getElementById('modalStudentName').textContent = q.studentName;
@@ -2073,6 +1997,8 @@ ${customInstruction ? `\n【指示】: ${customInstruction}\n` : ''}`;
         r.checked = (r.value === (q.status || 'pending'));
       }
 
+      // AI結果状態のリセット
+      lastGeneratedAiRawText = '';
       document.getElementById('geminiResultBox').classList.add('hidden');
       document.getElementById('geminiLoading').classList.add('hidden');
 
@@ -2161,11 +2087,8 @@ ${customInstruction ? `\n【指示】: ${customInstruction}\n` : ''}`;
         if (tBtn) tBtn.className = 'px-3 py-1.5 text-xs sm:text-sm font-medium rounded-lg transition-all bg-white text-blue-700 shadow-sm flex items-center gap-1.5';
         if (sBtn) sBtn.className = 'px-3 py-1.5 text-xs sm:text-sm font-medium rounded-lg transition-all text-slate-600 hover:text-slate-900';
         checkSettingsStatus();
-        if (teacherQuestions.length === 0) {
-          const pin = sessionStorage.getItem('teacherPin');
-          if (pin) fetchTeacherQuestions(pin);
-        }
-        renderTeacherList();
+        const pin = sessionStorage.getItem('teacherPin') || '1669';
+        fetchTeacherQuestions(pin);
       }
     }
 
