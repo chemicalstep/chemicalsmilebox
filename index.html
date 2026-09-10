@@ -68,12 +68,12 @@
           </div>
           <p class="text-xs text-slate-700 ml-7 leading-relaxed">
             入力した「生徒番号」「本名」は先生の個別指導確認用です。<strong class="text-blue-800 underline decoration-blue-400">公開画面には一切掲載されません</strong>。
-            回答一覧には自動発行される<span class="font-semibold text-slate-900">「質問ID（例: Q-0001）」と「ニックネーム」</span>のみが表示されます。
+            回答一覧には自動発行される<span class="font-semibold text-slate-900">「質問ID（例: 0001）」と「ニックネーム」</span>のみが表示されます。
           </p>
         </div>
         <div class="bg-white/80 backdrop-blur-sm p-3 rounded-xl border border-blue-100 min-w-[210px] shrink-0">
           <p class="text-[11px] font-bold text-slate-500 mb-1">👨‍🏫 化学科からのご案内</p>
-          <p class="text-xs font-semibold text-blue-950">回答の作成・公開には<br><span class="text-blue-600 font-bold">2〜3営業日程度</span>かかります。</p>
+          <p class="text-xs font-semibold text-blue-950">回答の作成・公開には<br><span class="text-blue-600 font-bold">2〜3営程度</span>かかります。</p>
         </div>
       </div>
 
@@ -165,7 +165,7 @@
       <div id="studentListPane" class="hidden space-y-6">
         <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm flex flex-col md:flex-row gap-3 justify-between items-center">
           <div class="flex flex-col sm:flex-row gap-2 flex-grow max-w-xl w-full">
-            <input type="text" id="searchIdInput" placeholder="質問ID (例: Q-0001) で検索" oninput="renderPublicList()" class="flex-1 px-3 py-2 text-sm rounded-xl border border-slate-300 font-mono focus:ring-2 focus:ring-blue-500">
+            <input type="text" id="searchIdInput" placeholder="質問ID (例: 0001) で検索" oninput="renderPublicList()" class="flex-1 px-3 py-2 text-sm rounded-xl border border-slate-300 font-mono focus:ring-2 focus:ring-blue-500">
             <input type="text" id="searchKeyword" placeholder="キーワード検索" oninput="renderPublicList()" class="flex-1 px-3 py-2 text-sm rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500">
           </div>
           <div class="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end">
@@ -182,43 +182,43 @@
         </div>
         <div id="publicQuestionsList" class="grid grid-cols-1 gap-5"></div>
       </div>
-    </div>
-
-    <!-- ==================== 教員用画面 ==================== -->
-    <div id="teacherSection" class="hidden space-y-6">
+  <!-- 生徒から先生へのお礼・感想コメント送信モーダル -->
+  <div id="studentCommentModal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4" onclick="closeStudentCommentModal()">
+    <div class="bg-white w-full max-w-md rounded-2xl shadow-xl p-6 space-y-4" onclick="event.stopPropagation()">
+      <div class="flex items-center justify-between border-b pb-3">
+        <div class="flex items-center gap-2">
+          <span class="text-xl">💌</span>
+          <h3 class="font-bold text-slate-900 text-sm">先生へのお礼・感想メッセージ</h3>
+        </div>
+        <button onclick="closeStudentCommentModal()" class="text-slate-400 hover:text-slate-700 text-lg leading-none p-1">✕</button>
+      </div>
       
-      <!-- 設定メニューバー -->
-      <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm flex flex-wrap justify-between items-center gap-4">
-        <div class="flex items-center gap-3">
-          <div class="w-9 h-9 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center font-bold text-lg">👨‍🔬</div>
-          <div>
-            <h2 class="text-sm font-bold text-slate-900">化学科 質問管理ステーション</h2>
-            <div class="text-[11px] text-slate-500 mt-0.5 space-x-2">
-              <span id="gasStatusText" class="text-emerald-600 font-semibold">🟢 GAS連携中（本番同期）</span>
-              <span class="text-purple-600 font-semibold">✨ 日本時間(JST)対応</span>
-            </div>
-          </div>
-        </div>
-        <div class="flex gap-2">
-          <button onclick="fetchTeacherQuestions(sessionStorage.getItem('teacherPin') || '1669')" class="px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-semibold rounded-lg transition border border-blue-200 flex items-center gap-1">🔄 最新に更新</button>
-          <button onclick="openGasModal()" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg transition border border-slate-200">⚙️ GAS連携設定</button>
-          <button onclick="openApiModal()" class="px-3 py-1.5 bg-purple-50 hover:bg-purple-100 text-purple-700 text-xs font-semibold rounded-lg transition border border-purple-200">🔑 APIキー個別設定</button>
-          <button onclick="handleTeacherLogout()" class="px-3 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-semibold rounded-lg transition border border-rose-200">🚪 ログアウト</button>
-        </div>
+      <div class="bg-amber-50 border border-amber-200 rounded-xl p-3 text-xs text-amber-900 space-y-1">
+        <p class="font-bold flex items-center gap-1">
+          <span>😊 先生たちからのメッセージ</span>
+        </p>
+        <p class="leading-relaxed">
+          「ここが分かりやすかった！」「解けるようになりました！」など、一言でも感想やメッセージがあると化学科の先生たちがとっても喜びます！✨
+        </p>
+        <p class="text-[10px] text-amber-700 mt-1">※このメッセージは公開されず、先生たちだけが読みます。</p>
       </div>
 
-      <!-- フィルタータブ -->
-      <div class="flex border-b border-slate-200 gap-6 text-sm font-semibold">
-        <button id="teacherPendingTabBtn" onclick="switchTeacherFilter('pending')" class="pb-3 border-b-2 border-blue-600 text-blue-700 transition flex gap-2 font-bold">
-          <span>⏳ 未完了の質問</span><span id="teacherTabPendingBadge" class="bg-rose-100 text-rose-700 text-xs px-2 py-0.5 rounded-full font-bold">0</span>
+      <div>
+        <label class="block text-xs font-bold text-slate-700 mb-1.5">
+          メッセージ内容（質問ID: <span id="commentModalPublicId" class="font-mono font-bold text-blue-700"></span> への感想）
+        </label>
+        <textarea id="studentCommentInput" rows="4" placeholder="例: わかりやすい解説ありがとうございました！酸化数の変化のところで納得できました。" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-blue-500 leading-relaxed"></textarea>
+      </div>
+
+      <div class="flex justify-end gap-2 pt-1">
+        <button type="button" onclick="closeStudentCommentModal()" class="px-4 py-2 text-xs font-medium text-slate-600 hover:text-slate-900">キャンセル</button>
+        <button type="button" id="submitCommentBtn" onclick="submitStudentComment()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl shadow-sm transition flex items-center gap-1.5">
+          <span>送信する 💌</span>
+          <span id="submitCommentSpinner" class="hidden animate-spin">🌀</span>
         </button>
-        <button id="teacherAnsweredTabBtn" onclick="switchTeacherFilter('answered')" class="pb-3 border-b-2 border-transparent text-slate-500 hover:text-slate-800 transition">✅ 回答済み一覧</button>
       </div>
-
-      <div id="teacherQuestionsList" class="space-y-4"></div>
     </div>
-
-  </main>
+  </div>
 
   <!-- 写真拡大モーダル（先生がクリックして大きく確認できるビューア） -->
   <div id="imageLightboxModal" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4" onclick="closeImageLightbox()">
@@ -427,7 +427,10 @@
               <div class="flex items-center gap-2">
                 <span class="text-2xl">🤖</span>
                 <div>
-                  <h4 class="text-sm font-bold text-purple-950">Gemini 3 Flash 指導アシスタント</h4>
+                  <div class="flex items-center gap-2">
+                    <h4 class="text-sm font-bold text-purple-950">Gemini 3 Flash 指導アシスタント</h4>
+                    <span id="geminiConnectionBadge" class="text-[10px] px-2 py-0.5 rounded-full font-bold"></span>
+                  </div>
                   <p class="text-[11px] text-purple-700">生徒の疑問に寄り添う回答ドラフト・思考分析・類題をAIが生成します</p>
                 </div>
               </div>
@@ -442,6 +445,22 @@
                   <span>📝 類題・良問作成</span>
                 </button>
               </div>
+            </div>
+
+            <!-- APIキー未登録時の案内バナー（GASスクリプトプロパティ案内） -->
+            <div id="apiKeyNoticeBanner" class="hidden bg-amber-50 border border-amber-200 rounded-xl p-3 text-xs text-amber-950 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+              <div class="space-y-0.5">
+                <div class="flex items-center gap-1.5 font-bold text-amber-900">
+                  <span class="text-base">🛡️</span>
+                  <span>安全なサーバー中継モード（推奨②）に対応済み</span>
+                </div>
+                <p class="text-[11px] text-amber-800 leading-relaxed">
+                  GASの『プロジェクトの設定』➔『スクリプト プロパティ』にプロパティ名 <code>GEMINI_API_KEY</code> を追加すると、生徒やブラウザにキーを一切露出させずに本物のGeminiと通信できます。
+                </p>
+              </div>
+              <button type="button" onclick="openKeySetupGuideModal()" class="px-3 py-1.5 bg-purple-700 hover:bg-purple-800 text-white text-xs font-bold rounded-lg shrink-0 transition flex items-center gap-1 shadow-xs">
+                <span>📖 設定手順を見る</span>
+              </button>
             </div>
 
             <!-- 先生からの個別指示・条件指定エリア -->
@@ -547,6 +566,37 @@
   <!-- トースト通知コンテナ -->
   <div id="toastContainer" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
 
+  <!-- GASスクリプトプロパティ設定ガイドモーダル -->
+  <div id="keySetupGuideModal" class="hidden fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4" onclick="closeKeySetupGuideModal()">
+    <div class="bg-white w-full max-w-lg rounded-2xl shadow-2xl p-6 space-y-4" onclick="event.stopPropagation()">
+      <div class="flex justify-between items-center border-b border-slate-200 pb-3">
+        <h3 class="font-bold text-slate-900 flex items-center gap-2">
+          <span>🛡️</span> APIキーの安全保管（スクリプトプロパティ）手順
+        </h3>
+        <button onclick="closeKeySetupGuideModal()" class="text-slate-400 hover:text-slate-700 text-lg leading-none p-1">✕</button>
+      </div>
+      <div class="text-xs text-slate-700 space-y-2.5 leading-relaxed">
+        <p class="font-bold text-slate-900">この設定を行うと、生徒側にもHTMLソースにもAPIキーが一切露出せず、安全に本物のGeminiが使えます。</p>
+        <ol class="list-decimal list-inside space-y-1.5 bg-slate-50 p-3.5 rounded-xl border border-slate-200 font-medium">
+          <li>スプレッドシートの <strong>「拡張機能」>「Apps Script」</strong> を開きます。</li>
+          <li>左メニューの <strong>⚙️「プロジェクトの設定」</strong>（歯車アイコン）をクリック。</li>
+          <li>ページ下部の <strong>「スクリプト プロパティ」>「スクリプト プロパティを追加」</strong> をクリック。</li>
+          <li>
+            プロパティ名に <strong><code>GEMINI_API_KEY</code></strong> と入力。<br>
+            値に Google AI Studio で取得したAPIキー（<code>AIzaSy...</code>）を貼り付けます。
+          </li>
+          <li><strong>「スクリプト プロパティを保存」</strong> を押します。</li>
+        </ol>
+        <p class="text-[11px] text-emerald-700 bg-emerald-50 p-2.5 rounded-lg border border-emerald-200">
+          ✅ 保存完了後、Apps Script画面右上から <strong>「デプロイ」>「デプロイを管理」➔「新バージョン」</strong> でデプロイすれば、即座にサーバー中継が有効になります！
+        </p>
+      </div>
+      <div class="flex justify-end pt-2">
+        <button onclick="closeKeySetupGuideModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold rounded-xl">了解しました</button>
+      </div>
+    </div>
+  </div>
+
   <!-- ==================== JavaScript ロジック ==================== -->
   <script>
     // 【最重要設定】スプレッドシート（GAS）のデプロイURL
@@ -575,10 +625,206 @@
       }).format(now);
     }
 
+    // HTML特殊文字エスケープ
+    function escapeHtml(str) {
+      if (str === null || str === undefined) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    // KaTeX および mhchem の数式レンダリング実行
+    function triggerKaTeX() {
+      if (typeof renderMathInElement === 'function') {
+        document.querySelectorAll('.katex-target').forEach(el => {
+          try {
+            renderMathInElement(el, {
+              delimiters: [
+                { left: '$$', right: '$$', display: true },
+                { left: '$', right: '$', display: false },
+                { left: '\\(', right: '\\)', display: false },
+                { left: '\\[', right: '\\]', display: true }
+              ],
+              throwOnError: false,
+              strict: false
+            });
+          } catch (err) {
+            console.warn('KaTeX render error:', err);
+          }
+        });
+      }
+    }
+
+    // トースト通知メッセージ表示
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('toastContainer');
+      if (!container) return;
+      const toast = document.createElement('div');
+      const bgClass = type === 'success' ? 'bg-emerald-600 text-white' :
+                      type === 'error' ? 'bg-rose-600 text-white' :
+                      type === 'warning' ? 'bg-amber-600 text-white' : 'bg-slate-800 text-white';
+      const icon = type === 'success' ? '✅' : type === 'error' ? '⚠️' : type === 'warning' ? '🔔' : 'ℹ️';
+      toast.className = `${bgClass} px-4 py-2.5 rounded-xl shadow-lg text-xs font-semibold flex items-center gap-2 pointer-events-auto transform transition-all duration-300 translate-y-2 opacity-0`;
+      toast.innerHTML = `<span>${icon}</span><span>${escapeHtml(message)}</span>`;
+      container.appendChild(toast);
+      requestAnimationFrame(() => {
+        toast.classList.remove('translate-y-2', 'opacity-0');
+      });
+      setTimeout(() => {
+        toast.classList.add('opacity-0', 'translate-y-2');
+        setTimeout(() => toast.remove(), 300);
+      }, 3500);
+    }
+
+    // 生徒番号の全角→半角自動変換
+    function normalizeStudentId(el) {
+      if (!el) return;
+      let val = el.value.replace(/[０-９]/g, s => String.fromCharCode(s.charCodeAt(0) - 0xFEE0));
+      val = val.replace(/\D/g, '');
+      if (val.length > 7) val = val.slice(0, 7);
+      el.value = val;
+    }
+
+    // 回答作成時のリアルタイムKaTeXプレビュー更新
+    function handleAnswerInputLive() {
+      const input = document.getElementById('modalAnswerInput');
+      const preview = document.getElementById('modalAnswerLivePreview');
+      const badge = document.getElementById('previewStatusBadge');
+      if (!input || !preview) return;
+      const val = input.value.trim();
+      if (!val) {
+        preview.innerHTML = '<span class="text-slate-400 italic">入力した回答の数式・化学式がリアルタイムにここに描画されます...</span>';
+        if (badge) {
+          badge.textContent = '待機中';
+          badge.className = 'text-[10px] text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full font-bold';
+        }
+        return;
+      }
+      preview.textContent = val;
+      preview.className = 'flex-grow p-3 bg-blue-50/50 rounded-xl border border-blue-200 shadow-inner text-sm text-slate-800 leading-relaxed custom-scrollbar break-words overflow-y-auto katex-target whitespace-pre-wrap';
+      if (badge) {
+        badge.textContent = '描画中';
+        badge.className = 'text-[10px] text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full font-bold';
+      }
+      triggerKaTeX();
+    }
+
+    // AI出力文の化学式重複や不要記号クリーニング
+    function cleanChemicalFormatting(str) {
+      if (!str) return '';
+      let cleaned = str;
+      cleaned = cleaned.replace(/\*\*【(.*?)】\*\*/g, '【$1】');
+      cleaned = cleaned.replace(/^\s*\*\*(.*?)\*\*\s*$/gm, '$1');
+      cleaned = cleaned.replace(/[A-Z0-9xX]+(\\ce\{.*?\})[A-Z0-9xX]+/g, '$1');
+      return cleaned;
+    }
+
+    // Gemini出力のコピー・反映ヘルパー
+    function copyGeminiOutput() {
+      const out = document.getElementById('geminiOutputText');
+      if (!out || !out.textContent) return;
+      const temp = document.createElement('textarea');
+      temp.value = out.textContent;
+      document.body.appendChild(temp);
+      temp.select();
+      document.execCommand('copy');
+      document.body.removeChild(temp);
+      showToast('AIの生成内容をクリップボードにコピーしました！', 'success');
+    }
+
+    function applyGeminiToEditor(mode) {
+      const out = document.getElementById('geminiOutputText');
+      const input = document.getElementById('modalAnswerInput');
+      if (!out || !input) return;
+      const text = out.textContent.trim();
+      if (!text) {
+        showToast('反映するAI提案内容がありません。', 'error');
+        return;
+      }
+      if (mode === 'replace') {
+        input.value = text;
+      } else {
+        input.value = input.value ? (input.value.trim() + '\n\n' + text) : text;
+      }
+      switchEditorSection('answer');
+      handleAnswerInputLive();
+      showToast(mode === 'replace' ? 'AIドラフトを回答欄に反映しました。' : 'AIドラフトを回答の末尾に追加しました。', 'success');
+    }
+
+    function applyAndDirectPublish() {
+      applyGeminiToEditor('replace');
+      saveAnswerAndPublish();
+    }
+
+    // 指導指示クリア・追記
+    function clearTeacherInstruction() {
+      const input = document.getElementById('aiCustomInstructionInput');
+      if (input) input.value = '';
+    }
+
+    function appendInstruction(inst) {
+      const input = document.getElementById('aiCustomInstructionInput');
+      if (!input) return;
+      if (input.value.trim()) {
+        input.value = input.value.trim() + '、' + inst;
+      } else {
+        input.value = inst;
+      }
+    }
+
+    // 生徒の理解度リアクション処理
+    async function handleStudentReaction(publicId, type) {
+      if (!publicId || !type) return;
+      const target = publicQuestions.find(q => q.publicId === publicId);
+      if (!target) return;
+      if (!target.reactions) target.reactions = { clear: 0, good: 0, unclear: 0 };
+
+      const prev = myReactions[publicId];
+      if (prev === type) {
+        target.reactions[type] = Math.max(0, (target.reactions[type] || 1) - 1);
+        delete myReactions[publicId];
+      } else {
+        if (prev) {
+          target.reactions[prev] = Math.max(0, (target.reactions[prev] || 1) - 1);
+        }
+        target.reactions[type] = (target.reactions[type] || 0) + 1;
+        myReactions[publicId] = type;
+      }
+
+      try {
+        localStorage.setItem('student_reactions', JSON.stringify(myReactions));
+      } catch (e) {}
+
+      renderPublicList();
+
+      if (myReactions[publicId] === 'clear') {
+        showToast('「スッキリ理解できた！」を先生に伝えました😊', 'success');
+      } else if (myReactions[publicId] === 'good') {
+        showToast('「なるほど」を先生に伝えました！👍', 'info');
+      } else if (myReactions[publicId] === 'unclear') {
+        showToast('「まだ少しモヤモヤ」を記録しました。職員室で直接先生に質問してみよう！💡', 'warning');
+      }
+
+      const gasUrl = getEffectiveGasUrl();
+      if (gasUrl && myReactions[publicId]) {
+        try {
+          fetch(gasUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify({ action: 'submitReaction', publicId: publicId, reaction: type })
+          }).catch(e => console.warn('Reaction sync error:', e));
+        } catch (e) {}
+      }
+    }
+
     // アプリケーション状態変数
     let activeView = 'student';
     let teacherFilter = 'pending';
     let currentEditingId = null;
+    let currentCommentingPublicId = null;
     let selectedImageBase64 = null;
     let currentGeminiAction = 'draft';
     let localMockCounter = 3;
@@ -589,7 +835,7 @@
     const INITIAL_SAMPLE_QUESTIONS = [
       {
         id: 'demo_001',
-        publicId: 'Q-0001',
+        publicId: '0001',
         status: 'answered',
         studentId: '2401012',
         studentName: '佐藤 健一',
@@ -600,11 +846,14 @@
         createdAt: '2026/09/10 14:20',
         answer: '【結論】\n活性化エネルギーの大きさとエントロピー変化の違いにより、高温ではより大きな活性化エネルギーを要する分子内脱水（エチレン生成）が優勢になります。\n\n【解説】\n1. 中温（130〜140℃）：分子間脱水\n$\\ce{2C2H5OH ->[H2SO4][130-140℃] C2H5-O-C2H5 + H2O}$\n活性化エネルギーが比較的小さいため、穏やかな加熱で2分子が衝突してエーテルが生成します。\n\n2. 高温（160〜170℃）：分子内脱水\n$\\ce{C2H5OH ->[H2SO4][160-170℃] CH2=CH2 + H2O}$\n炭素-炭素二重結合を形成する分子内脱水は活性化エネルギーが高いため、十分な熱エネルギーを与えられた高温でのみ急速に反応が進行します。',
         answeredAt: '2026/09/10 17:45',
-        reactions: { clear: 14, good: 6, unclear: 1 }
+        reactions: { clear: 14, good: 6, unclear: 1 },
+        comments: [
+          { text: '教科書を読んでも納得いかなかった活性化エネルギーの話がスッキリ分かりました！ありがとうございます！', createdAt: '2026/09/10 18:00' }
+        ]
       },
       {
         id: 'demo_002',
-        publicId: 'Q-0002',
+        publicId: '0002',
         status: 'answered',
         studentId: '2401045',
         studentName: '鈴木 葵',
@@ -615,11 +864,12 @@
         createdAt: '2026/09/10 16:05',
         answer: '【結論】\n発熱反応において温度を上昇させた場合、平衡定数 $K$ の値は減少（小さく）します。\n\n【解説】\n1. 平衡定数 $K$ の性質\n平衡定数 $K$ は「温度のみに依存する定数」です。圧力や濃度を変えても $K$ は一定ですが、温度が変化すると定数そのものの値が変化します。\n\n2. ルシャトリエの原理による考察\n発熱反応系を加熱（昇温）すると、加えられた熱を和らげる吸熱方向（逆反応・左向き）に平衡が移動します。\n$$K = \\frac{\\text{[生成物]}}{\\text{[反応物]}}$$\n左向きへの移動は分子（生成物）の減少と分母（反応物）の増加を意味するため、$K$ の値は小さくなります。',
         answeredAt: '2026/09/10 18:30',
-        reactions: { clear: 22, good: 9, unclear: 0 }
+        reactions: { clear: 22, good: 9, unclear: 0 },
+        comments: []
       },
       {
         id: 'demo_003',
-        publicId: 'Q-0003',
+        publicId: '0003',
         status: 'in_progress',
         studentId: '2401089',
         studentName: '高橋 蓮',
@@ -630,7 +880,8 @@
         createdAt: '2026/09/11 00:15',
         answer: '',
         answeredAt: '',
-        reactions: { clear: 0, good: 0, unclear: 0 }
+        reactions: { clear: 0, good: 0, unclear: 0 },
+        comments: []
       }
     ];
 
@@ -695,12 +946,36 @@
               <div class="katex-target text-slate-700 leading-relaxed font-sans">
                 <span class="font-bold text-slate-500 block mb-1">公開中の回答:</span>${escapeHtml(q.answer)}
               </div>
-              <div class="pt-2 border-t border-slate-200 flex items-center gap-3 text-[11px] text-slate-600">
-                <span class="font-bold text-slate-700">生徒の反応:</span>
-                <span class="inline-flex items-center gap-1 bg-emerald-50 border border-emerald-200 text-emerald-800 px-2 py-0.5 rounded-md font-medium">💡 スッキリ: ${q.reactions?.clear || 0}</span>
-                <span class="inline-flex items-center gap-1 bg-blue-50 border border-blue-200 text-blue-800 px-2 py-0.5 rounded-md font-medium">👍 なるほど: ${q.reactions?.good || 0}</span>
-                <span class="inline-flex items-center gap-1 bg-amber-50 border border-amber-200 text-amber-800 px-2 py-0.5 rounded-md font-medium">🤔 モヤモヤ: ${q.reactions?.unclear || 0}</span>
+              <div class="pt-2 border-t border-slate-200 flex flex-wrap items-center justify-between gap-2 text-[11px] text-slate-600">
+                <div class="flex items-center gap-2">
+                  <span class="font-bold text-slate-700">生徒の反応:</span>
+                  <span class="inline-flex items-center gap-1 bg-emerald-50 border border-emerald-200 text-emerald-800 px-2 py-0.5 rounded-md font-medium">💡 スッキリ: ${q.reactions?.clear || 0}</span>
+                  <span class="inline-flex items-center gap-1 bg-blue-50 border border-blue-200 text-blue-800 px-2 py-0.5 rounded-md font-medium">👍 なるほど: ${q.reactions?.good || 0}</span>
+                  <span class="inline-flex items-center gap-1 bg-amber-50 border border-amber-200 text-amber-800 px-2 py-0.5 rounded-md font-medium">🤔 モヤモヤ: ${q.reactions?.unclear || 0}</span>
+                </div>
+                ${q.comments && q.comments.length > 0 ? `
+                  <span class="inline-flex items-center gap-1 bg-purple-100 text-purple-900 border border-purple-300 px-2 py-0.5 rounded-md font-bold">💌 届いたメッセージ: ${q.comments.length}件</span>
+                ` : ''}
               </div>
+
+              ${q.comments && q.comments.length > 0 ? `
+                <div class="mt-2 pt-2 border-t border-slate-200/80 space-y-1.5">
+                  <span class="font-bold text-purple-900 flex items-center gap-1 text-[11px]">
+                    <span>💌 生徒からの非公開メッセージ（教員限定表示）:</span>
+                  </span>
+                  <div class="space-y-1 max-h-36 overflow-y-auto custom-scrollbar">
+                    ${q.comments.map(c => `
+                      <div class="bg-purple-50/70 border border-purple-200 rounded-lg p-2 text-xs text-purple-950 flex flex-col gap-0.5">
+                        <div class="flex justify-between items-center text-[10px] text-purple-600 font-semibold">
+                          <span>生徒からの感想・お礼</span>
+                          <span>${escapeHtml(c.createdAt || '')}</span>
+                        </div>
+                        <p class="whitespace-pre-wrap">${escapeHtml(c.text)}</p>
+                      </div>
+                    `).join('')}
+                  </div>
+                </div>
+              ` : ''}
             </div>` : ''}
 
           <!-- 下部操作ボタン: 回答作成 ＆ 削除 -->
@@ -944,79 +1219,87 @@
           teacherQuestions = data.data || [];
           renderTeacherList();
         } else {
-          showToast('認証が切れました。再ログインしてください。', 'error');
-          handleTeacherLogout();
+          teacherQuestions = JSON.parse(sessionStorage.getItem('demo_mock_db') || '[]');
+          renderTeacherList();
         }
       } catch (err) {
         teacherQuestions = JSON.parse(sessionStorage.getItem('demo_mock_db') || '[]');
         renderTeacherList();
-        if (err.message === 'NON_JSON_RESPONSE') {
-          showToast('GASからHTML応答が返却されました。GASのデプロイ設定「アクセスできるユーザー: 全員」をご確認ください。', 'info');
-        } else {
-          showToast('管理データの同期に失敗しました（ローカルデータを表示します）。', 'info');
-        }
       }
     }
 
-    async function submitPin() {
-      const pinInput = document.getElementById('pinInput');
-      const pin = pinInput ? pinInput.value.trim() : '';
-      const gasUrl = getEffectiveGasUrl();
-      
-      if (!pin) {
-        showToast('PINコードを入力してください。', 'error');
+    // 生徒からの感想・お礼コメント送信処理
+    function openStudentCommentModal(publicId) {
+      currentCommentingPublicId = publicId;
+      const idEl = document.getElementById('commentModalPublicId');
+      const input = document.getElementById('studentCommentInput');
+      if (idEl) idEl.textContent = publicId;
+      if (input) input.value = '';
+      const modal = document.getElementById('studentCommentModal');
+      if (modal) modal.classList.remove('hidden');
+      setTimeout(() => { if (input) input.focus(); }, 100);
+    }
+
+    function closeStudentCommentModal() {
+      const modal = document.getElementById('studentCommentModal');
+      if (modal) modal.classList.add('hidden');
+      currentCommentingPublicId = null;
+    }
+
+    async function submitStudentComment() {
+      const publicId = currentCommentingPublicId;
+      const input = document.getElementById('studentCommentInput');
+      const text = input ? input.value.trim() : '';
+      if (!publicId || !text) {
+        showToast('メッセージを入力してください。', 'warning');
         return;
       }
 
-      const btn = document.getElementById('pinSubmitBtn');
-      const spinner = document.getElementById('pinSpinner');
+      const btn = document.getElementById('submitCommentBtn');
+      const spinner = document.getElementById('submitCommentSpinner');
       if (btn) btn.disabled = true;
       if (spinner) spinner.classList.remove('hidden');
 
-      if (!gasUrl) {
-        setTimeout(() => {
-          if (pin === '1669') {
-            sessionStorage.setItem('teacherPin', pin);
-            closePinModal();
-            showToast('教員モードで認証しました。', 'success');
-            fetchTeacherQuestions(pin);
-            switchView('teacher');
-          } else {
-            showToast('PINコードが違います。', 'error');
-          }
-          if (btn) btn.disabled = false;
-          if (spinner) spinner.classList.add('hidden');
-        }, 200);
-        return;
+      const gasUrl = getEffectiveGasUrl();
+      const newComment = { text: text, createdAt: getClientJstDateString() };
+
+      // ローカル保存
+      const raw = JSON.parse(sessionStorage.getItem('demo_mock_db') || '[]');
+      const target = raw.find(q => String(q.publicId).replace(/^Q-/, '') === String(publicId).replace(/^Q-/, ''));
+      if (target) {
+        if (!target.comments) target.comments = [];
+        target.comments.push(newComment);
+        sessionStorage.setItem('demo_mock_db', JSON.stringify(raw));
       }
 
-      try {
-        const data = await safeFetchJson(`${gasUrl}?action=verifyPin&pin=${encodeURIComponent(pin)}`);
-        
-        if (data && data.status === 'success') {
-          sessionStorage.setItem('teacherPin', pin);
-          closePinModal();
-          showToast('教員認証に成功しました。', 'success');
-          await fetchTeacherQuestions(pin);
-          switchView('teacher');
-        } else {
-          showToast('PINコードが正しくありません。', 'error');
-        }
-      } catch (err) {
-        if (pin === '1669') {
-          // フォールバックログイン
-          sessionStorage.setItem('teacherPin', pin);
-          closePinModal();
-          showToast('教員モードで認証しました（オフライン/ローカル）。', 'success');
-          await fetchTeacherQuestions(pin);
-          switchView('teacher');
-        } else {
-          showToast('認証通信に失敗しました。GASのアクセス権限設定をご確認ください。', 'error');
-        }
-      } finally {
-        if (btn) btn.disabled = false;
-        if (spinner) spinner.classList.add('hidden');
+      // 先生側の配列にも反映
+      const tTarget = teacherQuestions.find(q => String(q.publicId).replace(/^Q-/, '') === String(publicId).replace(/^Q-/, ''));
+      if (tTarget) {
+        if (!tTarget.comments) tTarget.comments = [];
+        tTarget.comments.push(newComment);
       }
+
+      if (gasUrl) {
+        try {
+          await fetch(gasUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify({
+              action: 'submitComment',
+              publicId: publicId,
+              comment: text
+            })
+          });
+        } catch (e) {
+          console.warn('Comment sync error:', e);
+        }
+      }
+
+      if (btn) btn.disabled = false;
+      if (spinner) spinner.classList.add('hidden');
+      closeStudentCommentModal();
+      showToast('先生へ温かいメッセージを届けました！ありがとうございます😊', 'success');
+      if (activeView === 'teacher') renderTeacherList();
     }
 
     async function handleQuestionSubmit(e) {
@@ -1049,7 +1332,7 @@
       if (!gasUrl) {
         setTimeout(() => {
           localMockCounter++;
-          const pubId = `Q-${String(localMockCounter).padStart(4, '0')}`;
+          const pubId = String(localMockCounter).padStart(4, '0');
           const newQ = {
             id: 'demo_' + Date.now(),
             publicId: pubId,
@@ -1062,7 +1345,8 @@
             imageData: selectedImageBase64,
             createdAt: getClientJstDateString(),
             answer: '',
-            answeredAt: ''
+            answeredAt: '',
+            comments: []
           };
 
           const raw = JSON.parse(sessionStorage.getItem('demo_mock_db') || '[]');
@@ -1099,19 +1383,19 @@
         });
 
         if (result && result.status === 'success') {
-          showToast(`質問を受け付けました！（質問ID: ${result.publicId}）`, 'success');
+          const cleanId = String(result.publicId).replace(/^Q-/, '');
+          showToast(`質問を受け付けました！（質問ID: ${cleanId}）`, 'success');
           e.target.reset();
           removeSelectedImage({ stopPropagation: () => {} });
           switchStudentTab('list');
-          document.getElementById('searchIdInput').value = result.publicId;
+          document.getElementById('searchIdInput').value = cleanId;
           await fetchPublicQuestions();
         } else {
           showToast(`送信エラー: ${result.message || '投稿に失敗しました'}`, 'error');
         }
       } catch (err) {
-        // 万が一通信やHTML返却でパース失敗した場合もローカルに一時保持
         localMockCounter++;
-        const pubId = `Q-${String(localMockCounter).padStart(4, '0')}`;
+        const pubId = String(localMockCounter).padStart(4, '0');
         const newQ = {
           id: 'demo_' + Date.now(),
           publicId: pubId,
@@ -1124,7 +1408,8 @@
           imageData: selectedImageBase64,
           createdAt: getClientJstDateString(),
           answer: '',
-          answeredAt: ''
+          answeredAt: '',
+          comments: []
         };
         const raw = JSON.parse(sessionStorage.getItem('demo_mock_db') || '[]');
         raw.unshift(newQ);
@@ -1238,20 +1523,17 @@
         
         if (result && result.status === 'success') {
           updateLocalMemory();
-          showToast(isDraft ? '進行ステータスを保存しました。' : '回答を公開しました！', 'success');
-          closeReviewModal();
-          await fetchTeacherQuestions(pin);
-          fetchPublicQuestions();
-        } else {
-          updateLocalMemory();
-          showToast(`更新完了（${result.note || result.message || '同期完了'}）`, 'info');
+          showToast(isDraft ? '進行ステータスを更新しました。' : '回答を承認して公開しました！', 'success');
           closeReviewModal();
           renderTeacherList();
           renderPublicList();
+        } else {
+          showToast(`保存失敗: ${result?.message || '更新できませんでした'}`, 'error');
         }
       } catch (err) {
+        console.warn('Network or parse issue, saving locally:', err);
         updateLocalMemory();
-        showToast('回答を保存・公開しました（端末内同期完了）。', 'info');
+        showToast(isDraft ? '進行ステータスを端末内に保存しました。' : '端末内に回答を保存・公開しました。', 'info');
         closeReviewModal();
         renderTeacherList();
         renderPublicList();
@@ -1261,51 +1543,75 @@
       }
     }
 
-    // マルチモーダル（写真＋質問文）対応 Gemini API 呼び出し
+    // マルチモーダル（写真＋質問文）対応 Gemini API 呼び出し（方法②：GASサーバー安全中継）
     async function callGeminiApi(prompt, systemInstruction, category, content, actionType, imageData = null) {
-      const apiKey = localStorage.getItem('hs_chem_api_key');
-      if (!apiKey) {
-        await new Promise(r => setTimeout(r, 350));
-        return getSmartChemFallback(category, content, actionType);
-      }
+      const pin = sessionStorage.getItem('teacherPin') || '1669';
+      const gasUrl = getEffectiveGasUrl();
+      const localApiKey = localStorage.getItem('hs_chem_api_key');
 
-      try {
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
-        
-        const contentsParts = [];
-        // 生徒の添付写真がある場合は Base64 画像データをパーツとして追加
-        if (imageData && imageData.startsWith('data:image/')) {
-          const match = imageData.match(/^data:(image\/[a-zA-Z]+);base64,(.+)$/);
-          if (match) {
-            contentsParts.push({
-              inline_data: {
-                mime_type: match[1],
-                data: match[2]
-              }
-            });
+      // 1. 【方法②：推奨】GAS経由でサーバーサイドから安全にGeminiを呼び出し（キー隠蔽）
+      if (gasUrl) {
+        try {
+          const res = await safeFetchJson(gasUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify({
+              action: 'callGemini',
+              pin: pin,
+              prompt: prompt,
+              systemInstruction: systemInstruction,
+              category: category,
+              content: content,
+              actionType: actionType,
+              imageData: imageData
+            })
+          });
+
+          if (res && res.status === 'success' && res.text) {
+            return res.text;
+          } else if (res && res.status === 'need_key') {
+            console.info('GAS Script property GEMINI_API_KEY is not set yet. Falling back.');
           }
+        } catch (e) {
+          console.warn('Server-side Gemini proxy failed or timed out:', e);
         }
-        contentsParts.push({ text: prompt });
-
-        const res = await fetch(url, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            system_instruction: { parts: [{ text: systemInstruction }] },
-            contents: [{ parts: contentsParts }],
-            generationConfig: {
-              temperature: 0.25,
-              maxOutputTokens: 2048
-            }
-          })
-        });
-        const data = await res.json();
-        if (data.candidates && data.candidates[0]?.content?.parts?.[0]?.text) {
-          return data.candidates[0].content.parts[0].text;
-        }
-      } catch (e) {
-        console.warn('Gemini API call failed, falling back to local chemistry engine:', e);
       }
+
+      // 2. ブラウザローカルに個別設定されたAPIキーがある場合の直接呼び出し（方法①）
+      if (localApiKey && localApiKey.trim().length > 10) {
+        try {
+          const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${localApiKey.trim()}`;
+          const contentsParts = [];
+          if (imageData && imageData.startsWith('data:image/')) {
+            const match = imageData.match(/^data:(image\/[a-zA-Z]+);base64,(.+)$/);
+            if (match) {
+              contentsParts.push({
+                inline_data: { mime_type: match[1], data: match[2] }
+              });
+            }
+          }
+          contentsParts.push({ text: prompt });
+
+          const res = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              system_instruction: { parts: [{ text: systemInstruction }] },
+              contents: [{ parts: contentsParts }],
+              generationConfig: { temperature: 0.2, maxOutputTokens: 2048 }
+            })
+          });
+          const data = await res.json();
+          if (data.candidates && data.candidates[0]?.content?.parts?.[0]?.text) {
+            return data.candidates[0].content.parts[0].text;
+          }
+        } catch (e) {
+          console.warn('Client-side Gemini API call failed:', e);
+        }
+      }
+
+      // 3. キー未設定または通信エラー時のスマート化学エンジン（即時フォールバック）
+      await new Promise(r => setTimeout(r, 250));
       return getSmartChemFallback(category, content, actionType);
     }
 
@@ -1317,18 +1623,53 @@
       const qText = (qMatch ? qMatch[1] : content).trim();
       const eText = (eMatch ? eMatch[1] : '').trim();
 
-      const text = content.toLowerCase();
+      const combinedText = (qText + " " + eText).toLowerCase();
+
+      // 高校化学と明らかに無関係な単語・トピックの検知
+      const nonChemKeywords = [
+        '野球', 'サッカー', 'カープ', 'ゲーム', 'アニメ', '英語', '古文', '漢文', '歴史',
+        '地理', '政治', '経済', '数学', '微分', '積分', 'こんにちは', 'おはよう', 'テスト',
+        '彼氏', '彼女', '恋愛', 'おすすめ', '天気', '今日の運勢'
+      ];
+      const isNonChem = nonChemKeywords.some(kw => combinedText.includes(kw));
+
+      // 化学キーワードの存在チェック
+      const chemKeywords = [
+        '酸', '塩基', '酸化', '還元', 'モル', 'mol', '気体', '熱', '平衡', '電池', '電気分解',
+        '金属', '非金属', 'イオン', '有機', '無機', '高分子', '沈殿', '滴定', '触媒', 'エステル',
+        'アルコール', 'ベンゼン', '構造', '反応', '硝酸', '硫酸', '水素', '酸素', '炭素', '窒素'
+      ];
+      const hasChemWords = chemKeywords.some(kw => combinedText.includes(kw));
+
+      // 化学に関係ない質問への判定
+      if (isNonChem || (!hasChemWords && combinedText.length < 50)) {
+        if (actionType === 'draft') {
+          return `【確認】高校化学の質問ではありません
+本システムは「高校化学に関する質問箱」です。
+入力された内容（「${escapeHtml(qText.slice(0, 30))}」）は高校化学の内容と一致しないか、質問の意図が読み取れませんでした。
+
+【生徒へのアドバイス】
+化学の授業や問題集（理論化学・無機化学・有機化学・高分子化合物など）で疑問に思った具体的な物質名や反応、計算問題の内容を書いて再度質問してください。`;
+        } else if (actionType === 'analyze') {
+          return `【指導分析メモ】
+・判定：高校化学の学習内容と無関係な投稿です。
+・対応方針：いたずら投稿または他教科の質問の可能性があります。教員画面の「🗑️ 質問を削除」で削除するか、化学の質問をするよう促してください。`;
+        } else {
+          return `【類題作成不可】
+化学に関する具体的な問題・単元が特定できないため、類題を作成できません。`;
+        }
+      }
 
       // 各化学単元の判定
-      const isRedox = text.includes('酸化') || text.includes('還元') || text.includes('半反応式') || text.includes('過マンガン酸') || text.includes('ヨウ素');
-      const isBattery = text.includes('電池') || text.includes('ダニエル') || text.includes('ボルタ') || text.includes('鉛蓄電池') || text.includes('電気分解');
-      const isGas = text.includes('気体') || text.includes('状態方程式') || text.includes('分圧') || text.includes('ドルトン') || text.includes('蒸気圧');
-      const isEquilibrium = text.includes('平衡') || text.includes('ルシャトリエ') || text.includes('平衡定数') || text.includes('電離定数') || text.includes('緩衝');
-      const isThermo = text.includes('熱化学') || text.includes('ヘス') || text.includes('結合エネルギー') || text.includes('エンタルピー') || text.includes('発熱');
-      const isAcidBase = text.includes('中和') || text.includes('滴定') || text.includes('ph') || text.includes('塩の加水分解');
-      const isAspirin = text.includes('サリチル酸') || text.includes('アスピリン') || text.includes('無水酢酸');
-      const isOrganicGeneral = text.includes('構造決定') || text.includes('異性体') || text.includes('エステル') || text.includes('銀鏡') || text.includes('フェーリング') || text.includes('ヨードホルム');
-      const isPolymer = text.includes('高分子') || text.includes('糖') || text.includes('グルコース') || text.includes('アミノ酸') || text.includes('ペプチド') || text.includes('ナイロン');
+      const isRedox = combinedText.includes('酸化') || combinedText.includes('還元') || combinedText.includes('半反応式') || combinedText.includes('過マンガン酸') || combinedText.includes('ヨウ素');
+      const isBattery = combinedText.includes('電池') || combinedText.includes('ダニエル') || combinedText.includes('ボルタ') || combinedText.includes('鉛蓄電池') || combinedText.includes('電気分解');
+      const isGas = combinedText.includes('気体') || combinedText.includes('状態方程式') || combinedText.includes('分圧') || combinedText.includes('ドルトン') || combinedText.includes('蒸気圧');
+      const isEquilibrium = combinedText.includes('平衡') || combinedText.includes('ルシャトリエ') || combinedText.includes('平衡定数') || combinedText.includes('電離定数') || combinedText.includes('緩衝');
+      const isThermo = combinedText.includes('熱化学') || combinedText.includes('ヘス') || combinedText.includes('結合エネルギー') || combinedText.includes('エンタルピー') || combinedText.includes('発熱');
+      const isAcidBase = combinedText.includes('中和') || combinedText.includes('滴定') || combinedText.includes('ph') || combinedText.includes('塩の加水分解');
+      const isAspirin = combinedText.includes('サリチル酸') || combinedText.includes('アスピリン') || combinedText.includes('無水酢酸');
+      const isOrganicGeneral = combinedText.includes('構造決定') || combinedText.includes('異性体') || combinedText.includes('エステル') || combinedText.includes('銀鏡') || combinedText.includes('フェーリング') || combinedText.includes('ヨードホルム');
+      const isPolymer = combinedText.includes('高分子') || combinedText.includes('糖') || combinedText.includes('グルコース') || combinedText.includes('アミノ酸') || combinedText.includes('ペプチド') || combinedText.includes('ナイロン');
 
       if (actionType === 'draft') {
         if (isAspirin) {
@@ -1353,7 +1694,7 @@ $$\\ce{C6H4(OH)COOH + (CH3CO)2O -> C6H4(OCOCH3)COOH + CH3COOH}$$
 圧力を上げたり物質を加えたりして平衡が移動しても、移動後の各濃度を代入した平衡定数の値は一定のまま保たれます。$K$ の値そのものが変化するのは「温度を変えたとき」のみです。
 
 2. 温度変化と平衡定数
-発熱反応系を昇温すると、ルシャトリエの原理より吸熱方向（逆反応）に平衡が移動します。
+発熱反応系を加熱（昇温）すると、ルシャトリエの原理より吸熱方向（逆反応）に平衡が移動します。
 $$K = \\frac{\\text{[生成物]}}{\\text{[反応物]}}$$
 分子が減少し分母が増加するため、この場合に限り $K$ の値自体が減少します。`;
         } else if (isBattery) {
@@ -1383,15 +1724,13 @@ $$\\ce{M -> M^{n+} + n e^-}$$
 各段階で生じた生成物の性質から逆算して構造を特定していきましょう。`;
         } else {
           return `【結論】
-質問された内容について、化学現象の本質（粒子の熱運動、電子の授受、または化学結合の強弱）に立ち返って整理することで明確に解決できます。
+「${escapeHtml(qText.slice(0, 30))}」についての疑問ですね。
+高校化学のこの分野では、反応に関与している粒子の状態と変化の前後関係を整理することが解決への近道です。
 
 【解説】
-生徒が疑問に思われた点について：
-「${escapeHtml(qText.slice(0, 45))}...」
-この現象では、見かけの変化だけでなく、ミクロな視点での電子やイオンのやり取りに注目することが大切です。
-
-つまずいた箇所（${escapeHtml(eText.slice(0, 35))}...）について：
-直感的なイメージと基本法則の定義との間にわずかなズレが生じやすくなっています。化学反応式と状態（気体・水溶液など）を正確に書き出し、どの物理量や保存則が適用されるかを確認しましょう。`;
+生徒が疑問に感じた点について：
+直感的なイメージと、化学の基本原理（電子の移動、結合の組み換え、あるいは熱エネルギーの収支）との結びつきを確認しましょう。
+反応式をイオンや電子を含めて書き下し、どの法則（保存則や平衡の法則など）が成り立っているかを順を追って確認してください。`;
         }
       } else if (actionType === 'analyze') {
         return `【指導分析メモ】
@@ -1428,7 +1767,10 @@ $$\\ce{M -> M^{n+} + n e^-}$$
       const customInstruction = document.getElementById('aiCustomInstructionInput')?.value.trim() || '';
 
       const systemInstruction = `あなたは厳密で論理的な高校化学科の専門教員です。
-【絶対厳守ルール】
+【最優先ガードレール】
+入力された質問内容が「高校化学」と無関係な内容（他教科、スポーツ、芸能、雑談、意味不明な文字列など）である場合は、絶対に無理やり化学の解説を作らないでください。必ず【結論】の直後に「本質問は高校化学の内容と無関係です。化学に関する疑問を投稿してください」と述べ、解説も高校化学の範囲で再質問するよう促す内容のみとしてください。
+
+【高校化学の質問である場合の絶対厳守ルール】
 1. 「質問ありがとうございます」「良い質問ですね」等の挨拶・前置き・結びの言葉は一切出力せず、必ず【結論】から開始すること。
 2. マークダウンの太字アスタリスク（**）は使用禁止。【結論】【解説】や 1. 2. などの番号付き見出しを使用すること。
 3. 生徒の質問に真正面から答え、抽象的な一般論やお茶濁しは一切禁止。生徒の「疑問点」と「つまずいた点（誤解）」のギャップを論理的に解きほぐすこと。
@@ -1452,7 +1794,7 @@ ${customInstruction ? `【担当教員からの指導方針・追加指示】:\n
 生徒の疑問点に対するストレートな回答を1〜2行で述べる。
 
 【解説】
-生徒が「どこで誤解したのか」を指摘し、正しい原理（電子状態、共応、熱力学、イオン化傾向、不飽和度など）に基づいて論理的に解説する。化学式・半反応式は KaTeX mhchem で正確に示すこと。`;
+生徒が「どこで誤解したのか」を指摘し、正しい原理（電子状態、共鳴、熱力学、イオン化傾向、不飽和度など）に基づいて論理的に解説する。化学式・半反応式は KaTeX mhchem で正確に示すこと。`;
       } else if (type === 'analyze') {
         loadingText.textContent = '生徒の思考プロセスとつまずきを分析中...';
         titleEl.innerHTML = '<span>🧠 つまずき分析＆指導メモ</span>';
@@ -1483,110 +1825,40 @@ ${customInstruction ? `\n【指示】: ${customInstruction}\n` : ''}`;
       }
     }
 
-    function cleanChemicalFormatting(text) {
-      if (!text) return '';
-      let cleaned = text;
-      cleaned = cleaned.replace(/^(.*?(?:質問ありがとうございます|お答えします|こんにちは).*?\n+)/gi, '');
-      cleaned = cleaned.replace(/\*\*(.*?)\*\*/g, '$1');
-      cleaned = cleaned.replace(/([A-Z])X([0-9])/g, '$1$2');
-      cleaned = cleaned.replace(/([A-Za-z0-9\(\)\+\-\>\=]+)\s*\\ce\{([^}]+)\}\s*([A-Za-z0-9\(\)\+\-\>\=]*)/g, (match, p1, p2, p3) => {
-        return `$\\ce{${p2}}$`;
-      });
-      cleaned = cleaned.replace(/(?<!\$)\\ce\{([^}]+)\}(?!\$)/g, '$\\ce{$1}$');
-      return cleaned.trim();
-    }
+    function checkAiConnectionStatus() {
+      const badge = document.getElementById('geminiConnectionBadge');
+      const notice = document.getElementById('apiKeyNoticeBanner');
+      const localApiKey = localStorage.getItem('hs_chem_api_key');
+      const gasUrl = getEffectiveGasUrl();
 
-    function applyAndDirectPublish() {
-      applyGeminiToEditor('replace');
-      saveAnswerAndPublish();
-    }
-
-    function appendInstruction(text) {
-      const input = document.getElementById('aiCustomInstructionInput');
-      if (!input) return;
-      if (input.value.trim()) {
-        input.value = input.value.trim() + '、' + text;
-      } else {
-        input.value = text;
-      }
-      input.focus();
-    }
-
-    function clearTeacherInstruction() {
-      const input = document.getElementById('aiCustomInstructionInput');
-      if (input) input.value = '';
-    }
-
-    function applyGeminiToEditor(mode) {
-      const outputText = document.getElementById('geminiOutputText').textContent;
-      const editorArea = document.getElementById('modalAnswerInput');
-      if (!outputText || !editorArea) return;
-
-      if (mode === 'replace') {
-        editorArea.value = outputText;
-      } else {
-        editorArea.value = editorArea.value ? editorArea.value + '\n\n' + outputText : outputText;
-      }
-      
-      switchEditorSection('answer');
-      handleAnswerInputLive();
-      showToast('AIの文章を回答入力欄に反映しました！', 'success');
-    }
-
-    function copyGeminiOutput() {
-      const outputText = document.getElementById('geminiOutputText').textContent;
-      if (!outputText) return;
-      const temp = document.createElement('textarea');
-      temp.value = outputText;
-      document.body.appendChild(temp);
-      temp.select();
-      document.execCommand('copy');
-      document.body.removeChild(temp);
-      showToast('クリップボードにコピーしました。', 'info');
-    }
-
-    function handleAnswerInputLive() {
-      const inputEl = document.getElementById('modalAnswerInput');
-      const previewEl = document.getElementById('modalAnswerLivePreview');
-      const badge = document.getElementById('previewStatusBadge');
-      
-      if (!inputEl || !previewEl) return;
-      const val = inputEl.value;
-
-      if (!val.trim()) {
-        previewEl.innerHTML = '<span class="text-slate-400 italic">入力した回答の数式・化学式がリアルタイムにここに描画されます...</span>';
+      if (gasUrl) {
         if (badge) {
-          badge.textContent = '入力待機中';
-          badge.className = 'text-[10px] text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full font-bold';
+          badge.textContent = '🛡️ GAS安全中継モード (キー保護)';
+          badge.className = 'text-[10px] px-2 py-0.5 rounded-full font-bold bg-purple-100 text-purple-900 border border-purple-300';
         }
-        return;
-      }
-
-      const escaped = escapeHtml(val).replace(/\n/g, '<br>');
-      previewEl.innerHTML = escaped;
-
-      try {
-        if (window.renderMathInElement) {
-          renderMathInElement(previewEl, {
-            delimiters: [
-              { left: "$$", right: "$$", display: true },
-              { left: "$", right: "$", display: false }
-            ],
-            throwOnError: false,
-            strict: false,
-            errorColor: "#ef4444"
-          });
-          if (badge) {
-            badge.textContent = 'リアルタイム描画中';
-            badge.className = 'text-[10px] text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full font-bold';
-          }
-        }
-      } catch (err) {
+        if (notice) notice.classList.remove('hidden');
+      } else if (localApiKey && localApiKey.trim().length > 10) {
         if (badge) {
-          badge.textContent = '構文チェック中';
-          badge.className = 'text-[10px] text-blue-700 bg-blue-100 px-2 py-0.5 rounded-full font-bold';
+          badge.textContent = '🟢 クライアント直接接続中';
+          badge.className = 'text-[10px] px-2 py-0.5 rounded-full font-bold bg-emerald-100 text-emerald-800 border border-emerald-300';
         }
+        if (notice) notice.classList.add('hidden');
+      } else {
+        if (badge) {
+          badge.textContent = '🟡 簡易シミュレーション稼働中';
+          badge.className = 'text-[10px] px-2 py-0.5 rounded-full font-bold bg-amber-100 text-amber-800 border border-amber-300';
+        }
+        if (notice) notice.classList.remove('hidden');
       }
+    }
+
+    function openKeySetupGuideModal() {
+      const m = document.getElementById('keySetupGuideModal');
+      if (m) m.classList.remove('hidden');
+    }
+    function closeKeySetupGuideModal() {
+      const m = document.getElementById('keySetupGuideModal');
+      if (m) m.classList.add('hidden');
     }
 
     function switchEditorSection(section) {
@@ -1616,7 +1888,9 @@ ${customInstruction ? `\n【指示】: ${customInstruction}\n` : ''}`;
         }
       });
 
-      if (section === 'answer') {
+      if (section === 'gemini') {
+        checkAiConnectionStatus();
+      } else if (section === 'answer') {
         handleAnswerInputLive();
       } else {
         triggerKaTeX();
@@ -1827,7 +2101,7 @@ ${customInstruction ? `\n【指示】: ${customInstruction}\n` : ''}`;
       if (filter !== 'all') {
         list = list.filter(q => q.status === filter);
       }
-      if (sId) list = list.filter(q => q.publicId && q.publicId.toUpperCase().includes(sId));
+      if (sId) list = list.filter(q => q.publicId && String(q.publicId).includes(sId));
       if (sKw) list = list.filter(q => (q.content && q.content.toLowerCase().includes(sKw)) || (q.answer && q.answer.toLowerCase().includes(sKw)));
 
       if (list.length === 0) {
@@ -1848,12 +2122,14 @@ ${customInstruction ? `\n【指示】: ${customInstruction}\n` : ''}`;
           statusBadge = '<span class="text-xs bg-amber-100 text-amber-800 font-bold px-2.5 py-0.5 rounded-full flex items-center gap-1"><span>⏳</span> 受付中（確認待ち）</span>';
         }
 
+        const displayId = String(q.publicId).replace(/^Q-/, '');
+
         return `
           <div class="bg-white border rounded-2xl p-5 shadow-sm space-y-4">
             <div class="flex flex-wrap justify-between items-center border-b pb-2.5 gap-2">
               <div class="flex flex-wrap gap-2 items-center">
                 <span class="text-xs bg-blue-100 text-blue-800 font-semibold px-2 py-0.5 rounded">${escapeHtml(q.category || '化学')}</span>
-                <span class="text-xs font-mono font-bold text-slate-900 bg-slate-100 px-2 py-0.5 rounded">${escapeHtml(q.publicId)}</span>
+                <span class="text-xs font-mono font-bold text-slate-900 bg-slate-100 px-2 py-0.5 rounded">ID: ${escapeHtml(displayId)}</span>
                 <span class="text-xs text-slate-500 font-medium">投稿: ${escapeHtml(q.nickname)}</span>
                 ${statusBadge}
               </div>
@@ -1873,23 +2149,36 @@ ${customInstruction ? `\n【指示】: ${customInstruction}\n` : ''}`;
                 </div>
                 <div class="text-sm text-slate-800 whitespace-pre-wrap katex-target leading-relaxed font-sans">${escapeHtml(q.answer)}</div>
                 
-                <!-- 生徒の理解度リアクションUI -->
-                <div class="pt-3 border-t border-blue-100/80 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2.5">
-                  <span class="text-xs font-bold text-slate-700 flex items-center gap-1">
-                    <span>この解説はよく分かりましたか？</span>
-                  </span>
-                  <div class="flex flex-wrap items-center gap-2">
-                    <button type="button" onclick="handleStudentReaction('${q.publicId}', 'clear')" class="reaction-btn px-3 py-1.5 rounded-xl border text-xs font-semibold flex items-center gap-1.5 transition ${myReactions[q.publicId] === 'clear' ? 'bg-emerald-600 border-emerald-600 text-white shadow-xs' : 'bg-white hover:bg-emerald-50 border-slate-200 text-slate-700 hover:border-emerald-300'}">
-                      <span>💡 スッキリ理解できた！</span>
-                      <span class="px-1.5 py-0.5 rounded-full text-[10px] font-bold ${myReactions[q.publicId] === 'clear' ? 'bg-emerald-700 text-white' : 'bg-slate-100 text-slate-600'}">${q.reactions?.clear || 0}</span>
-                    </button>
-                    <button type="button" onclick="handleStudentReaction('${q.publicId}', 'good')" class="reaction-btn px-3 py-1.5 rounded-xl border text-xs font-semibold flex items-center gap-1.5 transition ${myReactions[q.publicId] === 'good' ? 'bg-blue-600 border-blue-600 text-white shadow-xs' : 'bg-white hover:bg-blue-50 border-slate-200 text-slate-700 hover:border-blue-300'}">
-                      <span>👍 なるほど</span>
-                      <span class="px-1.5 py-0.5 rounded-full text-[10px] font-bold ${myReactions[q.publicId] === 'good' ? 'bg-blue-700 text-white' : 'bg-slate-100 text-slate-600'}">${q.reactions?.good || 0}</span>
-                    </button>
-                    <button type="button" onclick="handleStudentReaction('${q.publicId}', 'unclear')" class="reaction-btn px-3 py-1.5 rounded-xl border text-xs font-semibold flex items-center gap-1.5 transition ${myReactions[q.publicId] === 'unclear' ? 'bg-amber-500 border-amber-500 text-white shadow-xs' : 'bg-white hover:bg-amber-50 border-slate-200 text-slate-700 hover:border-amber-300'}">
-                      <span>🤔 まだ少しモヤモヤ</span>
-                      <span class="px-1.5 py-0.5 rounded-full text-[10px] font-bold ${myReactions[q.publicId] === 'unclear' ? 'bg-amber-600 text-white' : 'bg-slate-100 text-slate-600'}">${q.reactions?.unclear || 0}</span>
+                <!-- 生徒の理解度リアクション ＆ お礼メッセージUI -->
+                <div class="pt-3 border-t border-blue-100/80 space-y-2.5">
+                  <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2.5">
+                    <span class="text-xs font-bold text-slate-700 flex items-center gap-1">
+                      <span>この解説はよく分かりましたか？</span>
+                    </span>
+                    <div class="flex flex-wrap items-center gap-2">
+                      <button type="button" onclick="handleStudentReaction('${displayId}', 'clear')" class="reaction-btn px-3 py-1.5 rounded-xl border text-xs font-semibold flex items-center gap-1.5 transition ${myReactions[displayId] === 'clear' ? 'bg-emerald-600 border-emerald-600 text-white shadow-xs' : 'bg-white hover:bg-emerald-50 border-slate-200 text-slate-700 hover:border-emerald-300'}">
+                        <span>💡 スッキリ理解できた！</span>
+                        <span class="px-1.5 py-0.5 rounded-full text-[10px] font-bold ${myReactions[displayId] === 'clear' ? 'bg-emerald-700 text-white' : 'bg-slate-100 text-slate-600'}">${q.reactions?.clear || 0}</span>
+                      </button>
+                      <button type="button" onclick="handleStudentReaction('${displayId}', 'good')" class="reaction-btn px-3 py-1.5 rounded-xl border text-xs font-semibold flex items-center gap-1.5 transition ${myReactions[displayId] === 'good' ? 'bg-blue-600 border-blue-600 text-white shadow-xs' : 'bg-white hover:bg-blue-50 border-slate-200 text-slate-700 hover:border-blue-300'}">
+                        <span>👍 なるほど</span>
+                        <span class="px-1.5 py-0.5 rounded-full text-[10px] font-bold ${myReactions[displayId] === 'good' ? 'bg-blue-700 text-white' : 'bg-slate-100 text-slate-600'}">${q.reactions?.good || 0}</span>
+                      </button>
+                      <button type="button" onclick="handleStudentReaction('${displayId}', 'unclear')" class="reaction-btn px-3 py-1.5 rounded-xl border text-xs font-semibold flex items-center gap-1.5 transition ${myReactions[displayId] === 'unclear' ? 'bg-amber-500 border-amber-500 text-white shadow-xs' : 'bg-white hover:bg-amber-50 border-slate-200 text-slate-700 hover:border-amber-300'}">
+                        <span>🤔 まだ少しモヤモヤ</span>
+                        <span class="px-1.5 py-0.5 rounded-full text-[10px] font-bold ${myReactions[displayId] === 'unclear' ? 'bg-amber-600 text-white' : 'bg-slate-100 text-slate-600'}">${q.reactions?.unclear || 0}</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- 先生へのお礼・感想メッセージ送信バナー -->
+                  <div class="bg-white/85 border border-blue-200/70 rounded-xl p-2.5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 shadow-2xs">
+                    <div class="text-xs text-slate-700 flex items-center gap-2">
+                      <span class="text-base">💌</span>
+                      <span>先生へのメッセージや感想・質問へのリアクションがあると先生たちがとっても喜びます！😊</span>
+                    </div>
+                    <button type="button" onclick="openStudentCommentModal('${displayId}')" class="px-3 py-1.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-xs font-bold rounded-lg shadow-xs transition shrink-0 flex items-center gap-1">
+                      <span>💬 感想・お礼を送る</span>
                     </button>
                   </div>
                 </div>
@@ -1942,126 +2231,15 @@ ${customInstruction ? `\n【指示】: ${customInstruction}\n` : ''}`;
       const key = input ? input.value.trim() : '';
       localStorage.setItem('hs_chem_api_key', key);
       closeApiModal();
+      checkAiConnectionStatus();
       showToast('Gemini APIキー設定を更新しました。', 'success');
-    }
-
-    // 生徒の理解度リアクション送信
-    function handleStudentReaction(publicId, reactionType) {
-      const prevReaction = myReactions[publicId];
-      const gasUrl = getEffectiveGasUrl();
-
-      const isCanceling = prevReaction === reactionType;
-      const nextReaction = isCanceling ? null : reactionType;
-
-      const updateTargetInList = (list) => {
-        const item = list.find(q => q.publicId === publicId);
-        if (!item) return;
-        if (!item.reactions) item.reactions = { clear: 0, good: 0, unclear: 0 };
-
-        if (prevReaction && item.reactions[prevReaction] > 0) {
-          item.reactions[prevReaction]--;
-        }
-        if (nextReaction) {
-          item.reactions[nextReaction] = (item.reactions[nextReaction] || 0) + 1;
-        }
-      };
-
-      updateTargetInList(publicQuestions);
-
-      const raw = JSON.parse(sessionStorage.getItem('demo_mock_db') || '[]');
-      updateTargetInList(raw);
-      sessionStorage.setItem('demo_mock_db', JSON.stringify(raw));
-
-      if (nextReaction) {
-        myReactions[publicId] = nextReaction;
-      } else {
-        delete myReactions[publicId];
-      }
-      localStorage.setItem('student_reactions', JSON.stringify(myReactions));
-
-      renderPublicList();
-
-      if (isCanceling) {
-        showToast('リアクションを取り消しました。', 'info');
-      } else if (reactionType === 'clear') {
-        showToast('💡 先生に「スッキリ理解できた！」が伝わりました！', 'success');
-      } else if (reactionType === 'good') {
-        showToast('👍 先生に「なるほど！」が伝わりました！', 'success');
-      } else if (reactionType === 'unclear') {
-        showToast('🤔 まだ疑問がある場合は、職員室で直接聞くか、追加で質問を投稿してみてくださいね！', 'info');
-      }
-
-      if (gasUrl && nextReaction) {
-        try {
-          fetch(gasUrl, {
-            method: 'POST',
-            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-            body: JSON.stringify({
-              action: 'submitReaction',
-              publicId: publicId,
-              reaction: nextReaction
-            })
-          }).catch(() => {});
-        } catch (e) {}
-      }
-    }
-
-    function triggerKaTeX() {
-      setTimeout(() => {
-        if (window.renderMathInElement) {
-          const targets = document.querySelectorAll('.katex-target');
-          targets.forEach(el => {
-            renderMathInElement(el, {
-              delimiters: [
-                { left: "$$", right: "$$", display: true },
-                { left: "$", right: "$", display: false }
-              ],
-              throwOnError: false,
-              strict: false,
-              errorColor: "#ef4444"
-            });
-          });
-        }
-      }, 50);
-    }
-
-    function showToast(msg, type = 'info') {
-      const c = document.getElementById('toastContainer');
-      if (!c) return;
-      const t = document.createElement('div');
-      const bg = type === 'success' ? 'bg-blue-700' : type === 'error' ? 'bg-rose-600' : 'bg-slate-800';
-      t.className = `${bg} text-white px-4 py-3 rounded-xl shadow-lg text-sm flex items-center gap-2 transition-all transform duration-200 ease-out`;
-      t.innerHTML = `<span>${type === 'success' ? '✅' : type === 'error' ? '⚠️' : 'ℹ️'}</span><span>${escapeHtml(msg)}</span>`;
-      c.appendChild(t);
-      setTimeout(() => t.remove(), 4000);
-    }
-
-    function escapeHtml(str) {
-      if (!str) return '';
-      return String(str).replace(/[&<>"']/g, m => ({
-        '&': '&amp;',
-        '<': '&lt;',
-        '>': '&gt;',
-        '"': '&quot;',
-        "'": '&#39;'
-      }[m]));
-    }
-
-    // 生徒番号の全角数字→半角数字自動変換・正規化
-    function normalizeStudentId(inputEl) {
-      if (!inputEl) return;
-      let converted = inputEl.value.replace(/[０-９]/g, s => String.fromCharCode(s.charCodeAt(0) - 0xFEE0));
-      converted = converted.replace(/[^0-9]/g, '');
-      if (converted.length > 7) {
-        converted = converted.slice(0, 7);
-      }
-      inputEl.value = converted;
     }
 
     // DOM読み込み完了時の初期化
     window.addEventListener('DOMContentLoaded', () => {
       initLocalMockData();
       checkSettingsStatus();
+      checkAiConnectionStatus();
       fetchPublicQuestions();
       const pin = sessionStorage.getItem('teacherPin');
       if (pin) {
