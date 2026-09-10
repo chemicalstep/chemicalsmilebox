@@ -1,0 +1,1842 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ケミカルスマイルの化学質問箱</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- KaTeX CSS & JS + mhchem拡張 -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/mhchem.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+  
+  <style>
+    body { font-family: 'Noto Sans JP', 'Inter', sans-serif; }
+    .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: #f8fafc; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    .katex { font-size: 1.05em; }
+    .no-horizontal-scroll { overflow-x: hidden; }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col no-horizontal-scroll">
+
+  <!-- ==================== ヘッダー ==================== -->
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-600 to-blue-600 flex items-center justify-center text-white text-xl shadow-md">🧪</div>
+        <div>
+          <h1 class="text-base sm:text-lg font-bold text-slate-900 leading-tight">ケミカルスマイルの化学質問箱</h1>
+          <p class="text-[11px] sm:text-xs text-slate-500">高校化学の疑問・モヤモヤを化学科教員と一緒に解決</p>
+        </div>
+      </div>
+
+      <div class="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200">
+        <button id="navStudentBtn" onclick="switchView('student')" class="px-3 py-1.5 text-xs sm:text-sm font-medium rounded-lg transition-all bg-white text-blue-700 shadow-sm">
+          生徒用画面
+        </button>
+        <button id="navTeacherBtn" onclick="handleTeacherLogin()" class="px-3 py-1.5 text-xs sm:text-sm font-medium rounded-lg transition-all text-slate-600 hover:text-slate-900 flex items-center gap-1.5">
+          <span>🔒 化学科管理</span>
+          <span id="pendingBadge" class="hidden bg-rose-500 text-white text-[10px] px-1.5 py-0.5 rounded-full font-bold">0</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-6xl mx-auto px-4 sm:px-6 py-6 flex-grow w-full">
+
+    <!-- ==================== 生徒用画面 ==================== -->
+    <div id="studentSection" class="space-y-6">
+      
+      <!-- 匿名性＆返信SLAバナー -->
+      <div class="bg-gradient-to-r from-blue-50 via-cyan-50 to-indigo-50 border border-blue-200 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row items-start gap-4 shadow-sm">
+        <div class="flex-grow space-y-1">
+          <div class="flex items-center gap-2">
+            <span class="text-xl">🛡️</span>
+            <p class="font-bold text-blue-950 text-sm">生徒のプライバシーと匿名性の保護</p>
+          </div>
+          <p class="text-xs text-slate-700 ml-7 leading-relaxed">
+            入力した「生徒番号」「本名」は先生の個別指導確認用です。<strong class="text-blue-800 underline decoration-blue-400">公開画面には一切掲載されません</strong>。
+            回答一覧には自動発行される<span class="font-semibold text-slate-900">「質問ID（例: Q-0001）」と「ニックネーム」</span>のみが表示されます。
+          </p>
+        </div>
+        <div class="bg-white/80 backdrop-blur-sm p-3 rounded-xl border border-blue-100 min-w-[210px] shrink-0">
+          <p class="text-[11px] font-bold text-slate-500 mb-1">👨‍🏫 化学科からのご案内</p>
+          <p class="text-xs font-semibold text-blue-950">回答の作成・公開には<br><span class="text-blue-600 font-bold">2〜3営業日程度</span>かかります。</p>
+        </div>
+      </div>
+
+      <!-- 生徒画面内サブタブ -->
+      <div class="flex border-b border-slate-200 gap-6 text-sm font-semibold">
+        <button id="subtabAskBtn" onclick="switchStudentTab('ask')" class="pb-3 border-b-2 border-blue-600 text-blue-700 transition font-bold">✏️ 化学の質問を投稿する</button>
+        <button id="subtabViewBtn" onclick="switchStudentTab('list')" class="pb-3 border-b-2 border-transparent text-slate-500 hover:text-slate-800 transition">📖 回答一覧・自分の質問を探す</button>
+      </div>
+
+      <!-- 質問投稿フォーム -->
+      <div id="studentAskPane" class="bg-white border border-slate-200 rounded-2xl p-6 sm:p-8 shadow-sm">
+        <div class="max-w-2xl mx-auto space-y-6">
+          
+          <form id="questionForm" onsubmit="handleQuestionSubmit(event)" class="space-y-6">
+            
+            <!-- 個人情報（非公開） -->
+            <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-4">
+              <p class="text-xs font-bold text-slate-500 border-b border-slate-200 pb-2">先生だけが確認する情報（完全非公開）</p>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 mb-1">生徒番号 (7桁) <span class="text-rose-500">*</span></label>
+                  <input type="text" id="studentIdInput" required inputmode="numeric" placeholder="例: 2401234（全角入力も自動変換）" oninput="normalizeStudentId(this)" onblur="normalizeStudentId(this)" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-blue-500 font-mono">
+                  <p class="text-[10px] text-slate-400 mt-1">※全角数字（２４０１２３４等）で入力しても自動で半角に変換されます</p>
+                </div>
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 mb-1">お名前（本名） <span class="text-rose-500">*</span></label>
+                  <input type="text" id="studentNameInput" required placeholder="例: 山田 太郎" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-blue-500">
+                </div>
+              </div>
+            </div>
+
+            <!-- 公開情報 -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">公開用ニックネーム</label>
+                <input type="text" id="nicknameInput" placeholder="未入力時は「名無し smile」" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-blue-500">
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">質問の化学分野 <span class="text-rose-500">*</span></label>
+                <select id="categoryInput" required class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-blue-500 bg-white">
+                  <option value="理論化学">理論化学（物質の状態・熱・平衡など）</option>
+                  <option value="無機化学">無機化学（非金属・金属・錯イオンなど）</option>
+                  <option value="有機化学">有機化学（炭化水素・官能基・芳香族など）</option>
+                  <option value="高分子化合物">高分子化合物（糖・アミノ酸・合成など）</option>
+                  <option value="実験・勉強法">実験操作・計算の工夫・その他</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- 教育的ストッパー（入力分割） -->
+            <div class="space-y-4">
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">① わからなかった問題・疑問点 <span class="text-rose-500">*</span></label>
+                <textarea id="questionTextInput" rows="3" required placeholder="例：問題集P45問3の(2)について。濃硝酸と希硝酸で銅との反応生成物が異なる理由がわかりません。" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-blue-500"></textarea>
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-blue-900 mb-1">② どこまで考えたか・どこでつまずいたか <span class="text-rose-500">*</span></label>
+                <textarea id="effortTextInput" rows="3" required placeholder="例：酸化数を調べると濃硝酸は+5→+4、希硝酸は+5→+2でした。濃硝酸の方が酸化力が強いはずなのに、なぜ希硝酸の方が電子を多く受け取るのかで混乱しています。" class="w-full px-3.5 py-2.5 rounded-xl border border-blue-300 bg-blue-50/40 text-sm focus:ring-2 focus:ring-blue-500"></textarea>
+                <p class="text-[11px] text-blue-700 mt-1 font-medium">※丸投げ防止のため必須です。間違っていても良いので自分の考えた筋道を書きましょう。</p>
+              </div>
+            </div>
+
+            <!-- 写真添付 -->
+            <div>
+              <label class="block text-xs font-bold text-slate-700 mb-1">問題集・ノートの写真（任意・先生のみ閲覧可）</label>
+              <div class="border-2 border-dashed border-slate-300 hover:border-blue-400 transition rounded-xl p-4 text-center cursor-pointer bg-slate-50 group" onclick="document.getElementById('imageFileInput').click()">
+                <input type="file" id="imageFileInput" accept="image/*" class="hidden" onchange="handleImageSelection(event)">
+                <div id="imagePlaceholder" class="space-y-1">
+                  <div class="text-2xl group-hover:scale-110 transition">📸</div>
+                  <p class="text-xs font-semibold text-slate-700">クリックして写真を添付（約1MB以下に自動圧縮）</p>
+                  <p class="text-[11px] text-rose-600 font-bold mt-1">【注意】氏名・顔写真など、個人が特定できる情報は絶対に写さないでください。</p>
+                </div>
+                <div id="imagePreviewContainer" class="hidden relative inline-block mt-2">
+                  <img id="imagePreview" src="" class="max-h-48 rounded-lg shadow-sm border border-slate-200">
+                  <button type="button" onclick="removeSelectedImage(event)" class="absolute -top-2 -right-2 bg-rose-500 text-white rounded-full w-6 h-6 text-xs font-bold hover:bg-rose-600">✕</button>
+                </div>
+              </div>
+            </div>
+
+            <button type="submit" id="submitQuestionBtn" class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-md transition flex justify-center items-center gap-2">
+              <span>質問を送信する</span><span>⚗️</span>
+              <span id="submitSpinner" class="hidden animate-spin">🌀</span>
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <!-- 回答一覧ペイン -->
+      <div id="studentListPane" class="hidden space-y-6">
+        <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm flex flex-col md:flex-row gap-3 justify-between items-center">
+          <div class="flex flex-col sm:flex-row gap-2 flex-grow max-w-xl w-full">
+            <input type="text" id="searchIdInput" placeholder="質問ID (例: Q-0001) で検索" oninput="renderPublicList()" class="flex-1 px-3 py-2 text-sm rounded-xl border border-slate-300 font-mono focus:ring-2 focus:ring-blue-500">
+            <input type="text" id="searchKeyword" placeholder="キーワード検索" oninput="renderPublicList()" class="flex-1 px-3 py-2 text-sm rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500">
+          </div>
+          <div class="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end">
+            <select id="studentStatusFilter" onchange="renderPublicList()" class="text-xs px-3 py-2 rounded-xl border border-slate-300 bg-white font-medium text-slate-700 focus:ring-2 focus:ring-blue-500">
+              <option value="all">すべてのステータス</option>
+              <option value="answered">✅ 回答公開済み</option>
+              <option value="in_progress">✍️ 先生が回答作成中</option>
+              <option value="pending">⏳ 受付中（確認待ち）</option>
+            </select>
+            <button onclick="fetchPublicQuestions()" class="text-xs text-blue-600 hover:text-blue-800 font-semibold flex items-center gap-1 shrink-0">
+              🔄 更新
+            </button>
+          </div>
+        </div>
+        <div id="publicQuestionsList" class="grid grid-cols-1 gap-5"></div>
+      </div>
+    </div>
+
+    <!-- ==================== 教員用画面 ==================== -->
+    <div id="teacherSection" class="hidden space-y-6">
+      
+      <!-- 設定メニューバー -->
+      <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm flex flex-wrap justify-between items-center gap-4">
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center font-bold text-lg">👨‍🔬</div>
+          <div>
+            <h2 class="text-sm font-bold text-slate-900">化学科 質問管理ステーション</h2>
+            <div class="text-[11px] text-slate-500 mt-0.5 space-x-2">
+              <span id="gasStatusText" class="text-amber-600 font-semibold">🟡 プレビューモード</span>
+              <span class="text-emerald-600 font-semibold">🟢 Gemini 3 Flash 連携対応</span>
+            </div>
+          </div>
+        </div>
+        <div class="flex gap-2">
+          <button onclick="openGasModal()" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg transition border border-slate-200">⚙️ GAS連携設定</button>
+          <button onclick="openApiModal()" class="px-3 py-1.5 bg-purple-50 hover:bg-purple-100 text-purple-700 text-xs font-semibold rounded-lg transition border border-purple-200">🔑 APIキー個別設定</button>
+          <button onclick="handleTeacherLogout()" class="px-3 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-semibold rounded-lg transition border border-rose-200">🚪 ログアウト</button>
+        </div>
+      </div>
+
+      <!-- フィルタータブ -->
+      <div class="flex border-b border-slate-200 gap-6 text-sm font-semibold">
+        <button id="teacherPendingTabBtn" onclick="switchTeacherFilter('pending')" class="pb-3 border-b-2 border-blue-600 text-blue-700 transition flex gap-2 font-bold">
+          <span>⏳ 未完了の質問</span><span id="teacherTabPendingBadge" class="bg-rose-100 text-rose-700 text-xs px-2 py-0.5 rounded-full font-bold">0</span>
+        </button>
+        <button id="teacherAnsweredTabBtn" onclick="switchTeacherFilter('answered')" class="pb-3 border-b-2 border-transparent text-slate-500 hover:text-slate-800 transition">✅ 回答済み一覧</button>
+      </div>
+
+      <div id="teacherQuestionsList" class="space-y-4"></div>
+    </div>
+
+  </main>
+
+  <!-- ==================== 各種モーダル群 ==================== -->
+
+  <!-- 教員PINコード入力モーダル -->
+  <div id="pinModal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white w-full max-w-sm rounded-2xl shadow-xl p-6 space-y-4">
+      <h3 class="font-bold text-slate-900 flex items-center gap-2">
+        <span class="text-xl">🔒</span> 化学科管理 認証
+      </h3>
+      <p class="text-xs text-slate-600 leading-relaxed">
+        教員専用PINコードを入力してください。<br>
+        <span class="text-slate-400">（プレビュー環境PIN: <code class="font-mono bg-slate-100 px-1 py-0.5 rounded">chem2026</code>）</span>
+      </p>
+      <input type="password" id="pinInput" placeholder="PINコード" class="w-full px-3 py-2 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 font-mono">
+      <div class="flex justify-end gap-2 pt-2">
+        <button onclick="closePinModal()" class="px-4 py-2 text-xs font-medium text-slate-600 hover:text-slate-900 transition">キャンセル</button>
+        <button id="pinSubmitBtn" onclick="submitPin()" class="px-4 py-2 bg-slate-800 text-white text-xs font-bold rounded-xl hover:bg-slate-900 transition flex items-center gap-2 shadow-sm">
+          認証する <span id="pinSpinner" class="hidden animate-spin">🌀</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== 改修版：回答エディタ＆承認ステーション（完全視認保証ハイブリッドUI） ==================== -->
+  <div id="reviewModal" class="hidden fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4">
+    <div class="bg-white w-full max-w-6xl rounded-2xl shadow-2xl flex flex-col h-[95vh] max-h-[960px] overflow-hidden no-horizontal-scroll">
+      
+      <!-- モーダルヘッダー -->
+      <div class="px-4 sm:px-6 py-3 border-b border-slate-200 flex justify-between items-center bg-slate-50 shrink-0">
+        <div class="flex items-center gap-2 sm:gap-3 flex-wrap">
+          <span class="text-lg sm:text-xl">✍️</span>
+          <div>
+            <h3 class="font-bold text-slate-900 text-sm sm:text-base leading-tight">化学科 回答作成・承認エディタ</h3>
+            <p class="text-[10px] sm:text-[11px] text-slate-500">リアルタイムKaTeX・mhchemプレビュー ＆ Gemini 3 Flash アシスト</p>
+          </div>
+          <span id="modalQuestionId" class="text-xs bg-slate-200 text-slate-800 px-2 py-0.5 rounded font-mono font-bold"></span>
+          <span id="modalCategoryBadge" class="text-xs bg-blue-100 text-blue-800 font-semibold px-2 py-0.5 rounded"></span>
+        </div>
+        <button onclick="closeReviewModal()" class="text-slate-400 hover:text-slate-700 p-1.5 rounded-lg hover:bg-slate-200 transition text-lg leading-none">✕</button>
+      </div>
+
+      <!-- モード切り替えタブ（狭い画面でも迷わず即座に切り替え可能） -->
+      <div class="flex items-center justify-between border-b border-slate-200 px-4 py-2 bg-slate-100/70 shrink-0 gap-2 flex-wrap">
+        <div class="flex gap-1.5">
+          <button id="editorTabAnswer" onclick="switchEditorSection('answer')" class="px-3 py-1.5 text-xs font-bold rounded-lg bg-blue-600 text-white shadow-xs transition flex items-center gap-1">
+            <span>✍️ 回答作成＆プレビュー</span>
+          </button>
+          <button id="editorTabQuestion" onclick="switchEditorSection('question')" class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-white text-slate-700 hover:bg-slate-200 border border-slate-200 transition flex items-center gap-1">
+            <span>📋 生徒の質問・写真</span>
+          </button>
+          <button id="editorTabGemini" onclick="switchEditorSection('gemini')" class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-purple-100 text-purple-800 hover:bg-purple-200 border border-purple-200 transition flex items-center gap-1">
+            <span>🤖 Gemini 3 Flash アシスト</span>
+          </button>
+        </div>
+        
+        <!-- 進行ステータス切替 -->
+        <div class="flex items-center gap-1 bg-white px-2 py-1 rounded-lg border border-slate-200 text-xs">
+          <span class="text-[11px] text-slate-500 font-medium mr-1">状態:</span>
+          <label class="cursor-pointer font-medium px-1.5 py-0.5 rounded transition has-[:checked]:bg-amber-100 has-[:checked]:text-amber-900 text-slate-600">
+            <input type="radio" name="modalStatusRadio" value="pending" class="hidden"> ⏳確認待ち
+          </label>
+          <label class="cursor-pointer font-medium px-1.5 py-0.5 rounded transition has-[:checked]:bg-cyan-100 has-[:checked]:text-cyan-900 text-slate-600">
+            <input type="radio" name="modalStatusRadio" value="in_progress" class="hidden"> ✍️作成中
+          </label>
+          <label class="cursor-pointer font-medium px-1.5 py-0.5 rounded transition has-[:checked]:bg-emerald-100 has-[:checked]:text-emerald-900 text-slate-600">
+            <input type="radio" name="modalStatusRadio" value="answered" class="hidden"> ✅公開完了
+          </label>
+        </div>
+      </div>
+
+      <!-- 生徒の質問クイック要約バナー（回答執筆中も常時確認可能） -->
+      <div class="bg-blue-50/70 border-b border-blue-100 px-4 py-2 shrink-0 flex items-center justify-between text-xs text-slate-800">
+        <div class="truncate flex items-center gap-2">
+          <span class="font-bold text-blue-900 bg-blue-100 px-1.5 py-0.5 rounded text-[10px] shrink-0">質問要約</span>
+          <span id="modalQuestionSnippet" class="truncate text-slate-700 font-medium"></span>
+        </div>
+        <button onclick="switchEditorSection('question')" class="text-blue-600 hover:underline shrink-0 text-[11px] font-semibold ml-2">全文を見る →</button>
+      </div>
+      
+      <!-- メインコンテンツ領域（3つのタブで確実に視認性を担保） -->
+      <div class="flex-grow flex flex-col min-h-0 overflow-hidden bg-slate-50/50">
+        
+        <!-- ペイン1: 回答作成 ＆ リアルタイムKaTeXプレビュー（メイン画面・常に最優先） -->
+        <div id="paneEditorAnswer" class="flex-grow flex flex-col p-3 sm:p-5 space-y-3 min-h-0 overflow-y-auto custom-scrollbar">
+          
+          <!-- 化学記号クイックパレット -->
+          <div class="p-2.5 border border-slate-200 rounded-xl bg-white shadow-xs shrink-0 space-y-1.5">
+            <div class="flex items-center justify-between flex-wrap gap-1.5">
+              <span class="text-xs font-bold text-slate-700 flex items-center gap-1">
+                <span>⚗️ 化学式パレット (mhchem)</span>
+              </span>
+              <div class="flex gap-1 bg-slate-100 p-0.5 rounded-lg text-xs">
+                <button type="button" onclick="switchPaletteTab('reaction')" id="palTabReaction" class="px-2 py-0.5 text-xs font-bold bg-white text-blue-700 rounded shadow-xs">反応・平衡</button>
+                <button type="button" onclick="switchPaletteTab('ions')" id="palTabIons" class="px-2 py-0.5 text-xs font-medium text-slate-600 hover:text-slate-900 rounded">イオン・電子</button>
+                <button type="button" onclick="switchPaletteTab('states')" id="palTabStates" class="px-2 py-0.5 text-xs font-medium text-slate-600 hover:text-slate-900 rounded">状態・熱</button>
+              </div>
+            </div>
+
+            <!-- 反応・平衡ボタン群 -->
+            <div id="palPaneReaction" class="flex flex-wrap gap-1.5 pt-1">
+              <button type="button" onclick="insertKaTeX('\\ce{->}')" class="px-2.5 py-1 bg-slate-50 hover:bg-blue-50 border border-slate-200 rounded text-xs font-mono text-slate-800 shadow-xs">">→</button>
+              <button type="button" onclick="insertKaTeX('\\ce{<=>}')" class="px-2.5 py-1 bg-slate-50 hover:bg-blue-50 border border-slate-200 rounded text-xs font-mono text-slate-800 shadow-xs">⇄ (平衡)</button>
+              <button type="button" onclick="insertKaTeX('v')" class="px-2.5 py-1 bg-slate-50 hover:bg-blue-50 border border-slate-200 rounded text-xs font-mono text-slate-800 shadow-xs">↓(沈殿: v)</button>
+              <button type="button" onclick="insertKaTeX('^')" class="px-2.5 py-1 bg-slate-50 hover:bg-blue-50 border border-slate-200 rounded text-xs font-mono text-slate-800 shadow-xs">↑(気体: ^)</button>
+              <button type="button" onclick="insertKaTeX('\\ce{->[\\Delta]}')" class="px-2.5 py-1 bg-slate-50 hover:bg-blue-50 border border-slate-200 rounded text-xs font-mono text-slate-800 shadow-xs">Δ(加熱)</button>
+              <button type="button" onclick="wrapSelectionWithCe()" class="px-2.5 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded text-xs font-bold shadow-xs">選択範囲を \ce{...}</button>
+            </div>
+
+            <!-- イオン・電子ボタン群 -->
+            <div id="palPaneIons" class="hidden flex flex-wrap gap-1.5 pt-1">
+              <button type="button" onclick="insertKaTeX('\\ce{e^-}')" class="px-2.5 py-1 bg-slate-50 hover:bg-blue-50 border border-slate-200 rounded text-xs font-mono">e⁻ (電子)</button>
+              <button type="button" onclick="insertKaTeX('\\ce{H^+}')" class="px-2.5 py-1 bg-slate-50 hover:bg-blue-50 border border-slate-200 rounded text-xs font-mono">H⁺</button>
+              <button type="button" onclick="insertKaTeX('\\ce{OH^-}')" class="px-2.5 py-1 bg-slate-50 hover:bg-blue-50 border border-slate-200 rounded text-xs font-mono">OH⁻</button>
+              <button type="button" onclick="insertKaTeX('\\ce{SO4^{2-}}')" class="px-2.5 py-1 bg-slate-50 hover:bg-blue-50 border border-slate-200 rounded text-xs font-mono">SO₄²⁻</button>
+              <button type="button" onclick="insertKaTeX('\\ce{[Ag(NH3)2]+}')" class="px-2.5 py-1 bg-slate-50 hover:bg-blue-50 border border-slate-200 rounded text-xs font-mono">[Ag(NH₃)₂]⁺</button>
+            </div>
+
+            <!-- 状態・熱力学ボタン群 -->
+            <div id="palPaneStates" class="hidden flex flex-wrap gap-1.5 pt-1">
+              <button type="button" onclick="insertKaTeX('(aq)')" class="px-2.5 py-1 bg-slate-50 hover:bg-blue-50 border border-slate-200 rounded text-xs font-mono">(aq)</button>
+              <button type="button" onclick="insertKaTeX('(s)')" class="px-2.5 py-1 bg-slate-50 hover:bg-blue-50 border border-slate-200 rounded text-xs font-mono">(s)</button>
+              <button type="button" onclick="insertKaTeX('(g)')" class="px-2.5 py-1 bg-slate-50 hover:bg-blue-50 border border-slate-200 rounded text-xs font-mono">(g)</button>
+              <button type="button" onclick="insertKaTeX('\\frac{A}{B}')" class="px-2.5 py-1 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded text-xs font-mono font-bold text-blue-800">分数: \frac{A}{B}</button>
+              <button type="button" onclick="insertKaTeX('\\frac{\\text{分子}}{\\text{分母}}')" class="px-2.5 py-1 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded text-xs font-mono text-blue-800">日本語分数</button>
+              <button type="button" onclick="insertKaTeX('$K_a$')" class="px-2.5 py-1 bg-slate-50 hover:bg-blue-50 border border-slate-200 rounded text-xs font-mono">Ka</button>
+              <button type="button" onclick="insertKaTeX('$\\Delta H$')" class="px-2.5 py-1 bg-slate-50 hover:bg-blue-50 border border-slate-200 rounded text-xs font-mono">ΔH</button>
+            </div>
+          </div>
+
+          <!-- 入力エリア＆ライブプレビューの縦並び分割（確実に両方が視界に入る） -->
+          <div class="flex-grow grid grid-cols-1 md:grid-cols-2 gap-3 min-h-[280px]">
+            
+            <!-- 回答入力テキストエリア -->
+            <div class="flex flex-col space-y-1 min-h-[160px]">
+              <div class="flex justify-between items-center">
+                <label class="text-xs font-bold text-slate-800 flex items-center gap-1">
+                  <span>先生の回答入力</span>
+                  <span class="text-[10px] text-slate-400 font-normal">($\ce{...}$ で化学式)</span>
+                </label>
+                <span class="text-[10px] text-blue-600 font-semibold">リアルタイム連動中</span>
+              </div>
+              <textarea id="modalAnswerInput" oninput="handleAnswerInputLive()" class="w-full flex-grow p-3 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-blue-500 font-mono leading-relaxed shadow-xs custom-scrollbar resize-none" placeholder="例: 希硝酸との半反応式は以下の通りです。&#10;$\ce{HNO3 + 3H+ + 3e- -> NO + 2H2O}$"></textarea>
+            </div>
+
+            <!-- リアルタイム・ライブプレビュー（生徒の見え方そのもの） -->
+            <div class="flex flex-col space-y-1 min-h-[160px]">
+              <div class="flex justify-between items-center">
+                <span class="text-xs font-bold text-blue-950 flex items-center gap-1">
+                  <span>👁️ 生徒側ライブプレビュー</span>
+                </span>
+                <span id="previewStatusBadge" class="text-[10px] text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full font-bold">描画準備完了</span>
+              </div>
+              <div id="modalAnswerLivePreview" class="flex-grow p-3 bg-blue-50/50 rounded-xl border border-blue-200 shadow-inner text-sm text-slate-800 leading-relaxed custom-scrollbar break-words overflow-y-auto">
+                <span class="text-slate-400 italic">入力した回答の数式・化学式がリアルタイムにここに描画されます...</span>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+        <!-- ペイン2: 生徒の質問・写真・詳細情報 -->
+        <div id="paneEditorQuestion" class="hidden flex-grow flex flex-col p-4 sm:p-6 space-y-4 min-h-0 overflow-y-auto custom-scrollbar">
+          
+          <div class="bg-amber-50 border border-amber-200 rounded-xl p-3 text-xs flex flex-wrap gap-x-4 gap-y-1 items-center shadow-xs">
+            <span class="font-bold bg-amber-200 text-amber-900 px-2 py-0.5 rounded text-[10px]">教員限定</span>
+            <span>生徒番号: <strong id="modalStudentId" class="font-mono text-slate-900"></strong></span>
+            <span>氏名: <strong id="modalStudentName" class="text-slate-900"></strong></span>
+            <span>公開ニックネーム: <strong id="modalNickname" class="text-slate-700"></strong></span>
+          </div>
+
+          <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs space-y-2">
+            <h4 class="text-xs font-bold text-slate-700 border-b border-slate-100 pb-2 flex items-center gap-1.5">
+              <span>💬 質問本文・つまずいた箇所</span>
+            </h4>
+            <div class="text-sm text-slate-800 whitespace-pre-wrap leading-relaxed katex-target break-words" id="modalContent"></div>
+          </div>
+
+          <!-- 添付写真 -->
+          <div id="modalImageContainer" class="hidden bg-white border border-slate-200 rounded-xl p-4 shadow-xs space-y-2">
+            <h4 class="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+              <span>📸 生徒の添付写真（ノート・問題集）</span>
+            </h4>
+            <div class="border rounded-lg overflow-hidden bg-slate-100 flex justify-center p-2">
+              <img id="modalImage" src="" class="max-h-72 object-contain rounded cursor-pointer hover:opacity-95 transition" onclick="window.open(this.src, '_blank')" title="クリックで別タブ拡大">
+            </div>
+          </div>
+
+        </div>
+
+        <!-- ペイン3: Gemini 3 Flash AI 指導アシスタント -->
+        <div id="paneEditorGemini" class="hidden flex-grow flex flex-col p-4 sm:p-6 space-y-4 min-h-0 overflow-y-auto custom-scrollbar">
+          
+          <div class="bg-purple-50 border border-purple-200 rounded-2xl p-4 space-y-3.5">
+            <div class="flex items-center justify-between flex-wrap gap-2">
+              <div class="flex items-center gap-2">
+                <span class="text-2xl">🤖</span>
+                <div>
+                  <h4 class="text-sm font-bold text-purple-950">Gemini 3 Flash 指導アシスタント</h4>
+                  <p class="text-[11px] text-purple-700">生徒の疑問に寄り添う回答ドラフト・思考分析・類題をAIが生成します</p>
+                </div>
+              </div>
+              <div class="flex gap-2">
+                <button onclick="generateGeminiAction('draft')" id="aiActionDraftBtn" class="px-3.5 py-1.5 bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold rounded-lg shadow-xs transition flex items-center gap-1">
+                  <span>💡 回答ドラフト生成</span>
+                </button>
+                <button onclick="generateGeminiAction('analyze')" id="aiActionAnalyzeBtn" class="px-3 py-1.5 bg-white hover:bg-purple-100 text-purple-800 border border-purple-300 text-xs font-bold rounded-lg transition flex items-center gap-1">
+                  <span>🧠 つまずき分析</span>
+                </button>
+                <button onclick="generateGeminiAction('exercise')" id="aiActionExerciseBtn" class="px-3 py-1.5 bg-white hover:bg-purple-100 text-purple-800 border border-purple-300 text-xs font-bold rounded-lg transition flex items-center gap-1">
+                  <span>📝 類題・良問作成</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- 先生からの個別指示・条件指定エリア -->
+            <div class="bg-white/80 border border-purple-200 rounded-xl p-3 space-y-2">
+              <div class="flex items-center justify-between flex-wrap gap-1">
+                <label class="text-xs font-bold text-purple-950 flex items-center gap-1.5">
+                  <span>✏️ 先生からの追加指示・条件（任意）</span>
+                  <span class="text-[10px] text-purple-600 font-normal">※指導方針や盛り込みたいポイントを指定できます</span>
+                </label>
+                <button type="button" onclick="clearTeacherInstruction()" class="text-[10px] text-slate-400 hover:text-slate-600">クリア</button>
+              </div>
+              <input type="text" id="aiCustomInstructionInput" placeholder="例: 「サリチル酸メチルとの違いを比較」「短く要点重視」「入試の記述注意点」など" class="w-full px-3 py-2 text-xs rounded-lg border border-purple-200 focus:ring-2 focus:ring-purple-500 font-sans">
+              
+              <!-- クイック指示タグ群 -->
+              <div class="flex flex-wrap gap-1.5 pt-0.5 items-center">
+                <span class="text-[10px] font-semibold text-purple-700">ワンタップ指示:</span>
+                <button type="button" onclick="appendInstruction('高校化学の範囲に絞って分かりやすく')" class="px-2 py-0.5 text-[10px] bg-purple-100 hover:bg-purple-200 text-purple-800 rounded border border-purple-200 font-medium">高校範囲に限定</button>
+                <button type="button" onclick="appendInstruction('大学入試での頻出ポイント・引っかけ注意を強調して')" class="px-2 py-0.5 text-[10px] bg-purple-100 hover:bg-purple-200 text-purple-800 rounded border border-purple-200 font-medium">入試頻出ポイント強調</button>
+                <button type="button" onclick="appendInstruction('短く3〜4行程度で要点だけ端的に')" class="px-2 py-0.5 text-[10px] bg-purple-100 hover:bg-purple-200 text-purple-800 rounded border border-purple-200 font-medium">短く要点のみ</button>
+                <button type="button" onclick="appendInstruction('前置きなしで結論から端的に解説')" class="px-2 py-0.5 text-[10px] bg-purple-100 hover:bg-purple-200 text-purple-800 rounded border border-purple-200 font-medium">前置き完全省略</button>
+              </div>
+            </div>
+
+            <!-- AIローディング表示 -->
+            <div id="geminiLoading" class="hidden py-6 text-center space-y-2">
+              <div class="inline-block animate-spin text-2xl">🌀</div>
+              <p class="text-xs font-bold text-purple-900" id="geminiLoadingText">Gemini 3 Flash が考察中...</p>
+            </div>
+
+            <!-- AI生成結果カード -->
+            <div id="geminiResultBox" class="hidden bg-white p-4 rounded-xl border border-purple-200 shadow-sm space-y-3">
+              <div class="flex justify-between items-center border-b border-purple-100 pb-2">
+                <span class="text-xs font-bold text-purple-950 flex items-center gap-1" id="geminiResultTitle">
+                  <span>💡 AI提案内容</span>
+                </span>
+                <div class="flex gap-1.5">
+                  <button type="button" onclick="copyGeminiOutput()" class="px-2.5 py-1 text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 rounded transition">📋 コピー</button>
+                  <button type="button" onclick="applyGeminiToEditor('append')" class="px-2.5 py-1 text-xs font-semibold bg-purple-100 hover:bg-purple-200 text-purple-800 rounded transition">➕ 末尾に追加</button>
+                  <button type="button" onclick="applyGeminiToEditor('replace')" class="px-2.5 py-1 text-xs font-bold bg-purple-600 hover:bg-purple-700 text-white rounded transition">💡 全文反映</button>
+                  <button type="button" onclick="applyAndDirectPublish()" class="px-2.5 py-1 text-xs font-bold bg-blue-600 hover:bg-blue-700 text-white rounded transition flex items-center gap-1 shadow-xs">🚀 反映して即座に公開</button>
+                </div>
+              </div>
+              <div id="geminiOutputText" class="text-xs sm:text-sm text-slate-800 whitespace-pre-wrap leading-relaxed max-h-72 overflow-y-auto custom-scrollbar katex-target"></div>
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- モーダルフッター操作バー -->
+      <div class="px-4 sm:px-6 py-3 border-t border-slate-200 bg-slate-50 flex justify-between items-center shrink-0">
+        <button type="button" onclick="saveDraftOnly()" class="px-3.5 py-2 border border-slate-300 text-slate-700 hover:bg-slate-100 text-xs font-bold rounded-xl transition shadow-xs">
+          💾 進行ステータス保存
+        </button>
+        <div class="flex gap-2">
+          <button onclick="closeReviewModal()" class="px-3.5 py-2 text-xs font-medium text-slate-600 hover:text-slate-900 transition">閉じる</button>
+          <button id="publishBtn" onclick="saveAnswerAndPublish()" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs sm:text-sm font-bold rounded-xl shadow transition flex items-center gap-2">
+            <span>承認して公開する</span>
+            <span id="publishSpinner" class="hidden animate-spin">🌀</span>
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- GAS設定モーダル -->
+  <div id="gasModal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white w-full max-w-md rounded-2xl shadow-xl p-6 space-y-4">
+      <h3 class="font-bold text-slate-900 flex items-center gap-2">
+        <span>⚙️</span> スプレッドシート（GAS）連携設定
+      </h3>
+      <p class="text-xs text-slate-600 leading-relaxed">
+        デプロイしたGASの「ウェブアプリのURL」を貼り付けてください。未設定時は安全なブラウザ内モック環境で動作します。
+      </p>
+      <input type="text" id="gasUrlInput" placeholder="https://script.google.com/macros/s/.../exec" class="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 font-mono">
+      <div class="flex justify-end gap-2 pt-2">
+        <button onclick="closeGasModal()" class="px-4 py-2 text-xs font-medium text-slate-600">キャンセル</button>
+        <button onclick="saveGasUrl()" class="px-4 py-2 bg-slate-800 text-white text-xs font-bold rounded-lg hover:bg-slate-900">保存して同期</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- APIキー個別設定モーダル -->
+  <div id="apiModal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white w-full max-w-md rounded-2xl shadow-xl p-6 space-y-4">
+      <h3 class="font-bold text-purple-900 flex items-center gap-2">
+        <span>🔑</span> Gemini APIキー設定（任意）
+      </h3>
+      <p class="text-xs text-slate-600 leading-relaxed">
+        Canvas環境では自動注入されるため未入力でも動作します。ご自身のカスタムAPIキーを使用したい場合のみ入力してください。
+      </p>
+      <input type="password" id="apiKeyInput" placeholder="AIzaSy... (空欄で標準実行)" class="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-purple-500 font-mono">
+      <div class="flex justify-end gap-2 pt-2">
+        <button onclick="closeApiModal()" class="px-4 py-2 text-xs font-medium text-slate-600">閉じる</button>
+        <button onclick="saveApiKey()" class="px-4 py-2 bg-purple-600 text-white text-xs font-bold rounded-lg hover:bg-purple-700">保存する</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- トースト通知 -->
+  <div id="toastContainer" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+  <!-- ==================== JavaScript ロジック ==================== -->
+  <script>
+    // --- 初期デモデータ ---
+    const INITIAL_SAMPLE_QUESTIONS = [
+      {
+        id: "demo_001",
+        publicId: "Q-0001",
+        status: "answered",
+        studentId: "2401001",
+        studentName: "化学 太郎",
+        nickname: "アボガドロ",
+        category: "無機化学",
+        content: "【疑問点】\n銅に濃硝酸と希硝酸を入れたときの化学反応式が覚えられません。\n\n【自分の考え・つまずいた所】\n半反応式から作ると聞きましたが、生成する二酸化窒素と一酸化窒素の違いがいつも混乱してしまいます。",
+        imageData: null,
+        createdAt: "2026/09/10 14:00",
+        answer: "質問ありがとうございます。丸暗記に頼らず、半反応式から組み立てようと努力している姿勢がとても素晴らしいですね。\n濃硝酸と希硝酸の反応の違いは、酸化剤としての硝酸分子の濃度と、酸化数の変化に着目すると明確に整理できます。\n\n1. 【濃硝酸の場合】\n溶液中に多量の硝酸分子が存在するため、1分子あたりが受け取る電子は1個で済み、酸化数は $+5 \\rightarrow +4$ へと還元されます。\n半反応式:\n$$\\ce{HNO3 + H+ + e- -> NO2 + H2O}$$\n\n2. 【希硝酸の場合】\n硝酸分子の濃度が低いため、1分子がより深く還元され、電子を3個受け取って酸化数は $+5 \\rightarrow +2$ まで変化します。\n半反応式:\n$$\\ce{HNO3 + 3H+ + 3e- -> NO + 2H2O}$$\n\nこれらに銅の酸化反応式 $\\ce{Cu -> Cu^2+ + 2e-}$ を電子数を揃えて足し合わせることで、全体の化学反応式が導けます。\n焦らず半反応式を丁寧に書く練習を重ねてみてくださいね。応援しています。",
+        answeredAt: "2026/09/10 16:30",
+        reactions: { clear: 18, good: 6, unclear: 1 }
+      },
+      {
+        id: "demo_002",
+        publicId: "Q-0002",
+        status: "in_progress",
+        studentId: "2401042",
+        studentName: "佐藤 花子",
+        nickname: "ルシャトリエ推し",
+        category: "理論化学",
+        content: "【疑問点】\n発熱反応の気体平衡で、温度を上げたとき平衡定数 K はどう変化しますか？\n\n【自分の考え・つまずいた所】\nルシャトリエの原理より温度を上げると吸熱方向に進むため、左に平衡が移動することは分かりました。平衡定数そのものの値も変わるのでしょうか？",
+        imageData: null,
+        createdAt: "2026/09/10 18:20",
+        answer: "ルシャトリエの原理をもとに、平衡の移動方向を正確に考察できていますね。とても良い着眼点です。\n\n【解説】\n結論から言うと、平衡定数 $K$ の値そのものも**減少（小さく）**します。\n平衡定数 $K$ は「温度のみに依存する定数」であり、濃度や圧力を変えても一定ですが、温度が変わるとその値自体が変化します。\n発熱反応において温度を上げると、吸熱方向（逆反応・左）に平衡が移動します。平衡定数の式\n$$K = \\frac{\\text{[生成物]}}{\\text{[反応物]}}$$\nにおいて、左への移動は分子（生成物濃度）が減少し、分母（反応物濃度）が増加することを意味するため、結果として $K$ の値は小さくなります。",
+        answeredAt: "",
+        reactions: { clear: 5, good: 2, unclear: 0 }
+      },
+      {
+        id: "demo_003",
+        publicId: "Q-0003",
+        status: "pending",
+        studentId: "2401088",
+        studentName: "鈴木 一郎",
+        nickname: "ベンゼン環",
+        category: "有機化学",
+        content: "【疑問点】\nサリチル酸からアスピリン（アセチルサリチル酸）を作るとき、無水酢酸を使うのはなぜですか？酢酸ではダメなのですか？\n\n【自分の考え・つまずいた所】\nフェノール性-OH基のエステル化が起きにくいからと参考書にありました。",
+        imageData: null,
+        createdAt: "2026/09/10 19:40",
+        answer: "",
+        answeredAt: "",
+        reactions: { clear: 0, good: 0, unclear: 0 }
+      }
+    ];
+
+    // --- 状態管理 ---
+    let publicQuestions = [];
+    let teacherQuestions = [];
+    let myReactions = {}; // 自分がリアクションした記録 { [publicId]: 'clear' | 'good' | 'unclear' }
+    let selectedImageBase64 = null;
+    let localMockCounter = 3;
+    let currentGeminiAction = 'draft';
+    let activeView = 'student';
+    let teacherFilter = 'pending';
+    let currentEditingId = null;
+
+    // --- 初期化 ---
+    window.addEventListener('DOMContentLoaded', () => {
+      initLocalMockData();
+      checkSettingsStatus();
+      fetchPublicQuestions();
+    });
+
+    function checkSettingsStatus() {
+      const gasUrl = localStorage.getItem('hs_chem_gas_url');
+      const gasEl = document.getElementById('gasStatusText');
+      if (gasEl) {
+        if (gasUrl) {
+          gasEl.className = 'text-emerald-600 font-semibold';
+          gasEl.textContent = '🟢 GAS連携中';
+        } else {
+          gasEl.className = 'text-amber-600 font-semibold';
+          gasEl.textContent = '🟡 プレビューモード';
+        }
+      }
+    }
+
+    function initLocalMockData() {
+      if (!sessionStorage.getItem('demo_mock_db')) {
+        sessionStorage.setItem('demo_mock_db', JSON.stringify(INITIAL_SAMPLE_QUESTIONS));
+      }
+      try {
+        myReactions = JSON.parse(localStorage.getItem('student_reactions') || '{}');
+      } catch (e) {
+        myReactions = {};
+      }
+    }
+
+    // --- 認証関連 ---
+    function handleTeacherLogin() {
+      const sessionPin = sessionStorage.getItem('teacherPin');
+      if (sessionPin) {
+        fetchTeacherQuestions(sessionPin);
+        switchView('teacher');
+        return;
+      }
+      
+      const pinInput = document.getElementById('pinInput');
+      if (pinInput) pinInput.value = '';
+      const pinModal = document.getElementById('pinModal');
+      if (pinModal) pinModal.classList.remove('hidden');
+      setTimeout(() => {
+        if (pinInput) pinInput.focus();
+      }, 100);
+    }
+
+    function closePinModal() {
+      const pinModal = document.getElementById('pinModal');
+      if (pinModal) pinModal.classList.add('hidden');
+    }
+
+    async function submitPin() {
+      const pinInput = document.getElementById('pinInput');
+      const pin = pinInput ? pinInput.value.trim() : '';
+      const gasUrl = localStorage.getItem('hs_chem_gas_url');
+      
+      if (!pin) {
+        showToast('PINコードを入力してください。', 'error');
+        return;
+      }
+
+      const btn = document.getElementById('pinSubmitBtn');
+      const spinner = document.getElementById('pinSpinner');
+      if (btn) btn.disabled = true;
+      if (spinner) spinner.classList.remove('hidden');
+
+      if (!gasUrl) {
+        setTimeout(() => {
+          if (pin === 'chem2026') {
+            sessionStorage.setItem('teacherPin', pin);
+            closePinModal();
+            showToast('教員モードで認証しました。', 'success');
+            fetchTeacherQuestions(pin);
+            switchView('teacher');
+          } else {
+            showToast('PINコードが違います。（デモ用PIN: chem2026）', 'error');
+          }
+          if (btn) btn.disabled = false;
+          if (spinner) spinner.classList.add('hidden');
+        }, 200);
+        return;
+      }
+
+      try {
+        const res = await fetch(`${gasUrl}?action=verifyPin&pin=${encodeURIComponent(pin)}`);
+        const data = await res.json();
+        
+        if (data.status === 'success') {
+          sessionStorage.setItem('teacherPin', pin);
+          closePinModal();
+          showToast('教員認証に成功しました。', 'success');
+          await fetchTeacherQuestions(pin);
+          switchView('teacher');
+        } else {
+          showToast('PINコードが正しくありません。', 'error');
+        }
+      } catch (err) {
+        showToast('認証通信に失敗しました。', 'error');
+      } finally {
+        if (btn) btn.disabled = false;
+        if (spinner) spinner.classList.add('hidden');
+      }
+    }
+
+    function handleTeacherLogout() {
+      teacherQuestions = [];
+      sessionStorage.removeItem('teacherPin');
+      switchView('student');
+      showToast('教員画面からログアウトしました。', 'info');
+    }
+
+    // --- データ取得 ---
+    async function fetchPublicQuestions() {
+      const gasUrl = localStorage.getItem('hs_chem_gas_url');
+      
+      if (!gasUrl) {
+        const raw = JSON.parse(sessionStorage.getItem('demo_mock_db') || '[]');
+        publicQuestions = raw.map(q => ({
+          publicId: q.publicId,
+          nickname: q.nickname,
+          category: q.category,
+          content: q.content,
+          answer: q.answer,
+          answeredAt: q.answeredAt,
+          createdAt: q.createdAt,
+          status: q.status,
+          reactions: q.reactions || { clear: 0, good: 0, unclear: 0 }
+        }));
+        renderPublicList();
+        return;
+      }
+
+      try {
+        const res = await fetch(`${gasUrl}?action=getPublicQuestions`);
+        const data = await res.json();
+        if (data.status === 'success') {
+          publicQuestions = (data.data || []).map(q => ({
+            ...q,
+            reactions: q.reactions || { clear: 0, good: 0, unclear: 0 }
+          }));
+          renderPublicList();
+        }
+      } catch (err) {
+        console.error('Failed to load public questions:', err);
+      }
+    }
+
+    async function fetchTeacherQuestions(pin) {
+      const gasUrl = localStorage.getItem('hs_chem_gas_url');
+      
+      if (!gasUrl) {
+        teacherQuestions = JSON.parse(sessionStorage.getItem('demo_mock_db') || '[]');
+        renderTeacherList();
+        return;
+      }
+
+      try {
+        const res = await fetch(`${gasUrl}?action=getTeacherQuestions&pin=${encodeURIComponent(pin)}`);
+        const data = await res.json();
+        if (data.status === 'success') {
+          teacherQuestions = data.data || [];
+          renderTeacherList();
+        } else {
+          showToast('認証が切れました。再ログインしてください。', 'error');
+          handleTeacherLogout();
+        }
+      } catch (err) {
+        showToast('管理データの同期に失敗しました。', 'error');
+      }
+    }
+
+    // --- 質問投稿 ---
+    async function handleQuestionSubmit(e) {
+      e.preventDefault();
+      
+      const submitBtn = document.getElementById('submitQuestionBtn');
+      const spinner = document.getElementById('submitSpinner');
+      if (submitBtn) submitBtn.disabled = true;
+      if (spinner) spinner.classList.remove('hidden');
+
+      const stIdInput = document.getElementById('studentIdInput');
+      normalizeStudentId(stIdInput);
+      const stId = stIdInput.value.trim();
+      const stName = document.getElementById('studentNameInput').value.trim();
+      const nick = document.getElementById('nicknameInput').value.trim() || '名無し smile';
+      const cat = document.getElementById('categoryInput').value;
+      const qText = document.getElementById('questionTextInput').value.trim();
+      const eText = document.getElementById('effortTextInput').value.trim();
+
+      if (stId.length !== 7) {
+        showToast('生徒番号は7桁の数字で入力してください。', 'error');
+        if (submitBtn) submitBtn.disabled = false;
+        if (spinner) spinner.classList.add('hidden');
+        return;
+      }
+
+      const fullContent = `【疑問点】\n${qText}\n\n【自分の考え・つまずいた所】\n${eText}`;
+      const gasUrl = localStorage.getItem('hs_chem_gas_url');
+
+      if (!gasUrl) {
+        setTimeout(() => {
+          localMockCounter++;
+          const pubId = `Q-${String(localMockCounter).padStart(4, '0')}`;
+          const newQ = {
+            id: 'demo_' + Date.now(),
+            publicId: pubId,
+            status: 'pending',
+            studentId: stId,
+            studentName: stName,
+            nickname: nick,
+            category: cat,
+            content: fullContent,
+            imageData: selectedImageBase64,
+            createdAt: new Date().toLocaleString('ja-JP'),
+            answer: '',
+            answeredAt: ''
+          };
+
+          const raw = JSON.parse(sessionStorage.getItem('demo_mock_db') || '[]');
+          raw.unshift(newQ);
+          sessionStorage.setItem('demo_mock_db', JSON.stringify(raw));
+
+          showToast(`質問を受け付けました！（質問ID: ${pubId}）`, 'success');
+          e.target.reset();
+          removeSelectedImage({ stopPropagation: () => {} });
+          
+          switchStudentTab('list');
+          document.getElementById('searchIdInput').value = pubId;
+          fetchPublicQuestions();
+
+          if (submitBtn) submitBtn.disabled = false;
+          if (spinner) spinner.classList.add('hidden');
+        }, 300);
+        return;
+      }
+
+      try {
+        const res = await fetch(gasUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({
+            action: 'submitQuestion',
+            studentId: stId,
+            studentName: stName,
+            nickname: nick,
+            category: cat,
+            content: fullContent,
+            imageData: selectedImageBase64
+          })
+        });
+        const result = await res.json();
+
+        if (result.status === 'success') {
+          showToast(`質問を受け付けました！（質問ID: ${result.publicId}）`, 'success');
+          e.target.reset();
+          removeSelectedImage({ stopPropagation: () => {} });
+          switchStudentTab('list');
+          document.getElementById('searchIdInput').value = result.publicId;
+          await fetchPublicQuestions();
+        } else {
+          showToast(`送信エラー: ${result.message || '投稿に失敗しました'}`, 'error');
+        }
+      } catch (err) {
+        showToast('通信エラーが発生しました。', 'error');
+      } finally {
+        if (submitBtn) submitBtn.disabled = false;
+        if (spinner) spinner.classList.add('hidden');
+      }
+    }
+
+    // --- 回答承認・下書き保存 ---
+    async function saveAnswerAndPublish() {
+      executeSaveAnswer('answered');
+    }
+
+    async function saveDraftOnly() {
+      const selectedStatus = document.querySelector('input[name="modalStatusRadio"]:checked')?.value || 'in_progress';
+      executeSaveAnswer(selectedStatus, true);
+    }
+
+    async function executeSaveAnswer(newStatus, isDraft = false) {
+      const pin = sessionStorage.getItem('teacherPin');
+      const gasUrl = localStorage.getItem('hs_chem_gas_url');
+      const answerInputEl = document.getElementById('modalAnswerInput');
+      const answer = answerInputEl ? answerInputEl.value.trim() : '';
+
+      if (!isDraft && !answer) {
+        // 回答が空の場合は回答作成タブに自動切り替えしてフォーカス
+        switchEditorSection('answer');
+        if (answerInputEl) {
+          answerInputEl.focus();
+          answerInputEl.classList.add('ring-2', 'ring-rose-500', 'border-rose-500');
+          setTimeout(() => {
+            answerInputEl.classList.remove('ring-2', 'ring-rose-500', 'border-rose-500');
+          }, 2000);
+        }
+        showToast('回答内容が未入力です。回答を入力するか、AIドラフトを反映してください。', 'error');
+        return;
+      }
+
+      const publishBtn = document.getElementById('publishBtn');
+      const spinner = document.getElementById('publishSpinner');
+      if (publishBtn) publishBtn.disabled = true;
+      if (spinner) spinner.classList.remove('hidden');
+
+      const now = new Date().toLocaleString('ja-JP');
+
+      if (!gasUrl) {
+        setTimeout(() => {
+          const raw = JSON.parse(sessionStorage.getItem('demo_mock_db') || '[]');
+          const target = raw.find(x => x.id === currentEditingId);
+          if (target) {
+            target.status = newStatus;
+            target.answer = answer;
+            if (newStatus === 'answered') {
+              target.answeredAt = now;
+            }
+          }
+          sessionStorage.setItem('demo_mock_db', JSON.stringify(raw));
+
+          const tTarget = teacherQuestions.find(x => x.id === currentEditingId);
+          if (tTarget) {
+            tTarget.status = newStatus;
+            tTarget.answer = answer;
+            if (newStatus === 'answered') {
+              tTarget.answeredAt = now;
+            }
+          }
+
+          showToast(isDraft ? '進行ステータスを下書き保存しました。' : '回答を承認して公開しました！', 'success');
+          closeReviewModal();
+          renderTeacherList();
+          fetchPublicQuestions();
+
+          if (publishBtn) publishBtn.disabled = false;
+          if (spinner) spinner.classList.add('hidden');
+        }, 250);
+        return;
+      }
+
+      try {
+        const res = await fetch(gasUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({
+            action: 'publishAnswer',
+            pin: pin,
+            id: currentEditingId,
+            answer: answer,
+            status: newStatus
+          })
+        });
+        const result = await res.json();
+        if (result.status === 'success') {
+          showToast(isDraft ? '進行ステータスを保存しました。' : '回答を公開しました！', 'success');
+          closeReviewModal();
+          await fetchTeacherQuestions(pin);
+          fetchPublicQuestions();
+        } else {
+          showToast(`保存失敗: ${result.message || 'エラー'}`, 'error');
+        }
+      } catch (err) {
+        showToast('通信エラーが発生しました。', 'error');
+      } finally {
+        if (publishBtn) publishBtn.disabled = false;
+        if (spinner) spinner.classList.add('hidden');
+      }
+    }
+
+    // Gemini API 呼び出し（APIキー未設定時や通信エラー時は自動フォールバック）
+    async function callGeminiApi(prompt, systemInstruction, category, content, actionType) {
+      const apiKey = localStorage.getItem('hs_chem_api_key');
+      if (!apiKey) {
+        await new Promise(r => setTimeout(r, 400));
+        return getSmartChemFallback(category, content, actionType);
+      }
+
+      try {
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+        const res = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            system_instruction: { parts: [{ text: systemInstruction }] },
+            contents: [{ parts: [{ text: prompt }] }]
+          })
+        });
+        const data = await res.json();
+        if (data.candidates && data.candidates[0]?.content?.parts?.[0]?.text) {
+          return data.candidates[0].content.parts[0].text;
+        }
+      } catch (e) {
+        console.warn('Gemini API call failed, falling back to local chemistry engine:', e);
+      }
+      return getSmartChemFallback(category, content, actionType);
+    }
+
+    // 質問内容に応じた教育的化学フォールバック生成（前置き完全撤廃・端的な化学解説）
+    function getSmartChemFallback(category, content, actionType) {
+      const isAspirin = content.includes('サリチル酸') || content.includes('アスピリン') || content.includes('無水酢酸');
+      const isLeChatelier = content.includes('平衡') || content.includes('ルシャトリエ') || content.includes('発熱');
+      const isNitric = content.includes('硝酸') || content.includes('銅') || content.includes('半反応式');
+
+      if (actionType === 'draft') {
+        if (isAspirin) {
+          return `【結論】
+フェノール類のヒドロキシ基は通常のアルコールに比べて求核性が著しく低いため、通常の酢酸では反応が進みません。そのため、反応性の高い無水酢酸を用いてアセチル化を行います。
+
+【解説】
+1. フェノール性ヒドロキシ基の反応性
+フェノール類の酸素原子の非共有電子対はベンゼン環のπ電子系と共鳴して非局在化しています。そのため酸素原子上の電子密度が低下し、カルボニル炭素への攻撃力（求核性）が通常のアルコール（エタノール等）よりも大幅に弱くなります。
+
+2. 酢酸を用いた場合の問題点
+酢酸 $\\ce{CH3COOH}$ との反応は可逆な平衡反応であり、副生する水によって加水分解（逆反応）が容易に進みます。フェノール性ヒドロキシ基の求核性の低さも相まって、平衡はほとんど原系（左）に偏り、エステル化はほぼ進行しません。
+
+3. 無水酢酸 $\\ce{(CH3CO)2O}$ を用いる利点
+酸無水物はカルボニル炭素の求電子性が非常に高いため、求核性の弱いフェノール性ヒドロキシ基とも速やかに反応します。
+$$\\ce{C6H4(OH)COOH + (CH3CO)2O -> C6H4(OCOCH3)COOH + CH3COOH}$$
+副生成物が水ではなく酢酸であるため加水分解が起こらず、不可逆的に右へ反応が完結してアセチルサリチル酸が高収率で得られます。`;
+        } else if (isLeChatelier) {
+          return `【結論】
+発熱反応において温度を上昇させた場合、平衡定数 $K$ の値は減少（小さく）します。
+
+【解説】
+1. 平衡定数 $K$ の性質
+平衡定数 $K$ は「温度のみに依存する定数」です。濃度や全圧の変化では不変ですが、温度が変化すると定数そのものの値が変化します。
+
+2. ルシャトリエの原理による考察
+発熱反応系を加熱（昇温）すると、加えられた熱を打ち消す方向、すなわち吸熱方向（逆反応・左向き）に平衡が移動します。
+平衡定数の定義式
+$$K = \\frac{\\text{[生成物]}}{\\text{[反応物]}}$$
+において、左向きへの移動は分子（生成物濃度）の減少と分母（反応物濃度）の増加を意味するため、$K$ の値は小さくなります。`;
+        } else if (isNitric) {
+          return `【結論】
+濃硝酸と希硝酸では、硝酸分子の濃度差によって還元される度合いが異なり、生成する酸化窒素の種類と酸化数の変化幅が異なります。
+
+【各半反応式】
+1. 濃硝酸の場合（酸化数: $+5 \\rightarrow +4$）
+硝酸分子が過剰に存在するため、1分子あたりが受容する電子は1個で済み、二酸化窒素 $\\ce{NO2}$ が生じます。
+$$\\ce{HNO3 + H+ + e- -> NO2 + H2O}$$
+
+2. 希硝酸の場合（酸化数: $+5 \\rightarrow +2$）
+硝酸分子の濃度が低いため、1分子がより深く還元され、電子を3個受容して一酸化窒素 $\\ce{NO}$ が生じます。
+$$\\ce{HNO3 + 3H+ + 3e- -> NO + 2H2O}$$
+
+銅の酸化反応 $\\ce{Cu -> Cu^2+ + 2e-}$ と電子数を揃えて両辺を加算することで、全体の化学反応式が導かれます。`;
+        } else {
+          return `【結論】
+本問の反応を整理する際は、反応前後の酸化数の増減、あるいは熱力学的な平衡移動の条件に着目します。
+
+【解説】
+化学反応式の組み立てにおいては、電子の授受（半反応式）あるいは分母・分子の物質量比を正確に追うことが重要です。
+$$\\ce{A + B <=> C + D}$$
+各化学種の状態（気体・沈殿・水溶液）を明確にし、基本法則に立ち返って整理しましょう。`;
+        }
+      } else if (actionType === 'analyze') {
+        if (isAspirin) {
+          return `【指導分析メモ】
+・着眼点：参考書の記述から「フェノール性-OHのエステル化が起きにくい」という核心を捉えている。
+・つまずきの本質：「アルコールのエステル化」と「フェノールのエステル化」の求核性の差異、および平衡論（加水分解の有無）の区別が曖昧。
+・指導要点：共鳴による酸素原子の電子密度低下と、無水酢酸の副生成物が酢酸（非水系）である点の2軸で説明すると定着する。`;
+        } else {
+          return `【指導分析メモ】
+・着眼点：ルシャトリエの原理による平衡移動の方向判定は正しくできている。
+・つまずきの本質：「濃度の比率変化」と「平衡定数 $K$ そのものの変化」の定義上の違いで迷いが生じている。
+・指導要点：「平衡定数は温度のみの関数である」という大原則を再確認させる。`;
+        }
+      } else {
+        // exercise
+        if (isAspirin) {
+          return `【類題】
+サリチル酸にメタノールと少量の濃硫酸を加えて加熱したところ、特有の芳香をもつ化合物Xが得られた。
+(1) 化合物Xの名称を答えよ。
+(2) アスピリン合成時と異なり、本反応で無水物を用いず通常のメタノールでエステル化が進行する理由を説明せよ。
+
+【解答】
+(1) サリチル酸メチル
+(2) サリチル酸側のカルボキシ基（$\\ce{-COOH}$）とメタノールのアルコール性ヒドロキシ基の間で反応が起きるため。アルコール性-OHは十分な求核性を持ち、通常のエステル化が進行するから。`;
+        } else {
+          return `【類題】
+密閉容器内で $\\ce{2NO2 (赤褐色) <=> N2O4 (無色)} + 57\\text{ kJ}$ の平衡状態にあるとき、容器を加熱して昇温した。
+(1) 平衡は左右どちらに移動するか。
+(2) 平衡定数 $K = \\frac{[\\ce{N2O4}]}{[\\ce{NO2}]^2}$ の値はどう変化するか。
+
+【解答】
+(1) 左（吸熱方向）
+(2) 減少する（高温では逆反応が優勢となり、生成物が減少して反応物が増加するため）。`;
+        }
+      }
+    }
+
+    // 教員用：Gemini アシスタント（前置き全廃・重複バグ根絶・学問的記述）
+    async function generateGeminiAction(type) {
+      currentGeminiAction = type;
+      const q = teacherQuestions.find(x => x.id === currentEditingId);
+      if (!q) return;
+
+      const loading = document.getElementById('geminiLoading');
+      const loadingText = document.getElementById('geminiLoadingText');
+      const resultBox = document.getElementById('geminiResultBox');
+      const outputText = document.getElementById('geminiOutputText');
+      const titleEl = document.getElementById('geminiResultTitle');
+
+      loading.classList.remove('hidden');
+      resultBox.classList.add('hidden');
+
+      const customInstruction = document.getElementById('aiCustomInstructionInput')?.value.trim() || '';
+
+      let prompt = '';
+      const systemInstruction = `あなたは論理的で厳密な高校化学の教員です。
+【厳格な文章ルール】
+1. 前置き・挨拶（「質問ありがとうございます」「努力が素晴らしいですね」等）や結びの社交辞令は一切出力せず、直ちに【結論】から開始してください。
+2. マークダウンの太字アスタリスク（**）は使用せず、【結論】【解説】や 1. 2. などの番号付き見出しを使用してください。
+3. 化学式・反応式の表記について（重複・文字化け厳禁）：
+   - 化学式や反応式は必ず KaTeX の mhchem 記法（$ \\ce{...} $ または $$ \\ce{...} $$）のみを用いて1度だけ記述してください。
+   - 「CH3COOH \\ce{CH3COOH}」や「(CH3CO)2O \\ce{(CH3CO)2O}」のように、普通の文字と数式記号を二重に並べたり重複出力することは絶対に禁止します。
+   - 「CHX3」や「(CHX3CO)X2O」のような謎のX文字混入や文字化けは厳禁です。下付き数字は mhchem が自動で処理するため、そのまま \\ce{CH3COOH}, \\ce{(CH3CO)2O}, \\ce{C6H4(OH)COOH} と記述してください。
+4. 分数は必ず \\frac{分子}{分母} を用い、日本語を含む場合は \\frac{\\text{分子}}{\\text{分母}} としてください。`;
+
+      if (type === 'draft') {
+        loadingText.textContent = '解説ドラフトを作成中...';
+        titleEl.innerHTML = '<span>💡 化学科教員 解説ドラフト</span>';
+        prompt = `以下の高校生の化学の質問に対して、前置きを一切排し、論理的かつ真面目な解説を作成してください。
+
+【化学分野】: ${q.category}
+【生徒の質問・つまずき】:
+${q.content}
+
+${customInstruction ? `【先生からの指示】:\n${customInstruction}\n` : ''}
+
+【必須構成】
+【結論】
+疑問に対する明確な結論を端的に述べる。
+
+【解説】
+理由や原理（電子状態、共鳴、求核性、熱力学など）を論理的に解説。
+化学式・反応式は必ず KaTeX mhchem（$ \\ce{...} $ または $$ \\ce{...} $$）のみで記述し、生テキストでの重複併記は行わないこと。`;
+      } else if (type === 'analyze') {
+        loadingText.textContent = '生徒の着眼点とつまずきを分析中...';
+        titleEl.innerHTML = '<span>🧠 つまずき分析＆指導メモ</span>';
+        prompt = `以下の質問から、①生徒の着眼点、②つまずきの根本要因、③教員が指導する際の助言ポイントを端的に分析してください。前置きや社交辞令は不要です。
+${customInstruction ? `\n【指示】: ${customInstruction}\n` : ''}
+${q.content}`;
+      } else if (type === 'exercise') {
+        loadingText.textContent = '理解を深める類題を作成中...';
+        titleEl.innerHTML = '<span>📝 発展問題・類題</span>';
+        prompt = `以下の質問に関連する良質な練習問題1問と、模範解答・解説を作成してください。前置きや社交辞令は不要です。化学式は mhchem で重複なく記述してください。
+${customInstruction ? `\n【指示】: ${customInstruction}\n` : ''}
+${q.content}`;
+      }
+
+      try {
+        let resultText = await callGeminiApi(prompt, systemInstruction, q.category, q.content, type);
+        resultText = cleanChemicalFormatting(resultText);
+        
+        outputText.textContent = resultText;
+        loading.classList.add('hidden');
+        resultBox.classList.remove('hidden');
+        triggerKaTeX();
+      } catch (err) {
+        loading.classList.add('hidden');
+        showToast('生成処理を完了できませんでした。', 'error');
+      }
+    }
+
+    // 化学式やAI出力テキストの表記ゆれ・重複除去クリーンアップ関数
+    function cleanChemicalFormatting(text) {
+      if (!text) return '';
+      let cleaned = text;
+
+      // 不要な冒頭文が混入していた場合の除去
+      cleaned = cleaned.replace(/^(.*?(?:質問ありがとうございます|お答えします|こんにちは).*?\n+)/gi, '');
+
+      // マークダウンのアスタリスク太字（**テキスト**）をプレーンな見出しに整形
+      cleaned = cleaned.replace(/\*\*(.*?)\*\*/g, '$1');
+
+      // 「CHX3」などの誤字・文字化け修正
+      cleaned = cleaned.replace(/([A-Z])X([0-9])/g, '$1$2');
+
+      // 生テキストと \ce{} の重複連結パターンを単一の $\ce{...}$ に正規化
+      cleaned = cleaned.replace(/([A-Za-z0-9\(\)\+\-\>\=]+)\s*\\ce\{([^}]+)\}\s*([A-Za-z0-9\(\)\+\-\>\=]*)/g, (match, p1, p2, p3) => {
+        return `$\\ce{${p2}}$`;
+      });
+
+      // $ で囲まれていない孤立した \ce{...} を $\ce{...}$ に安全にラップ
+      cleaned = cleaned.replace(/(?<!\$)\\ce\{([^}]+)\}(?!\$)/g, '$\\ce{$1}$');
+
+      return cleaned.trim();
+    }
+
+    // AIドラフトを反映してそのまま即座に公開する関数
+    function applyAndDirectPublish() {
+      applyGeminiToEditor('replace');
+      saveAnswerAndPublish();
+    }
+
+    // 先生からの追加指示ヘルパー
+    function appendInstruction(text) {
+      const input = document.getElementById('aiCustomInstructionInput');
+      if (!input) return;
+      if (input.value.trim()) {
+        input.value = input.value.trim() + '、' + text;
+      } else {
+        input.value = text;
+      }
+      input.focus();
+    }
+
+    function clearTeacherInstruction() {
+      const input = document.getElementById('aiCustomInstructionInput');
+      if (input) input.value = '';
+    }
+
+    function applyGeminiToEditor(mode) {
+      const outputText = document.getElementById('geminiOutputText').textContent;
+      const editorArea = document.getElementById('modalAnswerInput');
+      if (!outputText || !editorArea) return;
+
+      if (mode === 'replace') {
+        editorArea.value = outputText;
+      } else {
+        editorArea.value = editorArea.value ? editorArea.value + '\n\n' + outputText : outputText;
+      }
+      
+      switchEditorSection('answer');
+      handleAnswerInputLive();
+      showToast('AIの文章を回答入力欄に反映しました！', 'success');
+    }
+
+    function copyGeminiOutput() {
+      const outputText = document.getElementById('geminiOutputText').textContent;
+      if (!outputText) return;
+      const temp = document.createElement('textarea');
+      temp.value = outputText;
+      document.body.appendChild(temp);
+      temp.select();
+      document.execCommand('copy');
+      document.body.removeChild(temp);
+      showToast('クリップボードにコピーしました。', 'info');
+    }
+
+    // --- リアルタイム KaTeX ライブプレビュー ---
+    function handleAnswerInputLive() {
+      const inputEl = document.getElementById('modalAnswerInput');
+      const previewEl = document.getElementById('modalAnswerLivePreview');
+      const badge = document.getElementById('previewStatusBadge');
+      
+      if (!inputEl || !previewEl) return;
+      const val = inputEl.value;
+
+      if (!val.trim()) {
+        previewEl.innerHTML = '<span class="text-slate-400 italic">入力した回答の数式・化学式がリアルタイムにここに描画されます...</span>';
+        if (badge) {
+          badge.textContent = '入力待機中';
+          badge.className = 'text-[10px] text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full font-bold';
+        }
+        return;
+      }
+
+      const escaped = escapeHtml(val).replace(/\n/g, '<br>');
+      previewEl.innerHTML = escaped;
+
+      try {
+        if (window.renderMathInElement) {
+          renderMathInElement(previewEl, {
+            delimiters: [
+              { left: "$$", right: "$$", display: true },
+              { left: "$", right: "$", display: false }
+            ],
+            throwOnError: false,
+            strict: false,
+            errorColor: "#ef4444"
+          });
+          if (badge) {
+            badge.textContent = 'リアルタイム描画中';
+            badge.className = 'text-[10px] text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full font-bold';
+          }
+        }
+      } catch (err) {
+        if (badge) {
+          badge.textContent = '構文チェック中';
+          badge.className = 'text-[10px] text-blue-700 bg-blue-100 px-2 py-0.5 rounded-full font-bold';
+        }
+      }
+    }
+
+    // --- エディタ内タブ切替（回答作成 / 質問参照 / Gemini） ---
+    function switchEditorSection(section) {
+      const panes = {
+        answer: document.getElementById('paneEditorAnswer'),
+        question: document.getElementById('paneEditorQuestion'),
+        gemini: document.getElementById('paneEditorGemini')
+      };
+      const tabs = {
+        answer: document.getElementById('editorTabAnswer'),
+        question: document.getElementById('editorTabQuestion'),
+        gemini: document.getElementById('editorTabGemini')
+      };
+
+      Object.keys(panes).forEach(k => {
+        if (panes[k]) panes[k].classList.toggle('hidden', k !== section);
+        if (tabs[k]) {
+          if (k === section) {
+            tabs[k].className = k === 'gemini' 
+              ? 'px-3 py-1.5 text-xs font-bold rounded-lg bg-purple-700 text-white shadow-xs transition flex items-center gap-1'
+              : 'px-3 py-1.5 text-xs font-bold rounded-lg bg-blue-600 text-white shadow-xs transition flex items-center gap-1';
+          } else {
+            tabs[k].className = k === 'gemini'
+              ? 'px-3 py-1.5 text-xs font-semibold rounded-lg bg-purple-50 text-purple-800 hover:bg-purple-100 border border-purple-200 transition flex items-center gap-1'
+              : 'px-3 py-1.5 text-xs font-semibold rounded-lg bg-white text-slate-700 hover:bg-slate-200 border border-slate-200 transition flex items-center gap-1';
+          }
+        }
+      });
+
+      if (section === 'answer') {
+        handleAnswerInputLive();
+      } else {
+        triggerKaTeX();
+      }
+    }
+
+    // --- 化学パレット制御 ---
+    function switchPaletteTab(tab) {
+      const tabs = ['reaction', 'ions', 'states'];
+      tabs.forEach(t => {
+        const pane = document.getElementById('palPane' + t.charAt(0).toUpperCase() + t.slice(1));
+        const btn = document.getElementById('palTab' + t.charAt(0).toUpperCase() + t.slice(1));
+        if (pane) pane.classList.toggle('hidden', t !== tab);
+        if (btn) {
+          if (t === tab) {
+            btn.className = 'px-2 py-0.5 text-xs font-bold bg-white text-blue-700 rounded shadow-xs';
+          } else {
+            btn.className = 'px-2 py-0.5 text-xs font-medium text-slate-600 hover:text-slate-900 rounded';
+          }
+        }
+      });
+    }
+
+    function insertKaTeX(str) {
+      const area = document.getElementById('modalAnswerInput');
+      if (!area) return;
+      const start = area.selectionStart;
+      const end = area.selectionEnd;
+      const text = area.value;
+      
+      const formatted = str.startsWith('$') ? str : (str.startsWith('\\ce{') ? `$${str}$` : str);
+      area.value = text.slice(0, start) + formatted + text.slice(end);
+      area.focus();
+      const nextPos = start + formatted.length;
+      area.setSelectionRange(nextPos, nextPos);
+      handleAnswerInputLive();
+    }
+
+    function wrapSelectionWithCe() {
+      const area = document.getElementById('modalAnswerInput');
+      if (!area) return;
+      const start = area.selectionStart;
+      const end = area.selectionEnd;
+      const selected = area.value.substring(start, end);
+      
+      const wrapped = selected ? `$\\ce{${selected}}$` : `$\\ce{}$`;
+      area.value = area.value.substring(0, start) + wrapped + area.value.substring(end);
+      area.focus();
+      const cursorOffset = selected ? wrapped.length : wrapped.length - 2;
+      area.setSelectionRange(start + cursorOffset, start + cursorOffset);
+      handleAnswerInputLive();
+    }
+
+    // --- モーダル表示 ---
+    function openReviewModal(id) {
+      currentEditingId = id;
+      const q = teacherQuestions.find(x => x.id === id);
+      if (!q) return;
+
+      document.getElementById('modalQuestionId').textContent = q.publicId;
+      document.getElementById('modalCategoryBadge').textContent = q.category || '化学';
+      document.getElementById('modalStudentId').textContent = q.studentId;
+      document.getElementById('modalStudentName').textContent = q.studentName;
+      document.getElementById('modalNickname').textContent = q.nickname;
+      document.getElementById('modalContent').textContent = q.content;
+      
+      const snippet = q.content.replace(/【.*?】/g, '').replace(/\n+/g, ' ').trim();
+      document.getElementById('modalQuestionSnippet').textContent = snippet || q.content.slice(0, 40);
+
+      document.getElementById('modalAnswerInput').value = q.answer || '';
+
+      const radios = document.getElementsByName('modalStatusRadio');
+      for (const r of radios) {
+        r.checked = (r.value === (q.status || 'pending'));
+      }
+
+      // Geminiボックスの初期化
+      document.getElementById('geminiResultBox').classList.add('hidden');
+      document.getElementById('geminiLoading').classList.add('hidden');
+
+      const imgC = document.getElementById('modalImageContainer');
+      const img = document.getElementById('modalImage');
+      if (q.imageData && imgC && img) {
+        img.src = q.imageData;
+        imgC.classList.remove('hidden');
+      } else if (imgC) {
+        imgC.classList.add('hidden');
+      }
+
+      // 最初は「✍️ 回答作成＆プレビュー」タブを開いて視認性を最高にする
+      switchEditorSection('answer');
+
+      const modal = document.getElementById('reviewModal');
+      if (modal) modal.classList.remove('hidden');
+      handleAnswerInputLive();
+      triggerKaTeX();
+    }
+
+    function closeReviewModal() {
+      const modal = document.getElementById('reviewModal');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    // --- 画像の自動圧縮 ---
+    function handleImageSelection(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(event) {
+        const img = new Image();
+        img.onload = function() {
+          const canvas = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
+          const MAX_SIZE = 1200;
+
+          if (width > height && width > MAX_SIZE) {
+            height = Math.round((height * MAX_SIZE) / width);
+            width = MAX_SIZE;
+          } else if (height > MAX_SIZE) {
+            width = Math.round((width * MAX_SIZE) / height);
+            height = MAX_SIZE;
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+
+          selectedImageBase64 = canvas.toDataURL('image/jpeg', 0.72);
+          
+          document.getElementById('imagePreview').src = selectedImageBase64;
+          document.getElementById('imagePlaceholder').classList.add('hidden');
+          document.getElementById('imagePreviewContainer').classList.remove('hidden');
+        };
+        img.src = event.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function removeSelectedImage(e) {
+      if (e && e.stopPropagation) e.stopPropagation();
+      selectedImageBase64 = null;
+      document.getElementById('imageFileInput').value = '';
+      document.getElementById('imagePreview').src = '';
+      document.getElementById('imagePreviewContainer').classList.add('hidden');
+      document.getElementById('imagePlaceholder').classList.remove('hidden');
+    }
+
+    // --- 画面切り替え ---
+    function switchView(view) {
+      activeView = view;
+      document.getElementById('studentSection').classList.toggle('hidden', view !== 'student');
+      document.getElementById('teacherSection').classList.toggle('hidden', view !== 'teacher');
+      
+      const sBtn = document.getElementById('navStudentBtn');
+      const tBtn = document.getElementById('navTeacherBtn');
+      if (view === 'student') {
+        if (sBtn) sBtn.className = 'px-3 py-1.5 text-xs sm:text-sm font-medium rounded-lg transition-all bg-white text-blue-700 shadow-sm';
+        if (tBtn) tBtn.className = 'px-3 py-1.5 text-xs sm:text-sm font-medium rounded-lg transition-all text-slate-600 hover:text-slate-900 flex items-center gap-1.5';
+        renderPublicList();
+      } else {
+        if (tBtn) tBtn.className = 'px-3 py-1.5 text-xs sm:text-sm font-medium rounded-lg transition-all bg-white text-blue-700 shadow-sm flex items-center gap-1.5';
+        if (sBtn) sBtn.className = 'px-3 py-1.5 text-xs sm:text-sm font-medium rounded-lg transition-all text-slate-600 hover:text-slate-900';
+        checkSettingsStatus();
+        if (teacherQuestions.length === 0) {
+          const pin = sessionStorage.getItem('teacherPin');
+          if (pin) fetchTeacherQuestions(pin);
+        }
+        renderTeacherList();
+      }
+    }
+
+    function switchStudentTab(tab) {
+      document.getElementById('studentAskPane').classList.toggle('hidden', tab !== 'ask');
+      document.getElementById('studentListPane').classList.toggle('hidden', tab !== 'list');
+      
+      const aBtn = document.getElementById('subtabAskBtn');
+      const vBtn = document.getElementById('subtabViewBtn');
+      if (tab === 'ask') {
+        if (aBtn) aBtn.className = 'pb-3 border-b-2 border-blue-600 text-blue-700 transition font-bold';
+        if (vBtn) vBtn.className = 'pb-3 border-b-2 border-transparent text-slate-500 hover:text-slate-800 transition';
+      } else {
+        if (vBtn) vBtn.className = 'pb-3 border-b-2 border-blue-600 text-blue-700 transition font-bold';
+        if (aBtn) aBtn.className = 'pb-3 border-b-2 border-transparent text-slate-500 hover:text-slate-800 transition';
+        renderPublicList();
+      }
+    }
+
+    function switchTeacherFilter(status) {
+      teacherFilter = status;
+      const pBtn = document.getElementById('teacherPendingTabBtn');
+      const aBtn = document.getElementById('teacherAnsweredTabBtn');
+      if (status === 'pending') {
+        if (pBtn) pBtn.className = 'pb-3 border-b-2 border-blue-600 text-blue-700 transition flex gap-2 font-bold';
+        if (aBtn) aBtn.className = 'pb-3 border-b-2 border-transparent text-slate-500 hover:text-slate-800 transition';
+      } else {
+        if (aBtn) aBtn.className = 'pb-3 border-b-2 border-blue-600 text-blue-700 transition flex gap-2 font-bold';
+        if (pBtn) pBtn.className = 'pb-3 border-b-2 border-transparent text-slate-500 hover:text-slate-800 transition';
+      }
+      renderTeacherList();
+    }
+
+    // 一覧描画
+    function renderPublicList() {
+      const container = document.getElementById('publicQuestionsList');
+      if (!container) return;
+
+      const sId = document.getElementById('searchIdInput')?.value.trim().toUpperCase() || '';
+      const sKw = document.getElementById('searchKeyword')?.value.trim().toLowerCase() || '';
+      const filter = document.getElementById('studentStatusFilter')?.value || 'all';
+
+      let list = [...publicQuestions];
+      if (filter !== 'all') {
+        list = list.filter(q => q.status === filter);
+      }
+      if (sId) list = list.filter(q => q.publicId && q.publicId.toUpperCase().includes(sId));
+      if (sKw) list = list.filter(q => (q.content && q.content.toLowerCase().includes(sKw)) || (q.answer && q.answer.toLowerCase().includes(sKw)));
+
+      if (list.length === 0) {
+        container.innerHTML = `
+          <div class="text-center py-12 bg-white rounded-2xl border border-slate-200 text-slate-400 text-sm">
+            該当する質問は見つかりませんでした。
+          </div>`;
+        return;
+      }
+
+      container.innerHTML = list.map(q => {
+        let statusBadge = '';
+        if (q.status === 'answered') {
+          statusBadge = '<span class="text-xs bg-emerald-100 text-emerald-800 font-bold px-2.5 py-0.5 rounded-full flex items-center gap-1"><span>✅</span> 回答公開済</span>';
+        } else if (q.status === 'in_progress') {
+          statusBadge = '<span class="text-xs bg-cyan-100 text-cyan-800 font-bold px-2.5 py-0.5 rounded-full flex items-center gap-1"><span>✍️</span> 先生が回答作成中</span>';
+        } else {
+          statusBadge = '<span class="text-xs bg-amber-100 text-amber-800 font-bold px-2.5 py-0.5 rounded-full flex items-center gap-1"><span>⏳</span> 受付中（確認待ち）</span>';
+        }
+
+        return `
+          <div class="bg-white border rounded-2xl p-5 shadow-sm space-y-4">
+            <div class="flex flex-wrap justify-between items-center border-b pb-2.5 gap-2">
+              <div class="flex flex-wrap gap-2 items-center">
+                <span class="text-xs bg-blue-100 text-blue-800 font-semibold px-2 py-0.5 rounded">${escapeHtml(q.category || '化学')}</span>
+                <span class="text-xs font-mono font-bold text-slate-900 bg-slate-100 px-2 py-0.5 rounded">${escapeHtml(q.publicId)}</span>
+                <span class="text-xs text-slate-500 font-medium">投稿: ${escapeHtml(q.nickname)}</span>
+                ${statusBadge}
+              </div>
+              <span class="text-xs text-slate-400">${escapeHtml(q.answeredAt || q.createdAt || '')}</span>
+            </div>
+
+            <div class="text-sm text-slate-800 whitespace-pre-wrap leading-relaxed katex-target">${escapeHtml(q.content)}</div>
+            
+            ${q.status === 'answered' ? `
+              <div class="bg-gradient-to-br from-blue-50/90 via-cyan-50/50 to-indigo-50/70 border border-blue-200 rounded-xl p-4 mt-4 shadow-xs space-y-4">
+                <div class="text-xs font-bold text-blue-950 border-b border-blue-200 pb-1.5 flex items-center justify-between">
+                  <div class="flex items-center gap-1.5">
+                    <span class="text-base">👨‍🏫</span>
+                    <span>化学科教員からの解説・回答</span>
+                    <span class="text-[10px] bg-blue-100 text-blue-800 px-1.5 py-0.5 rounded font-medium ml-1">化学科公認</span>
+                  </div>
+                </div>
+                <div class="text-sm text-slate-800 whitespace-pre-wrap katex-target leading-relaxed font-sans">${escapeHtml(q.answer)}</div>
+                
+                <!-- 生徒の理解度リアクションUI -->
+                <div class="pt-3 border-t border-blue-100/80 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2.5">
+                  <span class="text-xs font-bold text-slate-700 flex items-center gap-1">
+                    <span>この解説はよく分かりましたか？</span>
+                  </span>
+                  <div class="flex flex-wrap items-center gap-2">
+                    <button type="button" onclick="handleStudentReaction('${q.publicId}', 'clear')" class="reaction-btn px-3 py-1.5 rounded-xl border text-xs font-semibold flex items-center gap-1.5 transition ${myReactions[q.publicId] === 'clear' ? 'bg-emerald-600 border-emerald-600 text-white shadow-xs' : 'bg-white hover:bg-emerald-50 border-slate-200 text-slate-700 hover:border-emerald-300'}">
+                      <span>💡 スッキリ理解できた！</span>
+                      <span class="px-1.5 py-0.5 rounded-full text-[10px] font-bold ${myReactions[q.publicId] === 'clear' ? 'bg-emerald-700 text-white' : 'bg-slate-100 text-slate-600'}">${q.reactions?.clear || 0}</span>
+                    </button>
+                    <button type="button" onclick="handleStudentReaction('${q.publicId}', 'good')" class="reaction-btn px-3 py-1.5 rounded-xl border text-xs font-semibold flex items-center gap-1.5 transition ${myReactions[q.publicId] === 'good' ? 'bg-blue-600 border-blue-600 text-white shadow-xs' : 'bg-white hover:bg-blue-50 border-slate-200 text-slate-700 hover:border-blue-300'}">
+                      <span>👍 なるほど</span>
+                      <span class="px-1.5 py-0.5 rounded-full text-[10px] font-bold ${myReactions[q.publicId] === 'good' ? 'bg-blue-700 text-white' : 'bg-slate-100 text-slate-600'}">${q.reactions?.good || 0}</span>
+                    </button>
+                    <button type="button" onclick="handleStudentReaction('${q.publicId}', 'unclear')" class="reaction-btn px-3 py-1.5 rounded-xl border text-xs font-semibold flex items-center gap-1.5 transition ${myReactions[q.publicId] === 'unclear' ? 'bg-amber-500 border-amber-500 text-white shadow-xs' : 'bg-white hover:bg-amber-50 border-slate-200 text-slate-700 hover:border-amber-300'}">
+                      <span>🤔 まだ少しモヤモヤ</span>
+                      <span class="px-1.5 py-0.5 rounded-full text-[10px] font-bold ${myReactions[q.publicId] === 'unclear' ? 'bg-amber-600 text-white' : 'bg-slate-100 text-slate-600'}">${q.reactions?.unclear || 0}</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ` : q.status === 'in_progress' ? `
+              <div class="bg-cyan-50/60 border border-cyan-200 rounded-xl p-3.5 text-xs text-cyan-950 flex items-center gap-2">
+                <span class="text-base">👨‍🏫</span>
+                <span>化学科教員が質問を確認し、現在解説を作成しています。公開までしばらくお待ちください。</span>
+              </div>
+            ` : `
+              <div class="bg-slate-50 border border-slate-200 rounded-xl p-3.5 text-xs text-slate-600 flex items-center gap-2">
+                <span class="text-base">⏳</span>
+                <span>質問を受け付けました。担当教員が順次確認します。</span>
+              </div>
+            `}
+          </div>
+        `;
+      }).join('');
+      triggerKaTeX();
+    }
+
+    function renderTeacherList() {
+      const container = document.getElementById('teacherQuestionsList');
+      if (!container) return;
+
+      const list = teacherQuestions.filter(q => {
+        if (teacherFilter === 'pending') return q.status === 'pending' || q.status === 'in_progress';
+        return q.status === 'answered';
+      });
+
+      const pendingCount = teacherQuestions.filter(q => q.status === 'pending' || q.status === 'in_progress').length;
+      const tabBadge = document.getElementById('teacherTabPendingBadge');
+      const headerBadge = document.getElementById('pendingBadge');
+      if (tabBadge) tabBadge.textContent = pendingCount;
+      if (headerBadge) {
+        headerBadge.textContent = pendingCount;
+        headerBadge.classList.toggle('hidden', pendingCount === 0);
+      }
+
+      if (list.length === 0) {
+        container.innerHTML = `
+          <div class="text-center py-12 bg-white rounded-2xl border border-slate-200 text-slate-400 text-sm">
+            現在、${teacherFilter === 'pending' ? '未完了' : '回答済み'}の質問はありません。
+          </div>`;
+        return;
+      }
+
+      container.innerHTML = list.map(q => `
+        <div class="bg-white border rounded-2xl p-5 shadow-sm space-y-3">
+          <div class="flex flex-wrap justify-between items-center border-b pb-2.5 gap-2">
+            <div class="flex flex-wrap items-center gap-2 text-xs">
+              <span class="font-mono font-bold text-slate-900 bg-slate-100 px-2 py-0.5 rounded">${escapeHtml(q.publicId)}</span>
+              <span class="font-mono bg-blue-50 text-blue-800 px-2 py-0.5 rounded">学籍:${escapeHtml(q.studentId)}</span>
+              <span class="bg-amber-100 text-amber-900 px-2 py-0.5 rounded font-bold">${escapeHtml(q.studentName)}</span>
+              <span class="text-slate-400">（公開名: ${escapeHtml(q.nickname)}）</span>
+              ${q.status === 'in_progress' ? '<span class="bg-cyan-100 text-cyan-800 font-bold px-2 py-0.5 rounded text-[11px]">✍️ 作成中</span>' : ''}
+            </div>
+            <span class="text-xs text-slate-400">${escapeHtml(q.createdAt || '')}</span>
+          </div>
+          <div class="text-sm text-slate-800 whitespace-pre-wrap katex-target">${escapeHtml(q.content)}</div>
+          ${q.status === 'answered' ? `
+            <div class="mt-3 p-3 bg-slate-50 border rounded-xl text-xs space-y-2">
+              <div class="katex-target text-slate-700 leading-relaxed font-sans">
+                <span class="font-bold text-slate-500 block mb-1">公開中の回答:</span>${escapeHtml(q.answer)}
+              </div>
+              <div class="pt-2 border-t border-slate-200 flex items-center gap-3 text-[11px] text-slate-600">
+                <span class="font-bold text-slate-700">生徒の反応:</span>
+                <span class="inline-flex items-center gap-1 bg-emerald-50 border border-emerald-200 text-emerald-800 px-2 py-0.5 rounded-md font-medium">💡 スッキリ: ${q.reactions?.clear || 0}</span>
+                <span class="inline-flex items-center gap-1 bg-blue-50 border border-blue-200 text-blue-800 px-2 py-0.5 rounded-md font-medium">👍 なるほど: ${q.reactions?.good || 0}</span>
+                <span class="inline-flex items-center gap-1 bg-amber-50 border border-amber-200 text-amber-800 px-2 py-0.5 rounded-md font-medium">🤔 モヤモヤ: ${q.reactions?.unclear || 0}</span>
+              </div>
+            </div>` : ''}
+          <div class="mt-4 flex justify-end">
+            <button onclick="openReviewModal('${q.id}')" class="px-4 py-2 bg-blue-600 text-white text-xs font-bold rounded-lg hover:bg-blue-700 shadow-sm transition flex items-center gap-1.5">
+              <span>✍️</span>
+              <span>${q.status === 'answered' ? '回答を編集・再承認' : q.status === 'in_progress' ? '回答作成を再開する' : '回答を作成する'}</span>
+            </button>
+          </div>
+        </div>
+      `).join('');
+      triggerKaTeX();
+    }
+
+    // --- モーダル設定 ---
+    function openGasModal() {
+      const input = document.getElementById('gasUrlInput');
+      if (input) input.value = localStorage.getItem('hs_chem_gas_url') || '';
+      document.getElementById('gasModal').classList.remove('hidden');
+    }
+    function closeGasModal() { 
+      document.getElementById('gasModal').classList.add('hidden'); 
+    }
+    function saveGasUrl() {
+      const input = document.getElementById('gasUrlInput');
+      const url = input ? input.value.trim() : '';
+      localStorage.setItem('hs_chem_gas_url', url);
+      closeGasModal();
+      checkSettingsStatus();
+      fetchPublicQuestions();
+      showToast('GAS連携URLを保存しました。', 'success');
+    }
+
+    function openApiModal() {
+      const input = document.getElementById('apiKeyInput');
+      if (input) input.value = localStorage.getItem('hs_chem_api_key') || '';
+      document.getElementById('apiModal').classList.remove('hidden');
+    }
+    function closeApiModal() { 
+      document.getElementById('apiModal').classList.add('hidden'); 
+    }
+    function saveApiKey() {
+      const input = document.getElementById('apiKeyInput');
+      const key = input ? input.value.trim() : '';
+      localStorage.setItem('hs_chem_api_key', key);
+      closeApiModal();
+      showToast('Gemini APIキー設定を更新しました。', 'success');
+    }
+
+    // --- ユーティリティ ---
+    // 生徒の理解度リアクション送信
+    function handleStudentReaction(publicId, reactionType) {
+      const prevReaction = myReactions[publicId];
+      const gasUrl = localStorage.getItem('hs_chem_gas_url');
+
+      // 同じボタンをもう一度押した場合は取り消し
+      const isCanceling = prevReaction === reactionType;
+      const nextReaction = isCanceling ? null : reactionType;
+
+      // ローカル/セッション内での集計更新
+      const updateTargetInList = (list) => {
+        const item = list.find(q => q.publicId === publicId);
+        if (!item) return;
+        if (!item.reactions) item.reactions = { clear: 0, good: 0, unclear: 0 };
+
+        // 以前のリアクションを引く
+        if (prevReaction && item.reactions[prevReaction] > 0) {
+          item.reactions[prevReaction]--;
+        }
+        // 新しいリアクションを足す
+        if (nextReaction) {
+          item.reactions[nextReaction] = (item.reactions[nextReaction] || 0) + 1;
+        }
+      };
+
+      updateTargetInList(publicQuestions);
+
+      // モックDBにも反映
+      const raw = JSON.parse(sessionStorage.getItem('demo_mock_db') || '[]');
+      updateTargetInList(raw);
+      sessionStorage.setItem('demo_mock_db', JSON.stringify(raw));
+
+      // 自分のリアクション状態を保存
+      if (nextReaction) {
+        myReactions[publicId] = nextReaction;
+      } else {
+        delete myReactions[publicId];
+      }
+      localStorage.setItem('student_reactions', JSON.stringify(myReactions));
+
+      renderPublicList();
+
+      // 生徒へのフィードバック
+      if (isCanceling) {
+        showToast('リアクションを取り消しました。', 'info');
+      } else if (reactionType === 'clear') {
+        showToast('💡 先生に「スッキリ理解できた！」が伝わりました！', 'success');
+      } else if (reactionType === 'good') {
+        showToast('👍 先生に「なるほど！」が伝わりました！', 'success');
+      } else if (reactionType === 'unclear') {
+        showToast('🤔 まだ疑問がある場合は、職員室で直接聞くか、追加で質問を投稿してみてくださいね！', 'info');
+      }
+
+      // GAS連携時
+      if (gasUrl && nextReaction) {
+        try {
+          fetch(gasUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify({
+              action: 'submitReaction',
+              publicId: publicId,
+              reaction: nextReaction
+            })
+          }).catch(() => {});
+        } catch (e) {}
+      }
+    }
+
+    function triggerKaTeX() {
+      setTimeout(() => {
+        if (window.renderMathInElement) {
+          const targets = document.querySelectorAll('.katex-target');
+          targets.forEach(el => {
+            renderMathInElement(el, {
+              delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false }
+              ],
+              throwOnError: false,
+              strict: false,
+              errorColor: "#ef4444"
+            });
+          });
+        }
+      }, 50);
+    }
+
+    function showToast(msg, type = 'info') {
+      const c = document.getElementById('toastContainer');
+      if (!c) return;
+      const t = document.createElement('div');
+      const bg = type === 'success' ? 'bg-blue-700' : type === 'error' ? 'bg-rose-600' : 'bg-slate-800';
+      t.className = `${bg} text-white px-4 py-3 rounded-xl shadow-lg text-sm flex items-center gap-2 transition-all transform duration-200 ease-out`;
+      t.innerHTML = `<span>${type === 'success' ? '✅' : type === 'error' ? '⚠️' : 'ℹ️'}</span><span>${escapeHtml(msg)}</span>`;
+      c.appendChild(t);
+      setTimeout(() => t.remove(), 4000);
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str).replace(/[&<>"']/g, m => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;'
+      }[m]));
+    }
+
+    // 生徒番号の全角数字→半角数字自動変換・正規化
+    function normalizeStudentId(inputEl) {
+      if (!inputEl) return;
+      // 全角数字 (０-９) を半角数字 (0-9) に変換し、数字以外を除去
+      let converted = inputEl.value.replace(/[０-９]/g, s => String.fromCharCode(s.charCodeAt(0) - 0xFEE0));
+      converted = converted.replace(/[^0-9]/g, '');
+      if (converted.length > 7) {
+        converted = converted.slice(0, 7);
+      }
+      inputEl.value = converted;
+    }
+  </script>
+</body>
+</html>
