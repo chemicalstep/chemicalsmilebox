@@ -182,6 +182,57 @@
         </div>
         <div id="publicQuestionsList" class="grid grid-cols-1 gap-5"></div>
       </div>
+    </div> <!-- studentSection 終了 -->
+
+    <!-- ==================== 教員用画面 ==================== -->
+    <div id="teacherSection" class="hidden space-y-6">
+      
+      <!-- 教員ステータスバー＆コントロールパネル -->
+      <div class="bg-slate-900 text-white p-4 sm:p-5 rounded-2xl shadow-md flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="text-xl">👨‍🏫</span>
+            <h2 class="text-base sm:text-lg font-bold">化学科教員 管理ダッシュボード</h2>
+            <span class="bg-blue-600 text-white text-[11px] px-2 py-0.5 rounded-full font-bold">教員専用</span>
+          </div>
+          <p class="text-xs text-slate-300 mt-1 flex items-center gap-2">
+            <span>同期ステータス:</span>
+            <span id="gasStatusText" class="text-emerald-400 font-semibold">🟢 接続完了</span>
+          </p>
+        </div>
+        
+        <div class="flex items-center gap-2 flex-wrap">
+          <button onclick="openGasModal()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-semibold rounded-xl transition flex items-center gap-1 shadow-xs">
+            <span>⚙️ GAS連携</span>
+          </button>
+          <button onclick="openApiModal()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-purple-300 border border-purple-800 text-xs font-semibold rounded-xl transition flex items-center gap-1 shadow-xs">
+            <span>🔑 APIキー</span>
+          </button>
+          <button onclick="fetchTeacherQuestions(sessionStorage.getItem('teacherPin') || '1669')" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl shadow-xs transition flex items-center gap-1">
+            <span>🔄 更新</span>
+          </button>
+          <button onclick="handleTeacherLogout()" class="px-3 py-1.5 bg-rose-600/90 hover:bg-rose-600 text-white text-xs font-bold rounded-xl transition flex items-center gap-1 shadow-xs">
+            <span>🚪 ログアウト</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- 教員サブタブ（未完了・確認待ち vs 回答公開済み） -->
+      <div class="flex border-b border-slate-200 gap-6 text-sm font-semibold">
+        <button id="teacherPendingTabBtn" onclick="switchTeacherFilter('pending')" class="pb-3 border-b-2 border-blue-600 text-blue-700 transition flex items-center gap-2 font-bold">
+          <span>⏳ 未完了・確認待ち</span>
+          <span id="teacherTabPendingBadge" class="bg-rose-500 text-white text-[10px] px-2 py-0.5 rounded-full font-bold">0</span>
+        </button>
+        <button id="teacherAnsweredTabBtn" onclick="switchTeacherFilter('answered')" class="pb-3 border-b-2 border-transparent text-slate-500 hover:text-slate-800 transition flex items-center gap-2">
+          <span>✅ 回答公開済み</span>
+        </button>
+      </div>
+
+      <!-- 教員用質問カード一覧コンテナ -->
+      <div id="teacherQuestionsList" class="grid grid-cols-1 gap-5"></div>
+    </div>
+  </main>
+
   <!-- 生徒から先生へのお礼・感想コメント送信モーダル -->
   <div id="studentCommentModal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4" onclick="closeStudentCommentModal()">
     <div class="bg-white w-full max-w-md rounded-2xl shadow-xl p-6 space-y-4" onclick="event.stopPropagation()">
@@ -2038,8 +2089,10 @@ ${customInstruction ? `\n【指示】: ${customInstruction}\n` : ''}`;
 
     function switchView(view) {
       activeView = view;
-      document.getElementById('studentSection').classList.toggle('hidden', view !== 'student');
-      document.getElementById('teacherSection').classList.toggle('hidden', view !== 'teacher');
+      const studentSec = document.getElementById('studentSection');
+      const teacherSec = document.getElementById('teacherSection');
+      if (studentSec) studentSec.classList.toggle('hidden', view !== 'student');
+      if (teacherSec) teacherSec.classList.toggle('hidden', view !== 'teacher');
       
       const sBtn = document.getElementById('navStudentBtn');
       const tBtn = document.getElementById('navTeacherBtn');
