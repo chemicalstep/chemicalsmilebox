@@ -8,7 +8,7 @@
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   
-  <!-- KaTeX CSS & JS + mhchem拡張 -->
+  <!-- KaTeX CSS & JS + mhchem extension -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/mhchem.min.js"></script>
@@ -96,7 +96,7 @@
                 <div>
                   <label class="block text-xs font-bold text-slate-700 mb-1">生徒番号 (7桁) <span class="text-rose-500">*</span></label>
                   <input type="text" id="studentIdInput" required inputmode="numeric" placeholder="例: 2401234（全角入力も自動変換）" oninput="normalizeStudentId(this)" onblur="normalizeStudentId(this)" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-blue-500 font-mono">
-                  <p class="text-[10px] text-slate-400 mt-1">※全角数字（２４０１２３４等）で入力しても自動で半角に変換されます</p>
+                  <p class="text-[10px] text-slate-400 mt-1">※全角数字で入力しても自動で半角に変換されます</p>
                 </div>
                 <div>
                   <label class="block text-xs font-bold text-slate-700 mb-1">お名前（本名） <span class="text-rose-500">*</span></label>
@@ -200,7 +200,7 @@
           </div>
         </div>
         <div class="flex gap-2">
-          <button onclick="fetchTeacherQuestions(sessionStorage.getItem('teacherPin') || 'chem2026')" class="px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-semibold rounded-lg transition border border-blue-200 flex items-center gap-1">🔄 最新に更新</button>
+          <button onclick="fetchTeacherQuestions(sessionStorage.getItem('teacherPin') || '1669')" class="px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-semibold rounded-lg transition border border-blue-200 flex items-center gap-1">🔄 最新に更新</button>
           <button onclick="openGasModal()" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg transition border border-slate-200">⚙️ GAS連携設定</button>
           <button onclick="openApiModal()" class="px-3 py-1.5 bg-purple-50 hover:bg-purple-100 text-purple-700 text-xs font-semibold rounded-lg transition border border-purple-200">🔑 APIキー個別設定</button>
           <button onclick="handleTeacherLogout()" class="px-3 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-semibold rounded-lg transition border border-rose-200">🚪 ログアウト</button>
@@ -233,8 +233,6 @@
     </div>
   </div>
 
-  <!-- ==================== 各種モーダル群 ==================== -->
-
   <!-- 教員PINコード入力モーダル -->
   <div id="pinModal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
     <div class="bg-white w-full max-w-sm rounded-2xl shadow-xl p-6 space-y-4">
@@ -242,8 +240,7 @@
         <span class="text-xl">🔒</span> 化学科管理 認証
       </h3>
       <p class="text-xs text-slate-600 leading-relaxed">
-        教員専用PINコードを入力してください。<br>
-        <span class="text-slate-400">（プレビュー環境PIN: <code class="font-mono bg-slate-100 px-1 py-0.5 rounded">chem2026</code>）</span>
+        教員専用PINコードを入力してください。
       </p>
       <input type="password" id="pinInput" placeholder="PINコード" class="w-full px-3 py-2 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 font-mono">
       <div class="flex justify-end gap-2 pt-2">
@@ -438,10 +435,10 @@
                 <button onclick="generateGeminiAction('draft')" id="aiActionDraftBtn" class="px-3.5 py-1.5 bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold rounded-lg shadow-xs transition flex items-center gap-1">
                   <span>💡 回答ドラフト生成</span>
                 </button>
-                <button onclick="generateGeminiAction('analyze')" id="aiActionAnalyzeBtn" class="px-3 py-1.5 bg-white hover:bg-purple-100 text-purple-800 border border-purple-300 text-xs font-bold rounded-lg transition flex items-center gap-1">
+                <button onclick="generateGeminiAction('analyze')" id="aiActionAnalyzeBtn" class="px-3.5 py-1.5 bg-white hover:bg-purple-100 text-purple-800 border border-purple-300 text-xs font-bold rounded-lg transition flex items-center gap-1">
                   <span>🧠 つまずき分析</span>
                 </button>
-                <button onclick="generateGeminiAction('exercise')" id="aiActionExerciseBtn" class="px-3 py-1.5 bg-white hover:bg-purple-100 text-purple-800 border border-purple-300 text-xs font-bold rounded-lg transition flex items-center gap-1">
+                <button onclick="generateGeminiAction('exercise')" id="aiActionExerciseBtn" class="px-3.5 py-1.5 bg-white hover:bg-purple-100 text-purple-800 border border-purple-300 text-xs font-bold rounded-lg transition flex items-center gap-1">
                   <span>📝 類題・良問作成</span>
                 </button>
               </div>
@@ -520,7 +517,7 @@
         <span>⚙️</span> スプレッドシート（GAS）連携設定
       </h3>
       <p class="text-xs text-slate-600 leading-relaxed">
-        デプロイしたGASの「ウェブアプリのURL」を貼り付けてください。未設定時は安全なブラウザ内モック環境で動作します。
+        デプロイしたGASの「ウェブアプリのURL」を貼り付けてください。
       </p>
       <input type="text" id="gasUrlInput" placeholder="https://script.google.com/macros/s/.../exec" class="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 font-mono">
       <div class="flex justify-end gap-2 pt-2">
@@ -537,7 +534,7 @@
         <span>🔑</span> Gemini APIキー設定（任意）
       </h3>
       <p class="text-xs text-slate-600 leading-relaxed">
-        Canvas環境では自動注入されるため未入力でも動作します。ご自身のカスタムAPIキーを使用したい場合のみ入力してください。
+        カスタムAPIキーを使用したい場合のみ入力してください。未入力時も精巧なスマート解説エンジンが即座に回答ドラフトを作成します。
       </p>
       <input type="password" id="apiKeyInput" placeholder="AIzaSy... (空欄で標準実行)" class="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-purple-500 font-mono">
       <div class="flex justify-end gap-2 pt-2">
@@ -547,17 +544,25 @@
     </div>
   </div>
 
-  <!-- トースト通知 -->
+  <!-- トースト通知コンテナ -->
   <div id="toastContainer" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
 
   <!-- ==================== JavaScript ロジック ==================== -->
   <script>
-    // =================================================================
     // 【最重要設定】スプレッドシート（GAS）のデプロイURL
-    // =================================================================
-    const CONFIG_GAS_URL = "https://script.google.com/macros/s/AKfycbxjIZIDd8O-N9UQ9XSvN3brIZDaybdd-k4JW459bwBAmTvL8ZXfAbC6nOfsfqEvRrS8Gw/exec";
+    window.CONFIG_GAS_URL = "https://script.google.com/macros/s/AKfycbxjIZIDd8O-N9UQ9XSvN3brIZDaybdd-k4JW459bwBAmTvL8ZXfAbC6nOfsfqEvRrS8Gw/exec";
 
-    // 現在の日本時間を yyyy/MM/dd HH:mm 形式で取得するヘルパー
+    // 有効なGASのURLを取得（カスタム設定またはコード内固定URL）
+    function getEffectiveGasUrl() {
+      try {
+        const custom = localStorage.getItem('hs_chem_gas_url');
+        if (custom && custom.trim().length > 0) return custom.trim();
+      } catch (e) {}
+      return window.CONFIG_GAS_URL || '';
+    }
+    window.getEffectiveGasUrl = getEffectiveGasUrl;
+
+    // 日本時間 (JST) のフォーマット文字列取得
     function getClientJstDateString() {
       const now = new Date();
       return new Intl.DateTimeFormat('ja-JP', {
@@ -569,7 +574,66 @@
         minute: '2-digit'
       }).format(now);
     }
-    // 一覧描画（教員用）: 写真サムネイル＆削除ボタン付き
+
+    // アプリケーション状態変数
+    let activeView = 'student';
+    let teacherFilter = 'pending';
+    let currentEditingId = null;
+    let selectedImageBase64 = null;
+    let currentGeminiAction = 'draft';
+    let localMockCounter = 3;
+    let teacherQuestions = [];
+    let publicQuestions = [];
+    let myReactions = {};
+
+    const INITIAL_SAMPLE_QUESTIONS = [
+      {
+        id: 'demo_001',
+        publicId: 'Q-0001',
+        status: 'answered',
+        studentId: '2401012',
+        studentName: '佐藤 健一',
+        nickname: 'ケミカル探求者',
+        category: '有機化学',
+        content: '【疑問点】\nエタノールと濃硫酸を130〜140℃で加熱するとジエチルエーテルができ、160〜170℃だとエチレンができるのはなぜですか？\n\n【自分の考え・つまずいた所】\n温度が高い方が分子内脱水になりやすいと覚えましたが、なぜ温度によって分子間か分子内かが分かれるのか理屈が知りたいです。',
+        imageData: '',
+        createdAt: '2026/09/10 14:20',
+        answer: '【結論】\n活性化エネルギーの大きさとエントロピー変化の違いにより、高温ではより大きな活性化エネルギーを要する分子内脱水（エチレン生成）が優勢になります。\n\n【解説】\n1. 中温（130〜140℃）：分子間脱水\n$\\ce{2C2H5OH ->[H2SO4][130-140℃] C2H5-O-C2H5 + H2O}$\n活性化エネルギーが比較的小さいため、穏やかな加熱で2分子が衝突してエーテルが生成します。\n\n2. 高温（160〜170℃）：分子内脱水\n$\\ce{C2H5OH ->[H2SO4][160-170℃] CH2=CH2 + H2O}$\n炭素-炭素二重結合を形成する分子内脱水は活性化エネルギーが高いため、十分な熱エネルギーを与えられた高温でのみ急速に反応が進行します。',
+        answeredAt: '2026/09/10 17:45',
+        reactions: { clear: 14, good: 6, unclear: 1 }
+      },
+      {
+        id: 'demo_002',
+        publicId: 'Q-0002',
+        status: 'answered',
+        studentId: '2401045',
+        studentName: '鈴木 葵',
+        nickname: 'モルモル',
+        category: '理論化学',
+        content: '【疑問点】\n発熱反応において、温度を上げると平衡定数Kの値はどうなりますか？\n\n【自分の考え・つまずいた所】\nルシャトリエの原理で吸熱方向（逆反応）に移動するから生成物が減ると思います。でも平衡定数K自体が変わるのか、それとも濃度が変わるだけなのかが曖昧です。',
+        imageData: '',
+        createdAt: '2026/09/10 16:05',
+        answer: '【結論】\n発熱反応において温度を上昇させた場合、平衡定数 $K$ の値は減少（小さく）します。\n\n【解説】\n1. 平衡定数 $K$ の性質\n平衡定数 $K$ は「温度のみに依存する定数」です。圧力や濃度を変えても $K$ は一定ですが、温度が変化すると定数そのものの値が変化します。\n\n2. ルシャトリエの原理による考察\n発熱反応系を加熱（昇温）すると、加えられた熱を和らげる吸熱方向（逆反応・左向き）に平衡が移動します。\n$$K = \\frac{\\text{[生成物]}}{\\text{[反応物]}}$$\n左向きへの移動は分子（生成物）の減少と分母（反応物）の増加を意味するため、$K$ の値は小さくなります。',
+        answeredAt: '2026/09/10 18:30',
+        reactions: { clear: 22, good: 9, unclear: 0 }
+      },
+      {
+        id: 'demo_003',
+        publicId: 'Q-0003',
+        status: 'in_progress',
+        studentId: '2401089',
+        studentName: '高橋 蓮',
+        nickname: 'アスピリン志望',
+        category: '有機化学',
+        content: '【疑問点】\nサリチル酸からアスピリン（アセチルサリチル酸）を作るとき、なぜ酢酸ではなく無水酢酸を使うのですか？\n\n【自分の考え・つまずいた所】\n参考書に「フェノール性-OHのエステル化は進みにくいから無水酢酸を使う」と書いてありましたが、なぜ普通の酢酸ではダメなのか理由が分かりません。',
+        imageData: '',
+        createdAt: '2026/09/11 00:15',
+        answer: '',
+        answeredAt: '',
+        reactions: { clear: 0, good: 0, unclear: 0 }
+      }
+    ];
+
     function renderTeacherList() {
       const container = document.getElementById('teacherQuestionsList');
       if (!container) return;
@@ -654,7 +718,6 @@
       triggerKaTeX();
     }
 
-    // 写真拡大ライトボックス
     function openImageLightbox(src) {
       const modal = document.getElementById('imageLightboxModal');
       const img = document.getElementById('lightboxImage');
@@ -669,9 +732,8 @@
       if (modal) modal.classList.add('hidden');
     }
 
-    // 質問削除処理
     async function handleDeleteQuestion(id, publicId) {
-      const pin = sessionStorage.getItem('teacherPin') || 'chem2026';
+      const pin = sessionStorage.getItem('teacherPin') || '1669';
       const gasUrl = getEffectiveGasUrl();
 
       // 教員一覧から即時除外してUIに即反映
@@ -715,7 +777,19 @@
       }
     }
 
-    // --- 認証関連 ---
+    function checkSettingsStatus() {
+      const el = document.getElementById('gasStatusText');
+      if (!el) return;
+      const url = getEffectiveGasUrl();
+      if (url) {
+        el.textContent = '🟢 GAS連携中（本番同期）';
+        el.className = 'text-emerald-600 font-semibold';
+      } else {
+        el.textContent = '🟡 プレビューモード（ローカル保存）';
+        el.className = 'text-amber-600 font-semibold';
+      }
+    }
+
     function handleTeacherLogin() {
       const sessionPin = sessionStorage.getItem('teacherPin');
       if (sessionPin) {
@@ -755,14 +829,14 @@
 
       if (!gasUrl) {
         setTimeout(() => {
-          if (pin === 'chem2026') {
+          if (pin === '1669') {
             sessionStorage.setItem('teacherPin', pin);
             closePinModal();
-            showToast('教員モードで認証しました（プレビュー環境）。', 'success');
+            showToast('教員モードで認証しました。', 'success');
             fetchTeacherQuestions(pin);
             switchView('teacher');
           } else {
-            showToast('PINコードが違います。（デモ用PIN: chem2026）', 'error');
+            showToast('PINコードが違います。', 'error');
           }
           if (btn) btn.disabled = false;
           if (spinner) spinner.classList.add('hidden');
@@ -798,7 +872,6 @@
       showToast('教員画面からログアウトしました。', 'info');
     }
 
-    // --- データ取得 ---
     async function fetchPublicQuestions() {
       const gasUrl = getEffectiveGasUrl();
       
@@ -858,7 +931,6 @@
       }
     }
 
-    // --- 質問投稿 ---
     async function handleQuestionSubmit(e) {
       e.preventDefault();
       
@@ -887,7 +959,6 @@
       const gasUrl = getEffectiveGasUrl();
 
       if (!gasUrl) {
-        // 未設定時はローカルのプレビューDBへ保存
         setTimeout(() => {
           localMockCounter++;
           const pubId = `Q-${String(localMockCounter).padStart(4, '0')}`;
@@ -901,7 +972,7 @@
             category: cat,
             content: fullContent,
             imageData: selectedImageBase64,
-            createdAt: new Date().toLocaleString('ja-JP'),
+            createdAt: getClientJstDateString(),
             answer: '',
             answeredAt: ''
           };
@@ -958,7 +1029,6 @@
       }
     }
 
-    // --- 回答承認・下書き保存 ---
     async function saveAnswerAndPublish() {
       executeSaveAnswer('answered');
     }
@@ -969,7 +1039,7 @@
     }
 
     async function executeSaveAnswer(newStatus, isDraft = false) {
-      const pin = sessionStorage.getItem('teacherPin') || 'chem2026';
+      const pin = sessionStorage.getItem('teacherPin') || '1669';
       const gasUrl = getEffectiveGasUrl();
       const answerInputEl = document.getElementById('modalAnswerInput');
       const answer = answerInputEl ? answerInputEl.value.trim() : '';
@@ -992,7 +1062,7 @@
       if (publishBtn) publishBtn.disabled = true;
       if (spinner) spinner.classList.remove('hidden');
 
-      const now = new Date().toLocaleString('ja-JP');
+      const nowJst = getClientJstDateString();
       const currentQ = teacherQuestions.find(x => x.id === currentEditingId);
       const publicId = currentQ ? currentQ.publicId : '';
 
@@ -1002,7 +1072,7 @@
         if (target) {
           target.status = newStatus;
           target.answer = answer;
-          if (newStatus === 'answered') target.answeredAt = now;
+          if (newStatus === 'answered') target.answeredAt = nowJst;
         }
         sessionStorage.setItem('demo_mock_db', JSON.stringify(raw));
 
@@ -1010,14 +1080,14 @@
         if (tTarget) {
           tTarget.status = newStatus;
           tTarget.answer = answer;
-          if (newStatus === 'answered') tTarget.answeredAt = now;
+          if (newStatus === 'answered') tTarget.answeredAt = nowJst;
         }
 
         const pTarget = publicQuestions.find(x => x.publicId === publicId);
         if (pTarget) {
           pTarget.status = newStatus;
           pTarget.answer = answer;
-          if (newStatus === 'answered') pTarget.answeredAt = now;
+          if (newStatus === 'answered') pTarget.answeredAt = nowJst;
         }
       };
 
@@ -1079,7 +1149,6 @@
       }
     }
 
-    // Gemini API 呼び出し
     async function callGeminiApi(prompt, systemInstruction, category, content, actionType) {
       const apiKey = localStorage.getItem('hs_chem_api_key');
       if (!apiKey) {
@@ -1107,7 +1176,7 @@
       return getSmartChemFallback(category, content, actionType);
     }
 
-    // 質問内容に応じた教育的化学フォールバック生成（前置き完全撤廃・端的な化学解説）
+    // 質問内容に応じた教育的化学フォールバック生成
     function getSmartChemFallback(category, content, actionType) {
       const isAspirin = content.includes('サリチル酸') || content.includes('アスピリン') || content.includes('無水酢酸');
       const isLeChatelier = content.includes('平衡') || content.includes('ルシャトリエ') || content.includes('発熱');
@@ -1120,7 +1189,7 @@
 
 【解説】
 1. フェノール性ヒドロキシ基の反応性
-フェノール類の酸素原子の非共有電子対はベンゼン環のπ電子系と共鳴して非局在化しています。そのため酸素原子上の電子密度が低下し、カルボニル炭素への攻撃力（求核性）が通常のアルコール（エタノール等）よりも大幅に弱くなります。
+フェノール類の酸素原子の非共有電子対はベンゼン環のπ電子系と共鳴して非局在化しています。そのため酸素原子上の電子密度が低下し、カルボニル炭素への攻撃力（求核性）が通常のアルコールよりも大幅に弱くなります。
 
 2. 酢酸を用いた場合の問題点
 酢酸 $\\ce{CH3COOH}$ との反応は可逆な平衡反応であり、副生する水によって加水分解（逆反応）が容易に進みます。フェノール性ヒドロキシ基の求核性の低さも相まって、平衡はほとんど原系（左）に偏り、エステル化はほぼ進行しません。
@@ -1174,7 +1243,7 @@ $$\\ce{A + B <=> C + D}$$
         } else {
           return `【指導分析メモ】
 ・着眼点：ルシャトリエの原理による平衡移動の方向判定は正しくできている。
-・つまずきの本質：「濃度の比率変化」と「平衡定数 $K$ そのものの変化」の定義上の違いで迷いが生じている。
+・つまずきの本質：「濃度の比率変化」と「平衡定数 K そのものの変化」の定義上の違いで迷いが生じている。
 ・指導要点：「平衡定数は温度のみの関数である」という大原則を再確認させる。`;
         }
       } else {
@@ -1200,7 +1269,6 @@ $$\\ce{A + B <=> C + D}$$
       }
     }
 
-    // 教員用：Gemini アシスタント
     async function generateGeminiAction(type) {
       currentGeminiAction = type;
       const q = teacherQuestions.find(x => x.id === currentEditingId);
@@ -1217,7 +1285,6 @@ $$\\ce{A + B <=> C + D}$$
 
       const customInstruction = document.getElementById('aiCustomInstructionInput')?.value.trim() || '';
 
-      let prompt = '';
       const systemInstruction = `あなたは論理的で厳密な高校化学の教員です。
 【厳格な文章ルール】
 1. 前置き・挨拶（「質問ありがとうございます」「努力が素晴らしいですね」等）や結びの社交辞令は一切出力せず、直ちに【結論】から開始してください。
@@ -1228,6 +1295,7 @@ $$\\ce{A + B <=> C + D}$$
    - 「CHX3」や「(CHX3CO)X2O」のような謎のX文字混入や文字化けは厳禁です。下付き数字は mhchem が自動で処理するため、そのまま \\ce{CH3COOH}, \\ce{(CH3CO)2O}, \\ce{C6H4(OH)COOH} と記述してください。
 4. 分数は必ず \\frac{分子}{分母} を用い、日本語を含む場合は \\frac{\\text{分子}}{\\text{分母}} としてください。`;
 
+      let prompt = '';
       if (type === 'draft') {
         loadingText.textContent = '解説ドラフトを作成中...';
         titleEl.innerHTML = '<span>💡 化学科教員 解説ドラフト</span>';
@@ -1274,38 +1342,24 @@ ${q.content}`;
       }
     }
 
-    // 化学式やAI出力テキストの表記ゆれ・重複除去クリーンアップ関数
     function cleanChemicalFormatting(text) {
       if (!text) return '';
       let cleaned = text;
-
-      // 不要な冒頭文が混入していた場合の除去
       cleaned = cleaned.replace(/^(.*?(?:質問ありがとうございます|お答えします|こんにちは).*?\n+)/gi, '');
-
-      // マークダウンのアスタリスク太字（**テキスト**）をプレーンな見出しに整形
       cleaned = cleaned.replace(/\*\*(.*?)\*\*/g, '$1');
-
-      // 「CHX3」などの誤字・文字化け修正
       cleaned = cleaned.replace(/([A-Z])X([0-9])/g, '$1$2');
-
-      // 生テキストと \ce{} の重複連結パターンを単一の $\ce{...}$ に正規化
       cleaned = cleaned.replace(/([A-Za-z0-9\(\)\+\-\>\=]+)\s*\\ce\{([^}]+)\}\s*([A-Za-z0-9\(\)\+\-\>\=]*)/g, (match, p1, p2, p3) => {
         return `$\\ce{${p2}}$`;
       });
-
-      // $ で囲まれていない孤立した \ce{...} を $\ce{...}$ に安全にラップ
       cleaned = cleaned.replace(/(?<!\$)\\ce\{([^}]+)\}(?!\$)/g, '$\\ce{$1}$');
-
       return cleaned.trim();
     }
 
-    // AIドラフトを反映してそのまま即座に公開する関数
     function applyAndDirectPublish() {
       applyGeminiToEditor('replace');
       saveAnswerAndPublish();
     }
 
-    // 先生からの追加指示ヘルパー
     function appendInstruction(text) {
       const input = document.getElementById('aiCustomInstructionInput');
       if (!input) return;
@@ -1350,7 +1404,6 @@ ${q.content}`;
       showToast('クリップボードにコピーしました。', 'info');
     }
 
-    // --- リアルタイム KaTeX ライブプレビュー ---
     function handleAnswerInputLive() {
       const inputEl = document.getElementById('modalAnswerInput');
       const previewEl = document.getElementById('modalAnswerLivePreview');
@@ -1395,7 +1448,6 @@ ${q.content}`;
       }
     }
 
-    // --- エディタ内タブ切替（回答作成 / 質問参照 / Gemini） ---
     function switchEditorSection(section) {
       const panes = {
         answer: document.getElementById('paneEditorAnswer'),
@@ -1430,7 +1482,6 @@ ${q.content}`;
       }
     }
 
-    // --- 化学パレット制御 ---
     function switchPaletteTab(tab) {
       const tabs = ['reaction', 'ions', 'states'];
       tabs.forEach(t => {
@@ -1477,7 +1528,6 @@ ${q.content}`;
       handleAnswerInputLive();
     }
 
-    // --- モーダル表示 ---
     function openReviewModal(id) {
       currentEditingId = id;
       const q = teacherQuestions.find(x => x.id === id);
@@ -1500,7 +1550,6 @@ ${q.content}`;
         r.checked = (r.value === (q.status || 'pending'));
       }
 
-      // Geminiボックスの初期化
       document.getElementById('geminiResultBox').classList.add('hidden');
       document.getElementById('geminiLoading').classList.add('hidden');
 
@@ -1526,7 +1575,6 @@ ${q.content}`;
       if (modal) modal.classList.add('hidden');
     }
 
-    // --- 画像の自動圧縮 ---
     function handleImageSelection(e) {
       const file = e.target.files[0];
       if (!file) return;
@@ -1573,7 +1621,6 @@ ${q.content}`;
       document.getElementById('imagePlaceholder').classList.remove('hidden');
     }
 
-    // --- 画面切り替え ---
     function switchView(view) {
       activeView = view;
       document.getElementById('studentSection').classList.toggle('hidden', view !== 'student');
@@ -1627,7 +1674,6 @@ ${q.content}`;
       renderTeacherList();
     }
 
-    // 一覧描画
     function renderPublicList() {
       const container = document.getElementById('publicQuestionsList');
       if (!container) return;
@@ -1724,69 +1770,6 @@ ${q.content}`;
       triggerKaTeX();
     }
 
-    function renderTeacherList() {
-      const container = document.getElementById('teacherQuestionsList');
-      if (!container) return;
-
-      const list = teacherQuestions.filter(q => {
-        if (teacherFilter === 'pending') return q.status === 'pending' || q.status === 'in_progress';
-        return q.status === 'answered';
-      });
-
-      const pendingCount = teacherQuestions.filter(q => q.status === 'pending' || q.status === 'in_progress').length;
-      const tabBadge = document.getElementById('teacherTabPendingBadge');
-      const headerBadge = document.getElementById('pendingBadge');
-      if (tabBadge) tabBadge.textContent = pendingCount;
-      if (headerBadge) {
-        headerBadge.textContent = pendingCount;
-        headerBadge.classList.toggle('hidden', pendingCount === 0);
-      }
-
-      if (list.length === 0) {
-        container.innerHTML = `
-          <div class="text-center py-12 bg-white rounded-2xl border border-slate-200 text-slate-400 text-sm">
-            現在、${teacherFilter === 'pending' ? '未完了' : '回答済み'}の質問はありません。
-          </div>`;
-        return;
-      }
-
-      container.innerHTML = list.map(q => `
-        <div class="bg-white border rounded-2xl p-5 shadow-sm space-y-3">
-          <div class="flex flex-wrap justify-between items-center border-b pb-2.5 gap-2">
-            <div class="flex flex-wrap items-center gap-2 text-xs">
-              <span class="font-mono font-bold text-slate-900 bg-slate-100 px-2 py-0.5 rounded">${escapeHtml(q.publicId)}</span>
-              <span class="font-mono bg-blue-50 text-blue-800 px-2 py-0.5 rounded">学籍:${escapeHtml(q.studentId)}</span>
-              <span class="bg-amber-100 text-amber-900 px-2 py-0.5 rounded font-bold">${escapeHtml(q.studentName)}</span>
-              <span class="text-slate-400">（公開名: ${escapeHtml(q.nickname)}）</span>
-              ${q.status === 'in_progress' ? '<span class="bg-cyan-100 text-cyan-800 font-bold px-2 py-0.5 rounded text-[11px]">✍️ 作成中</span>' : ''}
-            </div>
-            <span class="text-xs text-slate-400">${escapeHtml(q.createdAt || '')}</span>
-          </div>
-          <div class="text-sm text-slate-800 whitespace-pre-wrap katex-target">${escapeHtml(q.content)}</div>
-          ${q.status === 'answered' ? `
-            <div class="mt-3 p-3 bg-slate-50 border rounded-xl text-xs space-y-2">
-              <div class="katex-target text-slate-700 leading-relaxed font-sans">
-                <span class="font-bold text-slate-500 block mb-1">公開中の回答:</span>${escapeHtml(q.answer)}
-              </div>
-              <div class="pt-2 border-t border-slate-200 flex items-center gap-3 text-[11px] text-slate-600">
-                <span class="font-bold text-slate-700">生徒の反応:</span>
-                <span class="inline-flex items-center gap-1 bg-emerald-50 border border-emerald-200 text-emerald-800 px-2 py-0.5 rounded-md font-medium">💡 スッキリ: ${q.reactions?.clear || 0}</span>
-                <span class="inline-flex items-center gap-1 bg-blue-50 border border-blue-200 text-blue-800 px-2 py-0.5 rounded-md font-medium">👍 なるほど: ${q.reactions?.good || 0}</span>
-                <span class="inline-flex items-center gap-1 bg-amber-50 border border-amber-200 text-amber-800 px-2 py-0.5 rounded-md font-medium">🤔 モヤモヤ: ${q.reactions?.unclear || 0}</span>
-              </div>
-            </div>` : ''}
-          <div class="mt-4 flex justify-end">
-            <button onclick="openReviewModal('${q.id}')" class="px-4 py-2 bg-blue-600 text-white text-xs font-bold rounded-lg hover:bg-blue-700 shadow-sm transition flex items-center gap-1.5">
-              <span>✍️</span>
-              <span>${q.status === 'answered' ? '回答を編集・再承認' : q.status === 'in_progress' ? '回答作成を再開する' : '回答を作成する'}</span>
-            </button>
-          </div>
-        </div>
-      `).join('');
-      triggerKaTeX();
-    }
-
-    // --- モーダル設定 ---
     function openGasModal() {
       const input = document.getElementById('gasUrlInput');
       if (input) input.value = localStorage.getItem('hs_chem_gas_url') || '';
@@ -1821,7 +1804,6 @@ ${q.content}`;
       showToast('Gemini APIキー設定を更新しました。', 'success');
     }
 
-    // --- ユーティリティ ---
     // 生徒の理解度リアクション送信
     function handleStudentReaction(publicId, reactionType) {
       const prevReaction = myReactions[publicId];
@@ -1934,6 +1916,18 @@ ${q.content}`;
       }
       inputEl.value = converted;
     }
+
+    // DOM読み込み完了時の初期化
+    window.addEventListener('DOMContentLoaded', () => {
+      initLocalMockData();
+      checkSettingsStatus();
+      fetchPublicQuestions();
+      const pin = sessionStorage.getItem('teacherPin');
+      if (pin) {
+        fetchTeacherQuestions(pin);
+      }
+      triggerKaTeX();
+    });
   </script>
 </body>
 </html>
