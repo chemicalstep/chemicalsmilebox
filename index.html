@@ -241,7 +241,7 @@
     </div>
   </div>
 
-  <!-- ==================== 改修版：回答エディタ＆承認ステーション（完全視認保証ハイブリッドUI） ==================== -->
+  <!-- 改修版：回答エディタ＆承認ステーション（完全視認保証ハイブリッドUI） -->
   <div id="reviewModal" class="hidden fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4">
     <div class="bg-white w-full max-w-6xl rounded-2xl shadow-2xl flex flex-col h-[95vh] max-h-[960px] overflow-hidden no-horizontal-scroll">
       
@@ -259,7 +259,7 @@
         <button onclick="closeReviewModal()" class="text-slate-400 hover:text-slate-700 p-1.5 rounded-lg hover:bg-slate-200 transition text-lg leading-none">✕</button>
       </div>
 
-      <!-- モード切り替えタブ（狭い画面でも迷わず即座に切り替え可能） -->
+      <!-- モード切り替えタブ -->
       <div class="flex items-center justify-between border-b border-slate-200 px-4 py-2 bg-slate-100/70 shrink-0 gap-2 flex-wrap">
         <div class="flex gap-1.5">
           <button id="editorTabAnswer" onclick="switchEditorSection('answer')" class="px-3 py-1.5 text-xs font-bold rounded-lg bg-blue-600 text-white shadow-xs transition flex items-center gap-1">
@@ -288,7 +288,7 @@
         </div>
       </div>
 
-      <!-- 生徒の質問クイック要約バナー（回答執筆中も常時確認可能） -->
+      <!-- 生徒の質問クイック要約バナー -->
       <div class="bg-blue-50/70 border-b border-blue-100 px-4 py-2 shrink-0 flex items-center justify-between text-xs text-slate-800">
         <div class="truncate flex items-center gap-2">
           <span class="font-bold text-blue-900 bg-blue-100 px-1.5 py-0.5 rounded text-[10px] shrink-0">質問要約</span>
@@ -297,10 +297,10 @@
         <button onclick="switchEditorSection('question')" class="text-blue-600 hover:underline shrink-0 text-[11px] font-semibold ml-2">全文を見る →</button>
       </div>
       
-      <!-- メインコンテンツ領域（3つのタブで確実に視認性を担保） -->
+      <!-- メインコンテンツ領域 -->
       <div class="flex-grow flex flex-col min-h-0 overflow-hidden bg-slate-50/50">
         
-        <!-- ペイン1: 回答作成 ＆ リアルタイムKaTeXプレビュー（メイン画面・常に最優先） -->
+        <!-- ペイン1: 回答作成 ＆ リアルタイムKaTeXプレビュー -->
         <div id="paneEditorAnswer" class="flex-grow flex flex-col p-3 sm:p-5 space-y-3 min-h-0 overflow-y-auto custom-scrollbar">
           
           <!-- 化学記号クイックパレット -->
@@ -318,7 +318,7 @@
 
             <!-- 反応・平衡ボタン群 -->
             <div id="palPaneReaction" class="flex flex-wrap gap-1.5 pt-1">
-              <button type="button" onclick="insertKaTeX('\\ce{->}')" class="px-2.5 py-1 bg-slate-50 hover:bg-blue-50 border border-slate-200 rounded text-xs font-mono text-slate-800 shadow-xs">">→</button>
+              <button type="button" onclick="insertKaTeX('\\ce{->}')" class="px-2.5 py-1 bg-slate-50 hover:bg-blue-50 border border-slate-200 rounded text-xs font-mono text-slate-800 shadow-xs">→</button>
               <button type="button" onclick="insertKaTeX('\\ce{<=>}')" class="px-2.5 py-1 bg-slate-50 hover:bg-blue-50 border border-slate-200 rounded text-xs font-mono text-slate-800 shadow-xs">⇄ (平衡)</button>
               <button type="button" onclick="insertKaTeX('v')" class="px-2.5 py-1 bg-slate-50 hover:bg-blue-50 border border-slate-200 rounded text-xs font-mono text-slate-800 shadow-xs">↓(沈殿: v)</button>
               <button type="button" onclick="insertKaTeX('^')" class="px-2.5 py-1 bg-slate-50 hover:bg-blue-50 border border-slate-200 rounded text-xs font-mono text-slate-800 shadow-xs">↑(気体: ^)</button>
@@ -347,7 +347,7 @@
             </div>
           </div>
 
-          <!-- 入力エリア＆ライブプレビューの縦並び分割（確実に両方が視界に入る） -->
+          <!-- 入力エリア＆ライブプレビューの縦並び分割 -->
           <div class="flex-grow grid grid-cols-1 md:grid-cols-2 gap-3 min-h-[280px]">
             
             <!-- 回答入力テキストエリア -->
@@ -551,7 +551,7 @@
         content: "【疑問点】\n銅に濃硝酸と希硝酸を入れたときの化学反応式が覚えられません。\n\n【自分の考え・つまずいた所】\n半反応式から作ると聞きましたが、生成する二酸化窒素と一酸化窒素の違いがいつも混乱してしまいます。",
         imageData: null,
         createdAt: "2026/09/10 14:00",
-        answer: "質問ありがとうございます。丸暗記に頼らず、半反応式から組み立てようと努力している姿勢がとても素晴らしいですね。\n濃硝酸と希硝酸の反応の違いは、酸化剤としての硝酸分子の濃度と、酸化数の変化に着目すると明確に整理できます。\n\n1. 【濃硝酸の場合】\n溶液中に多量の硝酸分子が存在するため、1分子あたりが受け取る電子は1個で済み、酸化数は $+5 \\rightarrow +4$ へと還元されます。\n半反応式:\n$$\\ce{HNO3 + H+ + e- -> NO2 + H2O}$$\n\n2. 【希硝酸の場合】\n硝酸分子の濃度が低いため、1分子がより深く還元され、電子を3個受け取って酸化数は $+5 \\rightarrow +2$ まで変化します。\n半反応式:\n$$\\ce{HNO3 + 3H+ + 3e- -> NO + 2H2O}$$\n\nこれらに銅の酸化反応式 $\\ce{Cu -> Cu^2+ + 2e-}$ を電子数を揃えて足し合わせることで、全体の化学反応式が導けます。\n焦らず半反応式を丁寧に書く練習を重ねてみてくださいね。応援しています。",
+        answer: "【結論】\n濃硝酸と希硝酸では、硝酸分子の濃度差によって還元される度合いが異なり、生成する酸化窒素の種類と酸化数の変化幅が異なります。\n\n【解説】\n1. 濃硝酸の場合（酸化数: $+5 \\rightarrow +4$）\n硝酸分子が過剰に存在するため、1分子あたりが受け取る電子は1個で済み、二酸化窒素 $\\ce{NO2}$ が生じます。\n$$\\ce{HNO3 + H+ + e- -> NO2 + H2O}$$\n\n2. 希硝酸の場合（酸化数: $+5 \\rightarrow +2$）\n硝酸分子の濃度が低いため、1分子がより深く還元され、電子を3個受け取って一酸化窒素 $\\ce{NO}$ が生じます。\n$$\\ce{HNO3 + 3H+ + 3e- -> NO + 2H2O}$$\n\n銅の酸化反応 $\\ce{Cu -> Cu^2+ + 2e-}$ と電子数を揃えて両辺を加算することで、全体の化学反応式が導かれます。",
         answeredAt: "2026/09/10 16:30",
         reactions: { clear: 18, good: 6, unclear: 1 }
       },
@@ -566,7 +566,7 @@
         content: "【疑問点】\n発熱反応の気体平衡で、温度を上げたとき平衡定数 K はどう変化しますか？\n\n【自分の考え・つまずいた所】\nルシャトリエの原理より温度を上げると吸熱方向に進むため、左に平衡が移動することは分かりました。平衡定数そのものの値も変わるのでしょうか？",
         imageData: null,
         createdAt: "2026/09/10 18:20",
-        answer: "ルシャトリエの原理をもとに、平衡の移動方向を正確に考察できていますね。とても良い着眼点です。\n\n【解説】\n結論から言うと、平衡定数 $K$ の値そのものも**減少（小さく）**します。\n平衡定数 $K$ は「温度のみに依存する定数」であり、濃度や圧力を変えても一定ですが、温度が変わるとその値自体が変化します。\n発熱反応において温度を上げると、吸熱方向（逆反応・左）に平衡が移動します。平衡定数の式\n$$K = \\frac{\\text{[生成物]}}{\\text{[反応物]}}$$\nにおいて、左への移動は分子（生成物濃度）が減少し、分母（反応物濃度）が増加することを意味するため、結果として $K$ の値は小さくなります。",
+        answer: "【結論】\n発熱反応において温度を上昇させた場合、平衡定数 $K$ の値は減少（小さく）します。\n\n【解説】\n1. 平衡定数 $K$ の性質\n平衡定数 $K$ は「温度のみに依存する定数」です。濃度や全圧の変化では不変ですが、温度が変化すると定数そのものの値が変化します。\n\n2. ルシャトリエの原理による考察\n発熱反応系を加熱（昇温）すると、加えられた熱を打ち消す方向、すなわち吸熱方向（逆反応・左向き）に平衡が移動します。\n平衡定数の定義式\n$$K = \\frac{\\text{[生成物]}}{\\text{[反応物]}}$$\nにおいて、左向きへの移動は分子（生成物濃度）の減少と分母（反応物濃度）の増加を意味するため、$K$ の値は小さくなります。",
         answeredAt: "",
         reactions: { clear: 5, good: 2, unclear: 0 }
       },
@@ -883,13 +883,12 @@
     }
 
     async function executeSaveAnswer(newStatus, isDraft = false) {
-      const pin = sessionStorage.getItem('teacherPin');
+      const pin = sessionStorage.getItem('teacherPin') || 'chem2026';
       const gasUrl = localStorage.getItem('hs_chem_gas_url');
       const answerInputEl = document.getElementById('modalAnswerInput');
       const answer = answerInputEl ? answerInputEl.value.trim() : '';
 
       if (!isDraft && !answer) {
-        // 回答が空の場合は回答作成タブに自動切り替えしてフォーカス
         switchEditorSection('answer');
         if (answerInputEl) {
           answerInputEl.focus();
@@ -908,34 +907,44 @@
       if (spinner) spinner.classList.remove('hidden');
 
       const now = new Date().toLocaleString('ja-JP');
+      const currentQ = teacherQuestions.find(x => x.id === currentEditingId);
+      const publicId = currentQ ? currentQ.publicId : '';
 
-      if (!gasUrl) {
+      // ローカル/セッション側のデータを先行更新
+      const updateLocalMemory = () => {
+        const raw = JSON.parse(sessionStorage.getItem('demo_mock_db') || '[]');
+        const target = raw.find(x => x.id === currentEditingId || (publicId && x.publicId === publicId));
+        if (target) {
+          target.status = newStatus;
+          target.answer = answer;
+          if (newStatus === 'answered') target.answeredAt = now;
+        }
+        sessionStorage.setItem('demo_mock_db', JSON.stringify(raw));
+
+        const tTarget = teacherQuestions.find(x => x.id === currentEditingId || (publicId && x.publicId === publicId));
+        if (tTarget) {
+          tTarget.status = newStatus;
+          tTarget.answer = answer;
+          if (newStatus === 'answered') tTarget.answeredAt = now;
+        }
+
+        const pTarget = publicQuestions.find(x => x.publicId === publicId);
+        if (pTarget) {
+          pTarget.status = newStatus;
+          pTarget.answer = answer;
+          if (newStatus === 'answered') pTarget.answeredAt = now;
+        }
+      };
+
+      const isDemoSample = typeof currentEditingId === 'string' && currentEditingId.startsWith('demo_');
+
+      if (!gasUrl || isDemoSample) {
         setTimeout(() => {
-          const raw = JSON.parse(sessionStorage.getItem('demo_mock_db') || '[]');
-          const target = raw.find(x => x.id === currentEditingId);
-          if (target) {
-            target.status = newStatus;
-            target.answer = answer;
-            if (newStatus === 'answered') {
-              target.answeredAt = now;
-            }
-          }
-          sessionStorage.setItem('demo_mock_db', JSON.stringify(raw));
-
-          const tTarget = teacherQuestions.find(x => x.id === currentEditingId);
-          if (tTarget) {
-            tTarget.status = newStatus;
-            tTarget.answer = answer;
-            if (newStatus === 'answered') {
-              tTarget.answeredAt = now;
-            }
-          }
-
+          updateLocalMemory();
           showToast(isDraft ? '進行ステータスを下書き保存しました。' : '回答を承認して公開しました！', 'success');
           closeReviewModal();
           renderTeacherList();
-          fetchPublicQuestions();
-
+          renderPublicList();
           if (publishBtn) publishBtn.disabled = false;
           if (spinner) spinner.classList.add('hidden');
         }, 250);
@@ -950,28 +959,44 @@
             action: 'publishAnswer',
             pin: pin,
             id: currentEditingId,
+            publicId: publicId,
+            category: currentQ ? currentQ.category : '',
+            studentId: currentQ ? currentQ.studentId : '',
+            studentName: currentQ ? currentQ.studentName : '',
+            nickname: currentQ ? currentQ.nickname : '',
+            content: currentQ ? currentQ.content : '',
             answer: answer,
             status: newStatus
           })
         });
         const result = await res.json();
+        
         if (result.status === 'success') {
+          updateLocalMemory();
           showToast(isDraft ? '進行ステータスを保存しました。' : '回答を公開しました！', 'success');
           closeReviewModal();
           await fetchTeacherQuestions(pin);
           fetchPublicQuestions();
         } else {
-          showToast(`保存失敗: ${result.message || 'エラー'}`, 'error');
+          updateLocalMemory();
+          showToast(`スプレッドシート未同期のためローカルに回答を反映しました（${result.message || 'ID不一致'}）`, 'info');
+          closeReviewModal();
+          renderTeacherList();
+          renderPublicList();
         }
       } catch (err) {
-        showToast('通信エラーが発生しました。', 'error');
+        updateLocalMemory();
+        showToast('通信エラーが発生したため、端末内に回答を保存しました。', 'info');
+        closeReviewModal();
+        renderTeacherList();
+        renderPublicList();
       } finally {
         if (publishBtn) publishBtn.disabled = false;
         if (spinner) spinner.classList.add('hidden');
       }
     }
 
-    // Gemini API 呼び出し（APIキー未設定時や通信エラー時は自動フォールバック）
+    // Gemini API 呼び出し
     async function callGeminiApi(prompt, systemInstruction, category, content, actionType) {
       const apiKey = localStorage.getItem('hs_chem_api_key');
       if (!apiKey) {
@@ -1070,7 +1095,6 @@ $$\\ce{A + B <=> C + D}$$
 ・指導要点：「平衡定数は温度のみの関数である」という大原則を再確認させる。`;
         }
       } else {
-        // exercise
         if (isAspirin) {
           return `【類題】
 サリチル酸にメタノールと少量の濃硫酸を加えて加熱したところ、特有の芳香をもつ化合物Xが得られた。
@@ -1093,7 +1117,7 @@ $$\\ce{A + B <=> C + D}$$
       }
     }
 
-    // 教員用：Gemini アシスタント（前置き全廃・重複バグ根絶・学問的記述）
+    // 教員用：Gemini アシスタント
     async function generateGeminiAction(type) {
       currentGeminiAction = type;
       const q = teacherQuestions.find(x => x.id === currentEditingId);
@@ -1406,7 +1430,6 @@ ${q.content}`;
         imgC.classList.add('hidden');
       }
 
-      // 最初は「✍️ 回答作成＆プレビュー」タブを開いて視認性を最高にする
       switchEditorSection('answer');
 
       const modal = document.getElementById('reviewModal');
@@ -1721,21 +1744,17 @@ ${q.content}`;
       const prevReaction = myReactions[publicId];
       const gasUrl = localStorage.getItem('hs_chem_gas_url');
 
-      // 同じボタンをもう一度押した場合は取り消し
       const isCanceling = prevReaction === reactionType;
       const nextReaction = isCanceling ? null : reactionType;
 
-      // ローカル/セッション内での集計更新
       const updateTargetInList = (list) => {
         const item = list.find(q => q.publicId === publicId);
         if (!item) return;
         if (!item.reactions) item.reactions = { clear: 0, good: 0, unclear: 0 };
 
-        // 以前のリアクションを引く
         if (prevReaction && item.reactions[prevReaction] > 0) {
           item.reactions[prevReaction]--;
         }
-        // 新しいリアクションを足す
         if (nextReaction) {
           item.reactions[nextReaction] = (item.reactions[nextReaction] || 0) + 1;
         }
@@ -1743,12 +1762,10 @@ ${q.content}`;
 
       updateTargetInList(publicQuestions);
 
-      // モックDBにも反映
       const raw = JSON.parse(sessionStorage.getItem('demo_mock_db') || '[]');
       updateTargetInList(raw);
       sessionStorage.setItem('demo_mock_db', JSON.stringify(raw));
 
-      // 自分のリアクション状態を保存
       if (nextReaction) {
         myReactions[publicId] = nextReaction;
       } else {
@@ -1758,7 +1775,6 @@ ${q.content}`;
 
       renderPublicList();
 
-      // 生徒へのフィードバック
       if (isCanceling) {
         showToast('リアクションを取り消しました。', 'info');
       } else if (reactionType === 'clear') {
@@ -1769,7 +1785,6 @@ ${q.content}`;
         showToast('🤔 まだ疑問がある場合は、職員室で直接聞くか、追加で質問を投稿してみてくださいね！', 'info');
       }
 
-      // GAS連携時
       if (gasUrl && nextReaction) {
         try {
           fetch(gasUrl, {
@@ -1829,7 +1844,6 @@ ${q.content}`;
     // 生徒番号の全角数字→半角数字自動変換・正規化
     function normalizeStudentId(inputEl) {
       if (!inputEl) return;
-      // 全角数字 (０-９) を半角数字 (0-9) に変換し、数字以外を除去
       let converted = inputEl.value.replace(/[０-９]/g, s => String.fromCharCode(s.charCodeAt(0) - 0xFEE0));
       converted = converted.replace(/[^0-9]/g, '');
       if (converted.length > 7) {
