@@ -33,20 +33,22 @@
 
   <!-- ==================== ヘッダー ==================== -->
   <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-      <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-600 to-blue-600 flex items-center justify-center text-white text-xl shadow-md">🧪</div>
-        <div>
-          <h1 class="text-base sm:text-lg font-bold text-slate-900 leading-tight">ケミカルスマイルの化学質問箱</h1>
-          <p class="text-[11px] sm:text-xs text-slate-500">高校化学の疑問・モヤモヤを化学科教員と一緒に解決</p>
+    <div class="max-w-6xl mx-auto px-3 sm:px-6 h-16 flex items-center justify-between gap-2">
+      <!-- タイトル＆ロゴ（スマホではみ出さないよう縮小・省略対応） -->
+      <div class="flex items-center gap-2 sm:gap-3 min-w-0 pr-1">
+        <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-cyan-600 to-blue-600 flex items-center justify-center text-white text-lg sm:text-xl shadow-md shrink-0">🧪</div>
+        <div class="min-w-0">
+          <h1 class="text-xs sm:text-base font-bold text-slate-900 leading-tight truncate">ケミカルスマイル</h1>
+          <p class="hidden sm:block text-[11px] sm:text-xs text-slate-500 truncate">高校化学の疑問・モヤモヤを化学科教員と一緒に解決</p>
         </div>
       </div>
 
-      <div class="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200">
-        <button id="navStudentBtn" onclick="switchView('student')" class="px-3 py-1.5 text-xs sm:text-sm font-medium rounded-lg transition-all bg-white text-blue-700 shadow-sm">
-          生徒用画面
+      <!-- 切り替えタブ（スマホでも絶対に押し出されず確実にタップ可能） -->
+      <div class="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200 shrink-0">
+        <button type="button" id="navStudentBtn" onclick="switchView('student')" class="px-2.5 sm:px-3 py-1.5 text-xs sm:text-sm font-semibold rounded-lg transition-all bg-white text-blue-700 shadow-sm cursor-pointer whitespace-nowrap select-none touch-manipulation">
+          生徒用
         </button>
-        <button id="navTeacherBtn" onclick="handleTeacherLogin()" class="px-3 py-1.5 text-xs sm:text-sm font-medium rounded-lg transition-all text-slate-600 hover:text-slate-900 flex items-center gap-1.5">
+        <button type="button" id="navTeacherBtn" onclick="handleTeacherLogin()" class="px-2.5 sm:px-3 py-1.5 text-xs sm:text-sm font-semibold rounded-lg transition-all text-slate-600 hover:text-slate-900 flex items-center gap-1 cursor-pointer whitespace-nowrap select-none touch-manipulation">
           <span>🔒 化学科管理</span>
           <span id="pendingBadge" class="hidden bg-rose-500 text-white text-[10px] px-1.5 py-0.5 rounded-full font-bold">0</span>
         </button>
@@ -288,8 +290,8 @@
   </div>
 
   <!-- 教員PINコード入力モーダル -->
-  <div id="pinModal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="bg-white w-full max-w-sm rounded-2xl shadow-xl p-6 space-y-4">
+  <div id="pinModal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4" onclick="closePinModal()">
+    <div class="bg-white w-full max-w-sm rounded-2xl shadow-xl p-6 space-y-4" onclick="event.stopPropagation()">
       <h3 class="font-bold text-slate-900 flex items-center gap-2">
         <span class="text-xl">🔒</span> 化学科管理 認証
       </h3>
@@ -298,8 +300,8 @@
       </p>
       <input type="password" id="pinInput" placeholder="PINコード" class="w-full px-3 py-2 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 font-mono" onkeydown="if(event.key==='Enter')submitPin()">
       <div class="flex justify-end gap-2 pt-2">
-        <button onclick="closePinModal()" class="px-4 py-2 text-xs font-medium text-slate-600 hover:text-slate-900 transition">キャンセル</button>
-        <button id="pinSubmitBtn" onclick="submitPin()" class="px-4 py-2 bg-slate-800 text-white text-xs font-bold rounded-xl hover:bg-slate-900 transition flex items-center gap-2 shadow-sm">
+        <button type="button" onclick="closePinModal()" class="px-4 py-2 text-xs font-medium text-slate-600 hover:text-slate-900 transition cursor-pointer">キャンセル</button>
+        <button type="button" id="pinSubmitBtn" onclick="submitPin()" class="px-4 py-2 bg-slate-800 text-white text-xs font-bold rounded-xl hover:bg-slate-900 transition flex items-center gap-2 shadow-sm cursor-pointer touch-manipulation">
           認証する <span id="pinSpinner" class="hidden animate-spin">🌀</span>
         </button>
       </div>
@@ -1172,20 +1174,26 @@
     }
 
     function handleTeacherLogin() {
-      const sessionPin = sessionStorage.getItem('teacherPin');
-      if (sessionPin && sessionPin === '1669') {
-        switchView('teacher');
-        fetchTeacherQuestions(sessionPin);
-        return;
+      try {
+        const sessionPin = sessionStorage.getItem('teacherPin');
+        if (sessionPin && sessionPin === '1669') {
+          switchView('teacher');
+          fetchTeacherQuestions(sessionPin);
+          return;
+        }
+      } catch (e) {
+        console.warn('Storage access notice:', e);
       }
       
       const pinInput = document.getElementById('pinInput');
       if (pinInput) pinInput.value = '';
       const pinModal = document.getElementById('pinModal');
-      if (pinModal) pinModal.classList.remove('hidden');
+      if (pinModal) {
+        pinModal.classList.remove('hidden');
+      }
       setTimeout(() => {
         if (pinInput) pinInput.focus();
-      }, 100);
+      }, 150);
     }
 
     function closePinModal() {
@@ -1209,7 +1217,9 @@
 
       try {
         if (pin === '1669') {
-          sessionStorage.setItem('teacherPin', pin);
+          try {
+            sessionStorage.setItem('teacherPin', pin);
+          } catch (e) {}
           closePinModal();
           showToast('教員認証に成功しました。', 'success');
           switchView('teacher');
@@ -1228,21 +1238,14 @@
 
     function handleTeacherLogout() {
       teacherQuestions = [];
-      sessionStorage.removeItem('teacherPin');
+      try {
+        sessionStorage.removeItem('teacherPin');
+      } catch (e) {}
       switchView('student');
       showToast('教員画面からログアウトしました。', 'info');
     }
 
-    /* 安全なJSON通信関数 */
-    async function safeFetchJson(url, options = {}, timeoutMs = 12000) {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
-      
-      try {
-        const fetchOptions = { ...options, signal: controller.signal };
-        const res = await fetch(url, fetchOptions);
-        clearTimeout(timeoutId);
-    /* 安全なJSON通信関数（キャッシュ防止 no-store を付与） */
+    /* 安全なJSON通信関数（キャッシュ防止 no-store を付与し確実にパース） */
     async function safeFetchJson(url, options = {}, timeoutMs = 12000) {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
@@ -2052,12 +2055,12 @@ ${customInstruction ? `\n【指示】: ${customInstruction}\n` : ''}`;
       const sBtn = document.getElementById('navStudentBtn');
       const tBtn = document.getElementById('navTeacherBtn');
       if (view === 'student') {
-        if (sBtn) sBtn.className = 'px-3 py-1.5 text-xs sm:text-sm font-medium rounded-lg transition-all bg-white text-blue-700 shadow-sm';
-        if (tBtn) tBtn.className = 'px-3 py-1.5 text-xs sm:text-sm font-medium rounded-lg transition-all text-slate-600 hover:text-slate-900 flex items-center gap-1.5';
+        if (sBtn) sBtn.className = 'px-2.5 sm:px-3 py-1.5 text-xs sm:text-sm font-semibold rounded-lg transition-all bg-white text-blue-700 shadow-sm cursor-pointer whitespace-nowrap select-none touch-manipulation';
+        if (tBtn) tBtn.className = 'px-2.5 sm:px-3 py-1.5 text-xs sm:text-sm font-semibold rounded-lg transition-all text-slate-600 hover:text-slate-900 flex items-center gap-1 cursor-pointer whitespace-nowrap select-none touch-manipulation';
         renderPublicList();
       } else {
-        if (tBtn) tBtn.className = 'px-3 py-1.5 text-xs sm:text-sm font-medium rounded-lg transition-all bg-white text-blue-700 shadow-sm flex items-center gap-1.5';
-        if (sBtn) sBtn.className = 'px-3 py-1.5 text-xs sm:text-sm font-medium rounded-lg transition-all text-slate-600 hover:text-slate-900';
+        if (tBtn) tBtn.className = 'px-2.5 sm:px-3 py-1.5 text-xs sm:text-sm font-semibold rounded-lg transition-all bg-white text-blue-700 shadow-sm flex items-center gap-1 cursor-pointer whitespace-nowrap select-none touch-manipulation';
+        if (sBtn) sBtn.className = 'px-2.5 sm:px-3 py-1.5 text-xs sm:text-sm font-semibold rounded-lg transition-all text-slate-600 hover:text-slate-900 cursor-pointer whitespace-nowrap select-none touch-manipulation';
         checkSettingsStatus();
         const pin = sessionStorage.getItem('teacherPin') || '1669';
         fetchTeacherQuestions(pin);
