@@ -78,14 +78,12 @@
             回答一覧には自動発行される<span class="font-semibold text-slate-900">「質問ID（例: 0001）」と「ニックネーム」</span>のみが表示されます。
           </p>
           <!-- 不都合発生時のGoogleフォーム案内リンク -->
-          <div class="ml-7 pt-1">
-            <p class="text-xs text-slate-600 flex items-center gap-1.5">
-              <span>⚠️</span>
-              <span>何か不都合があった場合には、<a href="https://forms.gle/PthyfPpyJNrRvyf56" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:text-blue-800 font-bold underline underline-offset-2 inline-flex items-center gap-0.5 transition-colors">こちら（Googleフォーム）↗</a> からお知らせください。</span>
-            </p>
+          <div class="ml-7 pt-1 flex items-center gap-1.5 text-xs text-amber-900 bg-amber-50/80 border border-amber-200/80 rounded-lg px-3 py-1.5 w-fit">
+            <span class="shrink-0">⚠️</span>
+            <span>何か不都合があった場合には、<a href="https://forms.gle/PthyfPpyJNrRvyf56" target="_blank" rel="noopener noreferrer" class="font-bold text-blue-600 hover:text-blue-800 underline decoration-blue-400">こちら（Googleフォーム）↗</a> からお知らせください。</span>
           </div>
         </div>
-        <div class="bg-white/80 backdrop-blur-xs p-3 rounded-xl border border-blue-100 min-w-[210px] shrink-0">
+        <div class="bg-white/80 backdrop-blur-xs p-3.5 rounded-xl border border-blue-100 min-w-[210px] shrink-0">
           <p class="text-[11px] font-bold text-slate-500 mb-1">👨‍🏫 化学科からのご案内</p>
           <p class="text-xs font-semibold text-blue-950">回答の作成・公開には<br><span class="text-blue-600 font-bold">2〜3日程度</span>かかります。</p>
         </div>
@@ -1314,13 +1312,17 @@
         const res = await fetch(url, fetchOptions);
         clearTimeout(timeoutId);
         const text = await res.text();
+        
+        // Googleログイン画面などのHTMLが返ってきた場合の検知
+        if (text.trim().startsWith('<!DOCTYPE') || text.includes('<html')) {
+          throw new Error('Googleのログイン画面が返されました。GASデプロイ設定の「アクセスできるユーザー」を「全員（Anyone）」に変更してください。');
+        }
+        
         return JSON.parse(text);
       } catch (err) {
         clearTimeout(timeoutId);
         if (err.name === 'AbortError') {
-          console.warn('Fetch timed out after ' + timeoutMs + 'ms');
-        } else {
-          console.warn('Network issue notice:', err.message);
+          throw new Error('通信がタイムアウトしました（15秒経過）。Google Apps Scriptの応答がありません。');
         }
         throw err;
       }
@@ -1329,6 +1331,7 @@
     async function fetchPublicQuestions(isManual = false) {
       const gasUrl = getEffectiveGasUrl();
       const listContainer = document.getElementById('publicQuestionsList');
+
       if (publicQuestions.length === 0 && listContainer) {
         listContainer.innerHTML = `
           <div class="text-center py-10 bg-white rounded-2xl border border-slate-200 text-slate-500 text-sm">
@@ -1351,11 +1354,13 @@
           }));
           renderPublicList();
           if (isManual) showToast('最新の質問一覧を更新しました', 'success');
+        } else {
+          throw new Error(data?.message || 'スプレッドシートから不正なデータが返されました');
         }
       } catch (err) {
-        console.warn('GAS fetch pending notice:', err.message);
+        console.warn('GAS fetch notice:', err.message);
         renderPublicList();
-        if (isManual) showToast('通信待機中またはオフラインです', 'warning');
+        if (isManual) showToast('データの取得に失敗しました。時間をおいて再試行してください。', 'warning');
       }
     }
 
