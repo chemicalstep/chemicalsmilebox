@@ -40,7 +40,7 @@
   <!-- ==================== ヘッダー ==================== -->
   <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-xs">
     <div class="max-w-6xl mx-auto px-3 sm:px-6 h-16 flex items-center justify-between gap-2">
-      <!-- タイトル＆ロゴ（ご指定の「ケミカルスマイルの質問部屋」に完全更新） -->
+      <!-- タイトル＆ロゴ（紫枠のご指定通り「ケミカルスマイルの質問部屋」に完全更新） -->
       <div class="flex items-center gap-2 sm:gap-3 min-w-0 pr-1">
         <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-cyan-600 to-blue-600 flex items-center justify-center text-white text-lg sm:text-xl shadow-xs shrink-0">🧪</div>
         <div class="min-w-0">
@@ -1621,6 +1621,9 @@
       const gasUrl = getEffectiveGasUrl();
       const localApiKey = localStorage.getItem('hs_chem_api_key');
 
+      let lastErrorDetail = '';
+
+      // 1. GAS経由でサーバーサイド安全中継
       if (gasUrl) {
         try {
           const res = await safeFetchJson(gasUrl, {
@@ -1640,15 +1643,19 @@
 
           if (res && res.status === 'success' && res.text) {
             return res.text;
+          } else if (res && res.message) {
+            lastErrorDetail = res.message;
           }
         } catch (e) {
           console.warn('Server-side Gemini proxy notice:', e);
+          lastErrorDetail = e.message || 'GASとの通信エラー';
         }
       }
 
+      // 2. クライアント側の直接APIキー（設定されている場合）
       if (localApiKey && localApiKey.trim().length > 10) {
         try {
-          const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${localApiKey.trim()}`;
+          const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${localApiKey.trim()}`;
           const contentsParts = [];
           if (imageData && imageData.startsWith('data:image/')) {
             const match = imageData.match(/^data:(image\/[a-zA-Z]+);base64,(.+)$/);
@@ -1672,43 +1679,17 @@
           const data = await res.json();
           if (data.candidates && data.candidates[0]?.content?.parts?.[0]?.text) {
             return data.candidates[0].content.parts[0].text;
+          } else if (data.error && data.error.message) {
+            lastErrorDetail = data.error.message;
           }
         } catch (e) {
           console.warn('Client-side Gemini API notice:', e);
+          lastErrorDetail = e.message;
         }
       }
 
-      await new Promise(r => setTimeout(r, 250));
-      return getSmartChemFallback(category, content, actionType);
-    }
-
-    function getSmartChemFallback(category, content, actionType) {
-      const qMatch = content.match(/【疑問点】\s*([\s\S]*?)(?=【自分の考え|$)/);
-      const eMatch = content.match(/【自分の考え・つまずいた所】\s*([\s\S]*?)$/);
-      const qText = (qMatch ? qMatch[1] : content).trim();
-      const eText = (eMatch ? eMatch[1] : '').trim();
-
-      const combinedText = (qText + " " + eText).toLowerCase();
-
-      const isAspirin = combinedText.includes('サリチル酸') || combinedText.includes('アスピリン') || combinedText.includes('無水酢酸');
-      const isEquilibrium = combinedText.includes('平衡') || combinedText.includes('ルシャトリエ') || combinedText.includes('平衡定数');
-      const isBattery = combinedText.includes('電池') || combinedText.includes('電気分解');
-
-      if (actionType === 'draft') {
-        if (isAspirin) {
-          return `【結論】\nフェノール類のヒドロキシ基は通常のアルコールに比べて求核性が低いため、通常の酢酸ではエステル化がほとんど進みません。そのため、反応性の高い無水酢酸を用いてアセチル化を行います。\n\n【解説】\n1. フェノール性ヒドロキシ基の反応性\nベンゼン環の非局在化した $\\pi$ 電子系と酸素原子の非共有電子対が共鳴するため、酸素原子上の電子密度が低下し、求核攻撃の能力が弱まります。\n\n2. 酢酸と無水酢酸の違い\n通常の酢酸 $\\ce{CH3COOH}$ では副生する水により加水分解（逆反応）が容易に起き、平衡が著しく原系に偏ります。\n一方、無水酢酸 $\\ce{(CH3CO)2O}$ を用いると速やかに反応します。\n$$\\ce{C6H4(OH)COOH + (CH3CO)2O -> C6H4(OCOCH3)COOH + CH3COOH}$$\n副生成物が水ではなく酢酸であるため逆反応が起こらず、定量的にアセチルサリチル酸が得られます。`;
-        } else if (isEquilibrium) {
-          return `【結論】\n発熱反応において温度を上昇させた場合、平衡定数 $K$ の値は減少（小さく）します。\n\n【解説】\n1. 平衡定数 $K$ の性質\n平衡定数 $K$ は温度のみに依存する定数です。圧力を変えて平衡が移動しても $K$ は一定ですが、温度変化によって定数の値そのものが変化します。\n\n2. ルシャトリエの原理による考察\n発熱反応系を加熱すると、熱を和らげる吸熱方向（逆反応）に平衡が移動します。\n$$K = \\frac{\\text{[生成物]}}{\\text{[反応物]}}$$\n生成物が減少し反応物が増加するため、平衡定数 $K$ は小さくなります。`;
-        } else if (isBattery) {
-          return `【結論】\n電池や電気分解では、「正極・負極（陽極・陰極）で誰が電子を出し、誰が電子を受け取るか」をイオン化傾向と酸化還元反応に基づいて1極ずつ整理することが解決の鍵です。\n\n【解説】\n1. 負極（電子を放出する極）\nイオン化傾向の大きい金属が酸化されて電子を放出します。\n$$\\ce{M -> M^{n+} + n e^-}$$\n\n2. 正極（電子を受け取る極）\n電解液中のイオンが電子を受け取って還元されます。\n全体の反応式を暗記するのではなく、電子 $\\ce{e^-}$ の個数を揃えて両極の半反応式を足し合わせる習慣をつけましょう。`;
-        } else {
-          return `【結論】\n「${escapeHtml(qText.slice(0, 30))}」についての疑問ですね。\n高校化学のこの分野では、反応に関与している粒子の状態と変化の前後関係を整理することが解決への近道です。\n\n【解説】\n直感的なイメージと、化学の基本原理（電子の移動、結合の組み換え、熱エネルギーの収支）との結びつきを確認しましょう。\n反応式をイオンや電子を含めて書き下し、どの法則（保存則や平衡の法則など）が成り立っているかを順を追って確認してください。`;
-        }
-      } else if (actionType === 'analyze') {
-        return `【指導分析メモ】\n・着眼点：生徒は問題の表面的な結果だけでなく、「なぜそうなるのか」という因果関係に疑問を持てています。\n・つまずきの本質：${eText ? `「${escapeHtml(eText.slice(0, 40))}」という記述から、定義と適用条件の混同が見られます。` : '基本法則の暗記と現象の背景にあるメカニズムが結びついていません。'}\n・指導助言：生徒の仮説のどこが合っていて、どこから論理が飛躍したかを褒めつつ指摘すると納得感が深まります。`;
-      } else {
-        return `【類題】\n本問の理解度を定着させるための関連問題です。\n\n【問題】\n本問と同じ原理が働く別の状況（温度や濃度の条件を変更した場合）において、反応の進行方向や生成物はどのように変化するかを説明せよ。\n\n【解答の着眼点】\n・変化する物理量と一定に保たれる定数を区別すること。\n・電子の移動またはエネルギー図を描いて比較すること。`;
-      }
+      // 3. APIエラー時に無関係な固定ダミー回答を出さず、状況を正確に教員へ提示
+      throw new Error(lastErrorDetail || 'Gemini APIの呼び出しに失敗しました。');
     }
 
     async function generateGeminiAction(type) {
@@ -1727,46 +1708,46 @@
 
       const customInstruction = document.getElementById('aiCustomInstructionInput')?.value.trim() || '';
 
-      const systemInstruction = `あなたは厳密で論理的な高校化学科の専門教員です。
-【最優先ガードレール】
-入力された質問内容が「高校化学」と無関係な内容（他教科、スポーツ、芸能、雑談、意味不明な文字列など）である場合は、絶対に無理やり化学の解説を作らないでください。必ず【結論】の直後に「本質問は高校化学の内容と無関係です。化学に関する疑問を投稿してください」と述べてください。
+      const systemInstruction = `あなたは親切で論理的な高校化学科の専門教員です。
+【最重要要件】
+生徒が入力した「【疑問点】」および「【自分の考え・つまずいた所】」に真正面から寄り添って解説してください。
+入力された質問と無関係な別分野の定型文や固定回答は一切出力してはなりません。
 
-【高校化学の質問である場合の絶対厳守ルール】
-1. 「質問ありがとうございます」「良い質問ですね」等の挨拶・前置き・結びの言葉は一切出力せず、必ず【結論】から開始すること。
-2. マークダウンの太字アスタリスク（**）は使用禁止。【結論】【解説】や 1. 2. などの見出しを使用すること。
-3. 生徒の質問に真正面から答え、抽象的な一般論は禁止。生徒の「疑問点」と「つまずいた点」のギャップを論理的に解きほぐすこと。
-4. 化学式・反応式は必ず KaTeX mhchem 記法（$ \\ce{...} $ または $$ \\ce{...} $$）で1度だけ記述すること。生テキストとの二重併記は厳禁。
-5. 分数は \\frac{分子}{分母}、日本語を含む場合は \\frac{\\text{分子}}{\\text{分母}} とすること。`;
+【ルール】
+1. 「質問ありがとうございます」等の余計な前置きは省略し、まず【結論】を端的に述べること。
+2. マークダウンの太字アスタリスク（**）は使用せず、【結論】【解説】等の見出しで構成すること。
+3. 化学式や反応式は KaTeX mhchem 記法（$ \\ce{...} $ または $$ \\ce{...} $$）を用いて正確に示すこと。
+4. 生徒のつまずきに対して、「なぜそうなるのか」のメカニズムを高校化学の範囲でわかりやすく紐解くこと。`;
 
       let prompt = '';
       if (type === 'draft') {
-        loadingText.textContent = q.imageData ? '添付写真と質問内容を解析中...' : '質問の核心を分析しドラフトを作成中...';
+        loadingText.textContent = q.imageData ? '添付写真と質問内容を解析中...' : '生徒の質問に即した解説ドラフトを作成中...';
         titleEl.innerHTML = '<span>💡 化学科教員 解説ドラフト</span>';
-        prompt = `以下の高校生の化学の質問${q.imageData ? 'および添付画像（問題集・ノートの写真）' : ''}を精査し、生徒のつまずきを解消する的確な解説を作成してください。
+        prompt = `以下の高校生の化学の質問${q.imageData ? 'および添付画像' : ''}を精査し、この生徒のつまずきをピンポイントで解決する回答を作成してください。
 
 【化学分野】: ${q.category}
 【生徒の質問・つまずき全文】:
 ${q.content}
 
-${customInstruction ? `【担当教員からの指導方針・追加指示】:\n${customInstruction}\n` : ''}
+${customInstruction ? `【担当教員からの追加指示】:\n${customInstruction}\n` : ''}
 
 【必須構成】
 【結論】
-生徒の疑問点に対するストレートな回答を1〜2行で述べる。
+生徒の疑問に対する直接の答えを1〜2行で述べる。
 
 【解説】
-生徒が「どこで誤解したのか」を指摘し、正しい原理（電子状態、共鳴、熱力学、イオン化傾向、不飽和度など）に基づいて論理的に解説する。化学式・半反応式は KaTeX mhchem で正確に示すこと。`;
+生徒がつまずいた原因を解きほぐし、正しい原理や反応式（KaTeX mhchem記法）を用いて論理的に解説する。`;
       } else if (type === 'analyze') {
-        loadingText.textContent = '生徒の思考プロセスとつまずきを分析中...';
+        loadingText.textContent = '生徒のつまずきポイントを分析中...';
         titleEl.innerHTML = '<span>🧠 つまずき分析＆指導メモ</span>';
-        prompt = `以下の高校生の質問内容から、①生徒の良い着眼点、②つまずいている根本的な概念の誤解、③教員が対面でアドバイスする際のポイントを簡潔に箇条書きで分析してください。
-【生徒の質問】:
+        prompt = `以下の生徒の質問から、つまずきの根本原因と指導助言を箇条書きでまとめてください。
+【質問内容】:
 ${q.content}
 ${customInstruction ? `\n【指示】: ${customInstruction}\n` : ''}`;
       } else if (type === 'exercise') {
-        loadingText.textContent = '理解を定着させる良質な類題を作成中...';
+        loadingText.textContent = '関連する良問を作成中...';
         titleEl.innerHTML = '<span>📝 発展問題・類題</span>';
-        prompt = `以下の質問に関連する、大学入試や定期試験で頻出の良質な練習問題1問と、模範解答・解説を作成してください。化学式は mhchem で記述すること。
+        prompt = `以下の質問に関連する類題1問と解答・解説を作成してください。化学式は mhchem で記述してください。
 【質問内容】:
 ${q.content}
 ${customInstruction ? `\n【指示】: ${customInstruction}\n` : ''}`;
@@ -1783,7 +1764,12 @@ ${customInstruction ? `\n【指示】: ${customInstruction}\n` : ''}`;
         triggerKaTeX();
       } catch (err) {
         loading.classList.add('hidden');
-        showToast('生成処理を完了できませんでした。', 'error');
+        const msg = err.message || '';
+        if (msg.includes('need_key') || msg.includes('GEMINI_API_KEY')) {
+          showToast('GASのスクリプトプロパティ「GEMINI_API_KEY」が未設定です。', 'error');
+        } else {
+          showToast(`AI生成エラー: ${msg || 'API通信に失敗しました'}`, 'error');
+        }
       }
     }
 
