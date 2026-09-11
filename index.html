@@ -37,9 +37,10 @@
 </head>
 <body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col no-horizontal-scroll">
 
+  <!-- ==================== ヘッダー ==================== -->
   <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-xs">
     <div class="max-w-6xl mx-auto px-3 sm:px-6 h-16 flex items-center justify-between gap-2">
-      <!-- タイトル＆ロゴ（スマホでも押し出されないよう縮小・省略対応） -->
+      <!-- タイトル＆ロゴ（ご指定の「ケミカルスマイルの質問部屋」に完全更新） -->
       <div class="flex items-center gap-2 sm:gap-3 min-w-0 pr-1">
         <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-cyan-600 to-blue-600 flex items-center justify-center text-white text-lg sm:text-xl shadow-xs shrink-0">🧪</div>
         <div class="min-w-0">
@@ -48,7 +49,7 @@
         </div>
       </div>
 
-      <!-- 切り替えタブ（スマホでも確実にタップ可能） -->
+      <!-- 切り替えタブ -->
       <div class="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200 shrink-0">
         <button type="button" id="navStudentBtn" onclick="switchView('student')" class="px-2.5 sm:px-3 py-1.5 text-xs sm:text-sm font-semibold rounded-lg transition-all bg-white text-blue-700 shadow-xs cursor-pointer whitespace-nowrap select-none touch-manipulation">
           生徒用
@@ -66,7 +67,7 @@
     <!-- ==================== 生徒用画面 ==================== -->
     <div id="studentSection" class="space-y-6">
       
-      <!-- 匿名性＆返信SLAバナー -->
+      <!-- 匿名性＆返信目安バナー -->
       <div class="bg-gradient-to-r from-blue-50 via-cyan-50 to-indigo-50 border border-blue-200 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row items-start gap-4 shadow-xs">
         <div class="flex-grow space-y-2">
           <div class="flex items-center gap-2">
@@ -77,7 +78,7 @@
             入力した「生徒番号」「本名」は先生の個別指導確認用です。<strong class="text-blue-800 underline decoration-blue-400">公開画面には一切掲載されません</strong>。
             回答一覧には自動発行される<span class="font-semibold text-slate-900">「質問ID（例: 0001）」と「ニックネーム」</span>のみが表示されます。
           </p>
-          <!-- 不都合発生時のGoogleフォーム案内リンク -->
+          <!-- Googleフォーム案内リンク -->
           <div class="ml-7 pt-1 flex items-center gap-1.5 text-xs text-amber-900 bg-amber-50/80 border border-amber-200/80 rounded-lg px-3 py-1.5 w-fit">
             <span class="shrink-0">⚠️</span>
             <span>何か不都合があった場合には、<a href="https://forms.gle/PthyfPpyJNrRvyf56" target="_blank" rel="noopener noreferrer" class="font-bold text-blue-600 hover:text-blue-800 underline decoration-blue-400">こちら（Googleフォーム）↗</a> からお知らせください。</span>
@@ -187,11 +188,12 @@
               <option value="in_progress">✍️ 先生が回答作成中</option>
               <option value="pending">⏳ 受付中（確認待ち）</option>
             </select>
-            <button onclick="fetchPublicQuestions(true)" class="text-xs text-blue-600 hover:text-blue-800 font-semibold flex items-center gap-1 shrink-0 touch-manipulation">
-              🔄 更新
+            <button onclick="fetchPublicQuestions(true)" class="text-xs text-blue-600 hover:text-blue-800 font-semibold flex items-center gap-1 shrink-0 touch-manipulation" title="スプレッドシートから最新データを再取得">
+              <span>🔄 更新</span>
             </button>
           </div>
         </div>
+
         <div id="publicQuestionsList" class="grid grid-cols-1 gap-5"></div>
       </div>
     </div>
@@ -232,7 +234,7 @@
         </div>
       </div>
 
-      <!-- 教員サブタブ（未完了・確認待ち vs 回答公開済み） -->
+      <!-- 教員サブタブ -->
       <div class="flex border-b border-slate-200 gap-6 text-sm font-semibold">
         <button id="teacherPendingTabBtn" onclick="switchTeacherFilter('pending')" class="pb-3 border-b-2 border-blue-600 text-blue-700 transition flex items-center gap-2 font-bold touch-manipulation">
           <span>⏳ 未完了・確認待ち</span>
@@ -248,6 +250,7 @@
     </div>
   </main>
 
+  <!-- ==================== モーダル群 ==================== -->
   <!-- 生徒から先生へのお礼・感想コメント送信モーダル -->
   <div id="studentCommentModal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 animate-fadeIn" onclick="closeStudentCommentModal()">
     <div class="bg-white w-full max-w-md rounded-2xl shadow-xl p-6 space-y-4" onclick="event.stopPropagation()">
@@ -533,7 +536,7 @@
               </div>
             </div>
 
-            <!-- APIキー未登録時の案内バナー -->
+            <!-- APIキー案内バナー -->
             <div id="apiKeyNoticeBanner" class="hidden bg-amber-50 border border-amber-200 rounded-xl p-3 text-xs text-amber-950 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
               <div class="space-y-0.5">
                 <div class="flex items-center gap-1.5 font-bold text-amber-900">
@@ -549,7 +552,7 @@
               </button>
             </div>
 
-            <!-- 先生からの個別指示・条件指定エリア -->
+            <!-- 先生からの個別指示 -->
             <div class="bg-white/80 border border-purple-200 rounded-xl p-3 space-y-2">
               <div class="flex items-center justify-between flex-wrap gap-1">
                 <label class="text-xs font-bold text-purple-950 flex items-center gap-1.5">
@@ -560,7 +563,6 @@
               </div>
               <input type="text" id="aiCustomInstructionInput" placeholder="例: 「サリチル酸メチルとの違いを比較」「短く要点重視」「入試の記述注意点」など" class="w-full px-3 py-2 text-xs rounded-lg border border-purple-200 focus:ring-2 focus:ring-purple-500 font-sans">
               
-              <!-- クイック指示タグ群 -->
               <div class="flex flex-wrap gap-1.5 pt-0.5 items-center">
                 <span class="text-[10px] font-semibold text-purple-700">ワンタップ指示:</span>
                 <button type="button" onclick="appendInstruction('高校化学の範囲に絞って分かりやすく')" class="px-2 py-0.5 text-[10px] bg-purple-100 hover:bg-purple-200 text-purple-800 rounded border border-purple-200 font-medium touch-manipulation">高校範囲に限定</button>
@@ -589,7 +591,6 @@
                   <button type="button" onclick="applyAndDirectPublish()" class="px-2.5 py-1 text-xs font-bold bg-blue-600 hover:bg-blue-700 text-white rounded transition flex items-center gap-1 shadow-xs touch-manipulation">🚀 反映して即座に公開</button>
                 </div>
               </div>
-              <!-- AI提案内容プレビュー領域 -->
               <div id="geminiOutputText" class="text-xs sm:text-sm text-slate-800 whitespace-pre-wrap leading-relaxed max-h-72 overflow-y-auto custom-scrollbar katex-target bg-purple-50/30 p-3 rounded-lg border border-purple-100"></div>
             </div>
 
@@ -650,23 +651,6 @@
     </div>
   </div>
 
-  <!-- カスタム確認ダイアログ（confirm代替） -->
-  <div id="customConfirmModal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 animate-fadeIn">
-    <div class="bg-white w-full max-w-sm rounded-2xl shadow-xl p-5 space-y-4">
-      <div class="flex items-center gap-3">
-        <div class="w-9 h-9 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center shrink-0">⚠️</div>
-        <div>
-          <h4 id="confirmDialogTitle" class="font-bold text-slate-800 text-sm">確認</h4>
-          <p id="confirmDialogMessage" class="text-xs text-slate-600 mt-0.5 leading-relaxed"></p>
-        </div>
-      </div>
-      <div class="flex gap-2 pt-2">
-        <button id="btnConfirmCancel" onclick="resolveCustomConfirm(false)" class="flex-1 py-2 border border-slate-200 text-slate-600 rounded-lg text-xs font-semibold hover:bg-slate-50 touch-manipulation">キャンセル</button>
-        <button id="btnConfirmOk" onclick="resolveCustomConfirm(true)" class="flex-1 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold touch-manipulation">実行する</button>
-      </div>
-    </div>
-  </div>
-
   <!-- トースト通知コンテナ -->
   <div id="toastContainer" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
 
@@ -701,11 +685,11 @@
     </div>
   </div>
 
+  <!-- ==================== JavaScript ロジック ==================== -->
   <script>
     // 【最重要設定】スプレッドシート（GAS）の本番デプロイURL
     window.CONFIG_GAS_URL = "https://script.google.com/macros/s/AKfycbxjIZIDd8O-N9UQ9XSvN3brIZDaybdd-k4JW459bwBAmTvL8ZXfAbC6nOfsfqEvRrS8Gw/exec";
 
-    // 有効なGASのURLを取得（PCに古いURLが残っている場合は本番URLを優先適用）
     function getEffectiveGasUrl() {
       try {
         const custom = localStorage.getItem('hs_chem_gas_url');
@@ -721,7 +705,6 @@
     }
     window.getEffectiveGasUrl = getEffectiveGasUrl;
 
-    // 日本時間 (JST) のフォーマット文字列取得
     function getClientJstDateString() {
       const now = new Date();
       return new Intl.DateTimeFormat('ja-JP', {
@@ -734,7 +717,6 @@
       }).format(now);
     }
 
-    // HTML特殊文字エスケープ
     function escapeHtml(str) {
       if (str === null || str === undefined) return '';
       return String(str)
@@ -745,7 +727,6 @@
         .replace(/'/g, '&#039;');
     }
 
-    // KaTeX および mhchem の数式レンダリング実行（確実なプレビュー描画）
     function triggerKaTeX() {
       if (typeof renderMathInElement === 'function') {
         document.querySelectorAll('.katex-target').forEach(el => {
@@ -761,7 +742,7 @@
               strict: false
             });
           } catch (err) {
-            console.warn('KaTeX render error:', err);
+            console.warn('KaTeX render notice:', err);
           }
         });
       } else {
@@ -773,7 +754,6 @@
       }
     }
 
-    // トースト通知メッセージ表示（alert 代替）
     function showToast(message, type = 'info') {
       const container = document.getElementById('toastContainer');
       if (!container) return;
@@ -782,8 +762,8 @@
                       type === 'error' ? 'bg-rose-600 text-white' :
                       type === 'warning' ? 'bg-amber-600 text-white' : 'bg-slate-800 text-white';
       const icon = type === 'success' ? '✅' : type === 'error' ? '⚠️' : type === 'warning' ? '🔔' : 'ℹ️';
-      toast.className = `${bgClass} px-4 py-2.5 rounded-xl shadow-lg text-xs font-semibold flex items-center gap-2 pointer-events-auto transform transition-all duration-300 translate-y-2 opacity-0`;
-      toast.innerHTML = `<span>${icon}</span><span class="whitespace-pre-line">${escapeHtml(message)}</span>`;
+      toast.className = `${bgClass} px-4 py-2.5 rounded-xl shadow-lg text-xs font-semibold flex items-center gap-2 pointer-events-auto transform transition-all duration-300 translate-y-2 opacity-0 max-w-md`;
+      toast.innerHTML = `<span class="shrink-0">${icon}</span><span class="whitespace-pre-line leading-relaxed">${escapeHtml(message)}</span>`;
       container.appendChild(toast);
       requestAnimationFrame(() => {
         toast.classList.remove('translate-y-2', 'opacity-0');
@@ -791,26 +771,9 @@
       setTimeout(() => {
         toast.classList.add('opacity-0', 'translate-y-2');
         setTimeout(() => toast.remove(), 300);
-      }, 3500);
+      }, 5000);
     }
 
-    // 確認ダイアログヘルパー（confirm 代替）
-    let currentConfirmCallback = null;
-    function showCustomConfirm(title, message, callback) {
-      currentConfirmCallback = callback;
-      document.getElementById('confirmDialogTitle').textContent = title;
-      document.getElementById('confirmDialogMessage').textContent = message;
-      document.getElementById('customConfirmModal').classList.remove('hidden');
-    }
-    function resolveCustomConfirm(isOk) {
-      document.getElementById('customConfirmModal').classList.add('hidden');
-      if (currentConfirmCallback) {
-        currentConfirmCallback(isOk);
-        currentConfirmCallback = null;
-      }
-    }
-
-    // 生徒番号の全角→半角自動変換
     function normalizeStudentId(el) {
       if (!el) return;
       let val = el.value.replace(/[０-９]/g, s => String.fromCharCode(s.charCodeAt(0) - 0xFEE0));
@@ -819,7 +782,6 @@
       el.value = val;
     }
 
-    // 回答作成時のリアルタイムKaTeXプレビュー更新
     function handleAnswerInputLive() {
       const input = document.getElementById('modalAnswerInput');
       const preview = document.getElementById('modalAnswerLivePreview');
@@ -845,52 +807,27 @@
       triggerKaTeX();
     }
 
-    // 化学式・数式の文字化け・重複・円マーク(¥)を綺麗に自動修復する強力フィルター
     function cleanAndFormatChemistryText(str) {
       if (!str) return '';
       let text = String(str);
-
-      // 1. 円記号 ¥ を バックスラッシュ \ に統一
       text = text.replace(/¥/g, '\\');
-
-      // 2. マークダウンの太字 **【...】** や太字の除去
       text = text.replace(/\*\*【(.*?)】\*\*/g, '【$1】');
       text = text.replace(/^\s*\*\*(.*?)\*\*\s*$/gm, '$1');
-
-      // 3. π\piπ や π\pi などのギリシャ文字重複の解消
       text = text.replace(/π\s*\\pi\s*π/g, ' $\\pi$ ');
       text = text.replace(/π\s*\\pi/g, ' $\\pi$ ');
       text = text.replace(/(?<!\$)\\pi(?!\$)/g, ' $\\pi$ ');
-
-      // 4. 「生テキスト + \ce{...} + 生テキスト」の重複パターンの解消
       text = text.replace(/[A-Za-z0-9_()+\->=]+(?:\s*[+→]\s*[A-Za-z0-9_()+\->=]+)*\s*\\ce\{([^}]+)\}\s*[A-Za-z0-9_()+\->=]+(?:\s*[+→]\s*[A-Za-z0-9_()+\->=]+)*/g, ' $\\ce{$1}$ ');
-
-      // 5. 単独で残った生テキスト+ceの重複を再チェック
       text = text.replace(/[A-Z0-9xX]+(\\ce\{.*?\})[A-Z0-9xX]+/g, '$1');
-
-      // 6. ドル記号で囲まれていない単独の \ce{...} を $\ce{...}$ に自動ラッピング
       text = text.replace(/(?<!\$)\\ce\{([^}]+)\}(?!\$)/g, ' $\\ce{$1}$ ');
-
-      // 7. ドル記号で囲まれていない \frac{...}{...} を $\frac{...}{...}$ にラッピング
       text = text.replace(/(?<!\$)\\frac\{([^{}]+)\}\{([^{}]+)\}(?!\$)/g, ' $\\frac{$1}{$2}$ ');
-
-      // 8. 連続したスペースや二重ドル記号の整形
       text = text.replace(/\$\$+/g, '$$');
-
       return text;
     }
 
-    function cleanChemicalFormatting(str) {
-      return cleanAndFormatChemistryText(str);
-    }
-
-    // エディタ内の文字化け・重複を一括修復
     function fixEditorAnswerText() {
       const input = document.getElementById('modalAnswerInput');
       if (!input) return;
-      const original = input.value;
-      const cleaned = cleanAndFormatChemistryText(original);
-      input.value = cleaned;
+      input.value = cleanAndFormatChemistryText(input.value);
       handleAnswerInputLive();
       showToast('化学式の文字化け・重複を自動修復しました！✨', 'success');
     }
@@ -989,9 +926,10 @@
         try {
           fetch(gasUrl, {
             method: 'POST',
+            mode: 'cors',
             headers: { 'Content-Type': 'text/plain;charset=utf-8' },
             body: JSON.stringify({ action: 'submitReaction', publicId: cleanPubId, reaction: type })
-          }).catch(e => console.warn('Reaction sync error:', e));
+          }).catch(e => console.warn('Reaction sync notice:', e));
         } catch (e) {}
       }
     }
@@ -1058,10 +996,8 @@
               <span class="text-xs text-slate-400">🕒 ${escapeHtml(q.createdAt || '')}</span>
             </div>
 
-            <!-- 質問文 -->
             <div class="text-sm text-slate-800 whitespace-pre-wrap katex-target leading-relaxed">${escapeHtml(q.content)}</div>
 
-            <!-- 写真サムネイル -->
             ${q.imageData ? `
               <div class="p-2.5 bg-slate-50 border border-slate-200 rounded-xl flex items-center gap-3">
                 <img src="${q.imageData}" onclick="openImageLightbox('${q.imageData}')" class="w-16 h-16 object-cover rounded-lg border border-slate-300 cursor-pointer hover:opacity-80 transition shadow-xs" title="クリックで拡大表示">
@@ -1159,37 +1095,34 @@
     }
 
     async function handleDeleteQuestion(id, publicId) {
-      showCustomConfirm("質問の削除", `質問 ID: ${publicId} を削除してもよろしいですか？`, async (isOk) => {
-        if (!isOk) return;
+      const pin = sessionStorage.getItem('teacherPin') || '1669';
+      const gasUrl = getEffectiveGasUrl();
+      const cleanPubId = String(publicId).replace(/^Q-/, '');
 
-        const pin = sessionStorage.getItem('teacherPin') || '1669';
-        const gasUrl = getEffectiveGasUrl();
-        const cleanPubId = String(publicId).replace(/^Q-/, '');
+      teacherQuestions = teacherQuestions.filter(q => q.id !== id && String(q.publicId).replace(/^Q-/, '') !== cleanPubId);
+      publicQuestions = publicQuestions.filter(q => String(q.publicId).replace(/^Q-/, '') !== cleanPubId);
 
-        teacherQuestions = teacherQuestions.filter(q => q.id !== id && String(q.publicId).replace(/^Q-/, '') !== cleanPubId);
-        publicQuestions = publicQuestions.filter(q => String(q.publicId).replace(/^Q-/, '') !== cleanPubId);
+      renderTeacherList();
+      renderPublicList();
+      showToast(`質問 ${cleanPubId} を削除しました。`, 'info');
 
-        renderTeacherList();
-        renderPublicList();
-        showToast(`質問 ${cleanPubId} を削除しました。`, 'info');
-
-        if (gasUrl) {
-          try {
-            await fetch(gasUrl, {
-              method: 'POST',
-              headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-              body: JSON.stringify({
-                action: 'deleteQuestion',
-                pin: pin,
-                id: id,
-                publicId: cleanPubId
-              })
-            });
-          } catch (e) {
-            console.warn('Delete sync notice:', e);
-          }
+      if (gasUrl) {
+        try {
+          await fetch(gasUrl, {
+            method: 'POST',
+            mode: 'cors',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify({
+              action: 'deleteQuestion',
+              pin: pin,
+              id: id,
+              publicId: cleanPubId
+            })
+          });
+        } catch (e) {
+          console.warn('Delete sync notice:', e);
         }
-      });
+      }
     }
 
     function initLocalMockData() {
@@ -1201,17 +1134,14 @@
     }
 
     function forceResetAndSync() {
-      showCustomConfirm("キャッシュ初期化", "PCのキャッシュを初期化し、本番スプレッドシートと強制同期しますか？", (isOk) => {
-        if (!isOk) return;
-        localStorage.removeItem('hs_chem_gas_url');
-        teacherQuestions = [];
-        publicQuestions = [];
-        showToast('PCの古いキャッシュを初期化し、本番スプレッドシートと同期します...', 'info');
-        checkSettingsStatus();
-        const pin = sessionStorage.getItem('teacherPin') || '1669';
-        fetchTeacherQuestions(pin);
-        fetchPublicQuestions();
-      });
+      localStorage.removeItem('hs_chem_gas_url');
+      teacherQuestions = [];
+      publicQuestions = [];
+      showToast('PCの古いキャッシュを初期化し、本番スプレッドシートと強制同期します...', 'info');
+      checkSettingsStatus();
+      const pin = sessionStorage.getItem('teacherPin') || '1669';
+      fetchTeacherQuestions(pin, true);
+      fetchPublicQuestions(true);
     }
 
     function checkSettingsStatus() {
@@ -1299,13 +1229,14 @@
       showToast('教員画面からログアウトしました。', 'info');
     }
 
-    async function safeFetchJson(url, options = {}, timeoutMs = 15000) {
+    // CORSプリフライトを確実に回避する安全な通信関数
+    async function safeFetchJson(url, options = {}, timeoutMs = 20000) {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
       
       try {
         const fetchOptions = { 
-          ...options, 
+          ...options,
           mode: 'cors',
           signal: controller.signal 
         };
@@ -1313,17 +1244,19 @@
         clearTimeout(timeoutId);
         const text = await res.text();
         
-        // Googleログイン画面などのHTMLが返ってきた場合の検知
         if (text.trim().startsWith('<!DOCTYPE') || text.includes('<html')) {
-          throw new Error('Googleのログイン画面が返されました。GASデプロイ設定の「アクセスできるユーザー」を「全員（Anyone）」に変更してください。');
+          console.warn('Google login screen detected or response blocked by GAS.');
+          throw new Error('connection_blocked');
         }
         
-        return JSON.parse(text);
+        try {
+          return JSON.parse(text);
+        } catch (parseErr) {
+          throw new Error('invalid_json');
+        }
       } catch (err) {
         clearTimeout(timeoutId);
-        if (err.name === 'AbortError') {
-          throw new Error('通信がタイムアウトしました（15秒経過）。Google Apps Scriptの応答がありません。');
-        }
+        console.warn('Network fetch issue:', err);
         throw err;
       }
     }
@@ -1341,11 +1274,12 @@
 
       if (!gasUrl) {
         renderPublicList();
+        if (isManual) showToast('通信先が設定されていません', 'error');
         return;
       }
 
       try {
-        const data = await safeFetchJson(`${gasUrl}?action=getPublicQuestions&_t=${Date.now()}`);
+        const data = await safeFetchJson(`${gasUrl}?action=getPublicQuestions&t=${Date.now()}`);
         if (data && data.status === 'success') {
           publicQuestions = (data.data || []).map(q => ({
             ...q,
@@ -1353,14 +1287,21 @@
             reactions: q.reactions || { clear: 0, good: 0, unclear: 0 }
           }));
           renderPublicList();
-          if (isManual) showToast('最新の質問一覧を更新しました', 'success');
+          if (isManual) {
+            if (publicQuestions.length === 0) {
+              showToast('現在公開中の回答は0件です。', 'info');
+            } else {
+              showToast(`最新の質問（${publicQuestions.length}件）を読み込みました！✨`, 'success');
+            }
+          }
         } else {
-          throw new Error(data?.message || 'スプレッドシートから不正なデータが返されました');
+          throw new Error('fetch_failed');
         }
       } catch (err) {
-        console.warn('GAS fetch notice:', err.message);
         renderPublicList();
-        if (isManual) showToast('データの取得に失敗しました。時間をおいて再試行してください。', 'warning');
+        if (isManual) {
+          showToast('通信エラーが発生しました。電波の良い場所で再度お試しください。', 'error');
+        }
       }
     }
 
@@ -1372,19 +1313,22 @@
       }
 
       try {
-        const data = await safeFetchJson(`${gasUrl}?action=getTeacherQuestions&pin=${encodeURIComponent(pin)}&_t=${Date.now()}`);
+        const data = await safeFetchJson(`${gasUrl}?action=getTeacherQuestions&pin=${encodeURIComponent(pin)}&t=${Date.now()}`);
         if (data && data.status === 'success') {
+          dismissConnectionBanner();
           teacherQuestions = (data.data || []).map(q => ({
             ...q,
             publicId: String(q.publicId).replace(/^Q-/, '')
           }));
           renderTeacherList();
-          if (isManual) showToast('最新の質問管理データを更新しました', 'success');
+          if (isManual) showToast(`最新の管理データ（${teacherQuestions.length}件）を更新しました`, 'success');
+        } else {
+          throw new Error(data?.message || '教員認証データの取得に失敗しました');
         }
       } catch (err) {
         console.warn('Teacher fetch notice:', err.message);
         renderTeacherList();
-        if (isManual) showToast('通信待機中です', 'warning');
+        if (isManual) showToast(`教員通信エラー: ${err.message}`, 'warning');
       }
     }
 
@@ -1476,6 +1420,7 @@
         try {
           await fetch(gasUrl, {
             method: 'POST',
+            mode: 'cors',
             headers: { 'Content-Type': 'text/plain;charset=utf-8' },
             body: JSON.stringify({
               action: 'submitComment',
@@ -1486,7 +1431,7 @@
             })
           });
         } catch (e) {
-          console.warn('Comment sync error:', e);
+          console.warn('Comment sync notice:', e);
         }
       }
 
@@ -1546,13 +1491,13 @@
           removeSelectedImage({ stopPropagation: () => {} });
           switchStudentTab('list');
           document.getElementById('searchIdInput').value = cleanId;
-          await fetchPublicQuestions();
+          await fetchPublicQuestions(true);
         } else {
-          showToast(`送信エラー: ${result.message || '投稿に失敗しました'}`, 'error');
+          showToast('送信できませんでした。しばらく経ってから再度お試しください。', 'error');
         }
       } catch (err) {
         console.error('Question submit error:', err);
-        showToast('通信エラーが発生しました。ネットワーク接続を確認してください。', 'error');
+        showToast('通信エラーが発生しました。電波の良い場所で再度お試しください。', 'error');
       } finally {
         if (submitBtn) submitBtn.disabled = false;
         if (spinner) spinner.classList.add('hidden');
@@ -1575,7 +1520,6 @@
       
       let answer = answerInputEl ? answerInputEl.value.trim() : '';
 
-      // 回答欄が空でAI提案が存在する場合は自動反映して救済
       if (!answer && lastGeneratedAiRawText && !isDraft) {
         answer = lastGeneratedAiRawText.trim();
         if (answerInputEl) answerInputEl.value = answer;
@@ -1644,15 +1588,15 @@
           updateLocalMemory();
           showToast(isDraft ? '進行ステータスを更新しました。' : '回答を承認して公開しました！✨', 'success');
           closeReviewModal();
-          fetchTeacherQuestions(pin);
-          fetchPublicQuestions();
+          fetchTeacherQuestions(pin, true);
+          fetchPublicQuestions(true);
         } else {
           showToast(`保存失敗: ${result?.message || '更新できませんでした'}`, 'error');
         }
       } catch (err) {
-        console.warn('Network or parse issue, saving locally:', err);
+        console.warn('Network issue, saving locally:', err);
         updateLocalMemory();
-        showToast(isDraft ? '通信待機のため端末内に保存しました。' : '端末内に回答を保存・公開しました。', 'info');
+        showToast(isDraft ? '通信待機のため端末内に一時保存しました。' : '端末内に回答を一時保存しました。', 'info');
         closeReviewModal();
         renderTeacherList();
         renderPublicList();
@@ -1667,7 +1611,6 @@
       const gasUrl = getEffectiveGasUrl();
       const localApiKey = localStorage.getItem('hs_chem_api_key');
 
-      // 1. GAS経由でサーバーサイド安全中継
       if (gasUrl) {
         try {
           const res = await safeFetchJson(gasUrl, {
@@ -1693,7 +1636,6 @@
         }
       }
 
-      // 2. ブラウザローカルAPIキーがある場合の直接呼び出し
       if (localApiKey && localApiKey.trim().length > 10) {
         try {
           const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${localApiKey.trim()}`;
@@ -1726,7 +1668,6 @@
         }
       }
 
-      // 3. スマート化学エンジンフォールバック
       await new Promise(r => setTimeout(r, 250));
       return getSmartChemFallback(category, content, actionType);
     }
@@ -1823,7 +1764,7 @@ ${customInstruction ? `\n【指示】: ${customInstruction}\n` : ''}`;
 
       try {
         let resultText = await callGeminiApi(prompt, systemInstruction, q.category, q.content, type, q.imageData);
-        resultText = cleanChemicalFormatting(resultText);
+        resultText = cleanAndFormatChemistryText(resultText);
         
         lastGeneratedAiRawText = resultText;
         outputText.textContent = resultText;
@@ -2164,9 +2105,8 @@ ${customInstruction ? `\n【指示】: ${customInstruction}\n` : ''}`;
                     <span class="text-[10px] bg-blue-100 text-blue-800 px-1.5 py-0.5 rounded font-medium ml-1">化学科公認</span>
                   </div>
                 </div>
-                <div class="text-sm text-slate-800 whitespace-pre-wrap katex-target leading-relaxed font-sans">${escapeHtml(q.answer)}</div>
+                <div class="text-sm text-slate-800 whitespace-pre-wrap katex-target leading-relaxed font-sans">${escapeHtml(cleanAndFormatChemistryText(q.answer))}</div>
                 
-                <!-- 生徒の理解度リアクション ＆ お礼メッセージUI -->
                 <div class="pt-3 border-t border-blue-100/80 space-y-2.5">
                   <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2.5">
                     <span class="text-xs font-bold text-slate-700 flex items-center gap-1">
@@ -2188,7 +2128,6 @@ ${customInstruction ? `\n【指示】: ${customInstruction}\n` : ''}`;
                     </div>
                   </div>
 
-                  <!-- 先生へのお礼・感想メッセージ送信バナー -->
                   <div class="bg-white/85 border border-blue-200/70 rounded-xl p-2.5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 shadow-2xs">
                     <div class="text-xs text-slate-700 flex items-center gap-2">
                       <span class="text-base">💌</span>
@@ -2239,7 +2178,7 @@ ${customInstruction ? `\n【指示】: ${customInstruction}\n` : ''}`;
       }
       closeGasModal();
       checkSettingsStatus();
-      fetchPublicQuestions();
+      fetchPublicQuestions(true);
     }
 
     function openApiModal() {
@@ -2266,7 +2205,6 @@ ${customInstruction ? `\n【指示】: ${customInstruction}\n` : ''}`;
       checkAiConnectionStatus();
     }
 
-    // 初期起動時のデータロード
     document.addEventListener('DOMContentLoaded', () => {
       initLocalMockData();
       checkSettingsStatus();
