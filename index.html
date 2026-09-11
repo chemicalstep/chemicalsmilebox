@@ -949,11 +949,18 @@
       if (!container) return;
 
       const list = teacherQuestions.filter(q => {
-        if (teacherFilter === 'pending') return q.status === 'pending' || q.status === 'in_progress';
-        return q.status === 'answered';
+        const s = String(q.status || '').trim().toLowerCase();
+        const isAnswered = s === 'answered' || s.includes('公開') || s.includes('完了');
+        if (teacherFilter === 'pending') {
+          return !isAnswered;
+        }
+        return isAnswered;
       });
 
-      const pendingCount = teacherQuestions.filter(q => q.status === 'pending' || q.status === 'in_progress').length;
+      const pendingCount = teacherQuestions.filter(q => {
+        const s = String(q.status || '').trim().toLowerCase();
+        return !(s === 'answered' || s.includes('公開') || s.includes('完了'));
+      }).length;
       const tabBadge = document.getElementById('teacherTabPendingBadge');
       const headerBadge = document.getElementById('pendingBadge');
       if (tabBadge) tabBadge.textContent = pendingCount;
@@ -971,10 +978,14 @@
       }
 
       container.innerHTML = list.map(q => {
+        const s = String(q.status || '').trim().toLowerCase();
+        const isAnswered = s === 'answered' || s.includes('公開') || s.includes('完了');
+        const isProgress = s === 'in_progress' || s.includes('作成中');
+
         let statusBadge = '';
-        if (q.status === 'answered') {
+        if (isAnswered) {
           statusBadge = '<span class="text-xs bg-emerald-100 text-emerald-800 font-bold px-2.5 py-0.5 rounded-full">✅ 公開完了</span>';
-        } else if (q.status === 'in_progress') {
+        } else if (isProgress) {
           statusBadge = '<span class="text-xs bg-cyan-100 text-cyan-800 font-bold px-2.5 py-0.5 rounded-full">✍️ 作成中</span>';
         } else {
           statusBadge = '<span class="text-xs bg-amber-100 text-amber-800 font-bold px-2.5 py-0.5 rounded-full">⏳ 確認待ち</span>';
@@ -1315,7 +1326,6 @@
       try {
         const data = await safeFetchJson(`${gasUrl}?action=getTeacherQuestions&pin=${encodeURIComponent(pin)}&t=${Date.now()}`);
         if (data && data.status === 'success') {
-          dismissConnectionBanner();
           teacherQuestions = (data.data || []).map(q => ({
             ...q,
             publicId: String(q.publicId).replace(/^Q-/, '')
