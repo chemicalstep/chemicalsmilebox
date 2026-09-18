@@ -1655,7 +1655,7 @@
       // 2. クライアント側の直接APIキー（設定されている場合）
       if (localApiKey && localApiKey.trim().length > 10) {
         try {
-          const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=${localApiKey.trim()}`;
+          const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${localApiKey.trim()}`;
           const contentsParts = [];
           if (imageData && imageData.startsWith('data:image/')) {
             const match = imageData.match(/^data:(image\/[a-zA-Z]+);base64,(.+)$/);
