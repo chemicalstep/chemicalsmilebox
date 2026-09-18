@@ -1673,7 +1673,7 @@
             body: JSON.stringify({
               system_instruction: { parts: [{ text: systemInstruction }] },
               contents: [{ parts: contentsParts }],
-              generationConfig: { temperature: 0.2, maxOutputTokens: 2048 }
+              generationConfig: { temperature: 0.2, maxOutputTokens: 1024 }
             })
           });
           const data = await res.json();
